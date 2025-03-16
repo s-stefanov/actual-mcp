@@ -25,3 +25,17 @@ export function formatDate(date: Date | string | undefined | null): string {
   const d = new Date(date);
   return d.toISOString().split("T")[0];
 }
+
+/**
+ * Format currency amounts for display
+ */
+export function formatAmount(amount: number | undefined | null): string {
+    if (amount === undefined || amount === null) return "N/A";
+    
+    // Convert from cents to dollars
+    const dollars = amount / 100;
+    return new Intl.NumberFormat('en-US', { 
+      style: 'currency', 
+      currency: 'USD' 
+    }).format(dollars);
+  }

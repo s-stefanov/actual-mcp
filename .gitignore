@@ -3,3 +3,4 @@ build/
 *.log
 .env
 data/**
+.DS_Store
