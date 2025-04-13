@@ -2,15 +2,15 @@ import { initActualApi } from "../actual-api.js";
 import api from "@actual-app/api";
 import { formatAmount } from "../utils.js";
 import { getDateRange } from "../utils.js";
-import { 
-  SpendingByCategoryArgs, 
-  Transaction, 
-  Account, 
-  Category, 
-  CategoryGroup, 
-  GroupSpending, 
+import {
+  SpendingByCategoryArgs,
+  Transaction,
+  Account,
+  Category,
+  CategoryGroup,
+  GroupSpending,
   CategorySpending,
-  CategoryGroupInfo 
+  CategoryGroupInfo,
 } from "../types.js";
 
 export const schema = {
@@ -29,11 +29,13 @@ export const schema = {
       },
       accountId: {
         type: "string",
-        description: "Optional ID of a specific account to analyze. If not provided, all on-budget accounts will be used.",
+        description:
+          "Optional ID of a specific account to analyze. If not provided, all on-budget accounts will be used.",
       },
       includeIncome: {
         type: "boolean",
-        description: "Whether to include income categories in the report (default: false)",
+        description:
+          "Whether to include income categories in the report (default: false)",
       },
     },
   },
@@ -41,18 +43,10 @@ export const schema = {
 
 export const handler = async (args: SpendingByCategoryArgs) => {
   await initActualApi();
-  
-  const {
-    startDate,
-    endDate,
-    accountId,
-    includeIncome = false,
-  } = args;
 
-  const { startDate: start, endDate: end } = getDateRange(
-    startDate,
-    endDate
-  );
+  const { startDate, endDate, accountId, includeIncome = false } = args;
+
+  const { startDate: start, endDate: end } = getDateRange(startDate, endDate);
   const accounts: Account[] = await api.getAccounts();
 
   // Get all categories
@@ -71,14 +65,27 @@ export const handler = async (args: SpendingByCategoryArgs) => {
     groupNames[group.id] = group.name;
   });
 
-  // Find category group for each category
+  // Find category group for each category and identify investment/savings categories
   const categoryToGroup: Record<string, CategoryGroupInfo> = {};
+  const investmentCategories: Set<string> = new Set();
+
   categories.forEach((cat) => {
+    const groupName = groupNames[cat.group_id] || "Unknown Group";
     categoryToGroup[cat.id] = {
       id: cat.group_id,
-      name: groupNames[cat.group_id] || "Unknown Group",
+      name: groupName,
       isIncome: !!cat.is_income,
+      isSavingsOrInvestment:
+        groupName.toLowerCase().includes("investment") ||
+        groupName.toLowerCase().includes("savings"),
     };
+
+    if (
+      groupName.toLowerCase().includes("investment") ||
+      groupName.toLowerCase().includes("savings")
+    ) {
+      investmentCategories.add(cat.id);
+    }
   });
 
   // Process all transactions
@@ -112,11 +119,8 @@ export const handler = async (args: SpendingByCategoryArgs) => {
     const categoryId: string = transaction.category;
     const categoryName: string =
       categoryNames[categoryId] || "Unknown Category";
-    const group:
-      | CategoryGroupInfo
-      | { name: string; isIncome: boolean } = categoryToGroup[
-      categoryId
-    ] || { name: "Unknown Group", isIncome: false };
+    const group: CategoryGroupInfo | { name: string; isIncome: boolean } =
+      categoryToGroup[categoryId] || { name: "Unknown Group", isIncome: false };
 
     // Skip income categories if not requested
     if (group.isIncome && !includeIncome) return;
@@ -156,9 +160,9 @@ export const handler = async (args: SpendingByCategoryArgs) => {
   });
 
   // Sort groups by absolute total (descending)
-  const sortedGroups: GroupSpending[] = Object.values(
-    spendingByGroup
-  ).sort((a, b) => Math.abs(b.total) - Math.abs(a.total));
+  const sortedGroups: GroupSpending[] = Object.values(spendingByGroup).sort(
+    (a, b) => Math.abs(b.total) - Math.abs(a.total)
+  );
 
   // Generate markdown report
   let markdown: string = `# Spending by Category\n\n`;
@@ -187,9 +191,9 @@ export const handler = async (args: SpendingByCategoryArgs) => {
     markdown += `| -------- | ------ | ------------ |\n`;
 
     group.categories.forEach((category) => {
-      markdown += `| ${category.name} | ${formatAmount(
-        category.total
-      )} | ${category.transactions} |\n`;
+      markdown += `| ${category.name} | ${formatAmount(category.total)} | ${
+        category.transactions
+      } |\n`;
     });
 
     markdown += `\n`;

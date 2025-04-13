@@ -83,6 +83,7 @@ export interface CategoryGroupInfo {
   id: string;
   name: string;
   isIncome: boolean;
+  isSavingsOrInvestment: boolean;
 }
 
 export interface CategorySpending {
@@ -104,6 +105,7 @@ export interface MonthData {
   month: number;
   income: number;
   expenses: number;
+  investments: number;
   transactions: number;
 }
 
