@@ -7,7 +7,7 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
-import { initActualApi } from "../actual-api.js";
+import { initActualApi, shutdownActualApi } from "../actual-api.js";
 import {
   GetTransactionsArgs,
   SpendingByCategoryArgs,
@@ -17,19 +17,20 @@ import {
 import {
   schema as getTransactionsSchema,
   handler as getTransactionsHandler,
-} from "./get-transactions.js";
+} from "./get-transactions/index.js";
 import {
   schema as spendingByCategorySchema,
   handler as spendingByCategoryHandler,
-} from "./spending-by-category.js";
+} from "./spending-by-category/index.js";
 import {
   schema as monthlySummarySchema,
   handler as monthlySummaryHandler,
-} from "./monthly-summary.js";
+} from "./monthly-summary/index.js";
 import {
   schema as balanceHistorySchema,
   handler as balanceHistoryHandler,
-} from "./balance-history.js";
+} from "./balance-history/index.js";
+import { error, errorFromCatch } from "../utils/response.js";
 
 export const setupTools = (server: Server) => {
   /**
@@ -67,24 +68,13 @@ export const setupTools = (server: Server) => {
         }
 
         default:
-          return {
-            isError: true,
-            content: [{ type: "text", text: `Error: Unknown tool ${name}` }],
-          };
+          return error(`Unknown tool ${name}`);
       }
     } catch (error) {
       console.error(`Error executing tool ${request.params.name}:`, error);
-      return {
-        isError: true,
-        content: [
-          {
-            type: "text",
-            text: `Error: ${
-              error instanceof Error ? error.message : String(error)
-            }`,
-          },
-        ],
-      };
+      return errorFromCatch(error);
+    } finally {
+      await shutdownActualApi();
     }
   });
 };

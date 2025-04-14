@@ -30,12 +30,26 @@ export function formatDate(date: Date | string | undefined | null): string {
  * Format currency amounts for display
  */
 export function formatAmount(amount: number | undefined | null): string {
-    if (amount === undefined || amount === null) return "N/A";
-    
-    // Convert from cents to dollars
-    const dollars = amount / 100;
-    return new Intl.NumberFormat('en-US', { 
-      style: 'currency', 
-      currency: 'USD' 
-    }).format(dollars);
-  }
+  if (amount === undefined || amount === null) return "N/A";
+
+  // Convert from cents to dollars
+  const dollars = amount / 100;
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format(dollars);
+}
+
+// Helper to calculate start/end date strings for the N most recent months
+export function getDateRangeForMonths(months: number): {
+  start: string;
+  end: string;
+} {
+  const now = new Date();
+  const end = new Date(now.getFullYear(), now.getMonth() + 1, 0); // last day of current month
+  const start = new Date(end.getFullYear(), end.getMonth() - months + 1, 1); // first day of N months ago
+  return {
+    start: start.toISOString().slice(0, 10),
+    end: end.toISOString().slice(0, 10),
+  };
+}

@@ -12,7 +12,7 @@ import api from "@actual-app/api";
 // Import types from types.ts
 import { Account, Transaction } from "./types.js";
 import { formatAmount, formatDate, getDateRange } from "./utils.js";
-import { initActualApi } from "./actual-api.js";
+import { initActualApi, shutdownActualApi } from "./actual-api.js";
 
 export const setupResources = (server: Server) => {
   /**
@@ -35,6 +35,8 @@ export const setupResources = (server: Server) => {
     } catch (error) {
       console.error("Error listing resources:", error);
       throw error;
+    } finally {
+      await shutdownActualApi();
     }
   });
 
