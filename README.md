@@ -138,3 +138,10 @@ MIT
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+## Releases
+
+Releases are automated using [Changesets](https://github.com/changesets/changesets) and GitHub Actions. On every push to `main`, a release PR is created and, once merged, a new version is published to npm and a Docker image is built and pushed to GitHub Container Registry.
+
+- To create a release, add a changeset with `npx changeset` and merge to main.
+- The release workflow will handle npm publishing and Docker image publishing automatically.

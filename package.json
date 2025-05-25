@@ -1,21 +1,23 @@
 {
-  "name": "mcp-actualbudget",
-  "version": "0.1.0",
+  "name": "@baruchiro/actual-mcp",
+  "version": "0.0.0",
   "description": "Actual Budget MCP server exposing API functionality",
-  "private": true,
-  "type": "module",
+  "private": false,
+  "main": "build/index.js",
   "bin": {
-    "mcp-actualbudget": "./build/index.js"
+    "actual-mcp": "build/index.js"
   },
   "files": [
-    "build"
+    "build",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "build": "tsc && node -e \"require('fs').chmodSync('build/index.js', '755')\"",
-    "prepare": "npm run build",
     "watch": "tsc --watch",
     "inspector": "npx @modelcontextprotocol/inspector -e ACTUAL_SERVER_URL=$ACTUAL_SERVER_URL -e ACTUAL_PASSWORD=$ACTUAL_PASSWORD -e ACTUAL_BUDGET_SYNC_ID=$ACTUAL_BUDGET_SYNC_ID node build/index.js",
-    "start": "tsx src/index.ts"
+    "start": "tsx src/index.ts",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "@actual-app/api": "^25.5.0",
@@ -27,6 +29,27 @@
     "@types/node": "^20.11.24",
     "dotenv": "^16.4.7",
     "tsx": "^4.19.4",
-    "typescript": "^5.3.3"
-  }
+    "typescript": "^5.3.3",
+    "@changesets/cli": "^2.29.4"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "homepage": "https://github.com/baruchiro/actual-mcp",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/baruchiro/actual-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/baruchiro/actual-mcp/issues"
+  },
+  "keywords": [
+    "mcp",
+    "actual-budget",
+    "budgeting",
+    "ai",
+    "model-context-protocol",
+    "actual"
+  ],
+  "author": "Baruch Odem"
 }
