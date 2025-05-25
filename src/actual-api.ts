@@ -1,7 +1,7 @@
 import api from "@actual-app/api";
+import fs from "fs";
 import path from "path";
 import { BudgetFile } from "./types.js";
-import fs from "fs";
 
 const DEFAULT_DATA_DIR: string = path.resolve(
   process.env.HOME || process.env.USERPROFILE || ".",
@@ -28,7 +28,7 @@ export async function initActualApi(): Promise<void> {
   }
 
   try {
-    console.error("Initializing Actual Budget API...");
+    console.log("Initializing Actual Budget API...");
     const dataDir = process.env.ACTUAL_DATA_DIR || DEFAULT_DATA_DIR;
     if (!fs.existsSync(dataDir)) {
       fs.mkdirSync(dataDir, { recursive: true });
