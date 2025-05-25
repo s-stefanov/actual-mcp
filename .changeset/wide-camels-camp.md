@@ -2,4 +2,4 @@
 "@baruchiro/actual-mcp": patch
 ---
 
-initial version
+Update Dockerfile ENTRYPOINT to use SSE

@@ -126,6 +126,12 @@ setupResources(server);
 setupTools(server);
 setupPrompts(server);
 
+process.on("SIGINT", () => {
+  console.log("SIGINT received, shutting down server");
+  server.close();
+  process.exit(0);
+});
+
 main().catch((error: unknown) => {
   console.error("Server error:", error);
   process.exit(1);
