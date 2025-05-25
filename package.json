@@ -14,15 +14,19 @@
     "build": "tsc && node -e \"require('fs').chmodSync('build/index.js', '755')\"",
     "prepare": "npm run build",
     "watch": "tsc --watch",
-    "inspector": "npx @modelcontextprotocol/inspector -e ACTUAL_SERVER_URL=$ACTUAL_SERVER_URL -e ACTUAL_PASSWORD=$ACTUAL_PASSWORD -e ACTUAL_BUDGET_SYNC_ID=$ACTUAL_BUDGET_SYNC_ID node build/index.js"
+    "inspector": "npx @modelcontextprotocol/inspector -e ACTUAL_SERVER_URL=$ACTUAL_SERVER_URL -e ACTUAL_PASSWORD=$ACTUAL_PASSWORD -e ACTUAL_BUDGET_SYNC_ID=$ACTUAL_BUDGET_SYNC_ID node build/index.js",
+    "start": "tsx src/index.ts"
   },
   "dependencies": {
     "@actual-app/api": "^25.3.1",
-    "@modelcontextprotocol/sdk": "0.6.0"
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "express": "^5.1.0"
   },
   "devDependencies": {
+    "@types/express": "^5.0.2",
     "@types/node": "^20.11.24",
     "dotenv": "^16.4.7",
+    "tsx": "^4.19.4",
     "typescript": "^5.3.3"
   }
 }
