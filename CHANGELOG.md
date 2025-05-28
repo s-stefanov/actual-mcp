@@ -1,5 +1,23 @@
 # @baruchiro/actual-mcp
 
+## 0.0.6
+
+### Patch Changes
+
+- c4af1e9: fix compiled libraries
+
+## 0.0.5
+
+### Patch Changes
+
+- ecfd5f7: Update Dockerfile ENTRYPOINT to use SSE
+
+## 0.0.4
+
+### Patch Changes
+
+- c9b8fce: print error when server failed to start
+
 ## 0.0.3
 
 ### Patch Changes
