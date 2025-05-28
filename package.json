@@ -1,6 +1,6 @@
 {
-  "name": "@baruchiro/actual-mcp",
-  "version": "0.0.6",
+  "name": "mcp-actualbudget",
+  "version": "0.1.0",
   "description": "Actual Budget MCP server exposing API functionality",
   "private": false,
   "main": "build/index.js",
@@ -35,13 +35,13 @@
   "publishConfig": {
     "access": "public"
   },
-  "homepage": "https://github.com/baruchiro/actual-mcp",
+  "homepage": "https://github.com/s-stefanov/actual-mcp",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/baruchiro/actual-mcp.git"
+    "url": "git+https://github.com/s-stefanov/actual-mcp.git"
   },
   "bugs": {
-    "url": "https://github.com/baruchiro/actual-mcp/issues"
+    "url": "https://github.com/s-stefanov/actual-mcp/issues"
   },
   "keywords": [
     "mcp",
@@ -50,6 +50,5 @@
     "ai",
     "model-context-protocol",
     "actual"
-  ],
-  "author": "Baruch Odem"
+  ]
 }
