@@ -1,4 +1,5 @@
 import api from "@actual-app/api";
+import fs from "fs";
 import path from "path";
 import { BudgetFile } from "./types.js";
 
@@ -27,10 +28,13 @@ export async function initActualApi(): Promise<void> {
   }
 
   try {
-    initializing = true;
-    console.error("Initializing Actual Budget API...");
+    console.log("Initializing Actual Budget API...");
+    const dataDir = process.env.ACTUAL_DATA_DIR || DEFAULT_DATA_DIR;
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+    }
     await api.init({
-      dataDir: process.env.ACTUAL_DATA_DIR || DEFAULT_DATA_DIR,
+      dataDir,
       serverURL: process.env.ACTUAL_SERVER_URL,
       password: process.env.ACTUAL_PASSWORD,
     });
@@ -48,11 +52,11 @@ export async function initActualApi(): Promise<void> {
       budgets[0].cloudFileId ||
       budgets[0].id ||
       "";
-    console.error(`Loading budget: ${budgetId}`);
+    console.log(`Loading budget: ${budgetId}`);
     await api.downloadBudget(budgetId);
 
     initialized = true;
-    console.error("Actual Budget API initialized successfully");
+    console.log("Actual Budget API initialized successfully");
   } catch (error) {
     console.error("Failed to initialize Actual Budget API:", error);
     initializationError =

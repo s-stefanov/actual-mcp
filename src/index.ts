@@ -11,12 +11,14 @@
  * - Generate financial statistics and analysis
  */
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
+import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import express, { Request, Response } from "express";
+import { parseArgs } from "node:util";
 import path from "path";
-
 import { setupPrompts } from "./prompts.js";
-import { setupTools } from "./tools/index.js";
 import { setupResources } from "./resources.js";
+import { setupTools } from "./tools/index.js";
 
 // Configuration
 const DEFAULT_DATA_DIR: string = path.resolve(
@@ -38,6 +40,20 @@ const server = new Server(
     },
   }
 );
+
+// Argument parsing
+const {
+  values: { http: useHttp, sse: useSse, port },
+} = parseArgs({
+  options: {
+    http: { type: "boolean", default: false },
+    sse: { type: "boolean", default: false },
+    port: { type: "string" },
+  },
+  allowPositionals: true,
+});
+
+const resolvedPort = port ? parseInt(port, 10) : 3000;
 
 // ----------------------------
 // SERVER STARTUP
@@ -64,10 +80,46 @@ async function main(): Promise<void> {
     );
   }
 
-  const transport = new StdioServerTransport();
-  await server.connect(transport);
+  if (useHttp) {
+    const app = express();
+    app.use(express.json());
+    // Placeholder for future HTTP transport (stateless)
+    app.post("/mcp", async (req: Request, res: Response) => {
+      res.status(501).json({ error: "HTTP transport not implemented yet" });
+    });
+    app.listen(resolvedPort, () => {
+      console.error(
+        `Actual Budget MCP Server (HTTP) started on port ${resolvedPort}`
+      );
+    });
+    return;
+  }
 
-  console.error("Actual Budget MCP Server started");
+  if (useSse) {
+    const app = express();
+    let transport: SSEServerTransport | null = null;
+    app.get("/sse", (req: Request, res: Response) => {
+      transport = new SSEServerTransport("/messages", res);
+      server.connect(transport);
+    });
+    app.post("/messages", async (req: Request, res: Response) => {
+      if (transport) {
+        await transport.handlePostMessage(req, res, req.body);
+      } else {
+        res.status(500).json({ error: "Transport not initialized" });
+      }
+    });
+    app.listen(resolvedPort, () => {
+      console.log(
+        `Actual Budget MCP Server (SSE) started on port ${resolvedPort}`
+      );
+    });
+  } else {
+    // Default: stdio
+    const transport = new StdioServerTransport();
+    await server.connect(transport);
+    console.log("Actual Budget MCP Server (stdio) started");
+  }
 }
 
 setupResources(server);
