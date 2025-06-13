@@ -26,6 +26,67 @@ The Actual Budget MCP Server allows you to interact with your personal financial
 - **`financial-insights`** - Generate insights and recommendations based on your financial data
 - **`budget-review`** - Analyze your budget compliance and suggest adjustments
 
+## Usage with Claude Desktop
+
+To use this server with Claude Desktop, add it to your Claude configuration:
+
+On MacOS:
+
+```bash
+code ~/Library/Application\ Support/Claude/claude_desktop_config.json
+```
+
+On Windows:
+
+```bash
+code %APPDATA%\Claude\claude_desktop_config.json
+```
+
+Add the following to your configuration:
+
+```json
+{
+  "mcpServers": {
+    "actualBudget": {
+      "command": "npx",
+      "args": ["-y", "actual-mcp"],
+      "env": {
+        "ACTUAL_DATA_DIR": "/path/to/your/actual/data",
+        "ACTUAL_PASSWORD": "your-password",
+        "ACTUAL_SERVER_URL": "https://your-actual-server.com",
+        "ACTUAL_BUDGET_SYNC_ID": "your-budget-id"
+      }
+    }
+  }
+}
+```
+
+```json
+{
+  "mcpServers": {
+    "actualBudget": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-it",
+        "--rm",
+        "-p",
+        "3000:3000",
+        "sstefanov/actual-mcp:latest"
+      ],
+      "env": {
+        "ACTUAL_DATA_DIR": "/path/to/your/actual/data",
+        "ACTUAL_PASSWORD": "your-password",
+        "ACTUAL_SERVER_URL": "https://your-actual-server.com",
+        "ACTUAL_BUDGET_SYNC_ID": "your-budget-id"
+      }
+    }
+  }
+}
+```
+
+After saving the configuration, restart Claude Desktop.
+
 ## Installation
 
 ### Prerequisites
@@ -68,40 +129,6 @@ export ACTUAL_PASSWORD="your-password"
 # Specific budget to use (optional)
 export ACTUAL_BUDGET_SYNC_ID="your-budget-id"
 ```
-
-## Usage with Claude Desktop
-
-To use this server with Claude Desktop, add it to your Claude configuration:
-
-On MacOS:
-
-```bash
-code ~/Library/Application\ Support/Claude/claude_desktop_config.json
-```
-
-On Windows:
-
-```bash
-code %APPDATA%\Claude\claude_desktop_config.json
-```
-
-Add the following to your configuration:
-
-```json
-{
-  "mcpServers": {
-    "actualBudget": {
-      "command": "node",
-      "args": ["/absolute/path/to/actual-mcp/build/index.js"],
-      "env": {
-        "ACTUAL_DATA_DIR": "/path/to/your/actual/data"
-      }
-    }
-  }
-}
-```
-
-After saving the configuration, restart Claude Desktop.
 
 ## Example Queries
 
