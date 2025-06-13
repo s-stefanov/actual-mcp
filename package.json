@@ -4,6 +4,7 @@
   "description": "Actual Budget MCP server exposing API functionality",
   "private": false,
   "main": "build/index.js",
+  "types": "build/index.d.ts",
   "type": "module",
   "bin": {
     "actual-mcp": "build/index.js"
@@ -51,5 +52,7 @@
     "ai",
     "model-context-protocol",
     "actual"
-  ]
+  ],
+  "author": "Stefan Stefanov",
+  "license": "MIT"
 }

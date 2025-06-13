@@ -9,23 +9,27 @@ The Actual Budget MCP Server allows you to interact with your personal financial
 ## Features
 
 ### Resources
+
 - **Account Listings** - Browse all your accounts with their balances
 - **Account Details** - View detailed information about specific accounts
 - **Transaction History** - Access transaction data with complete details
 
 ### Tools
+
 - **`get-transactions`** - Retrieve and filter transactions by account, date, amount, category, or payee
 - **`spending-by-category`** - Generate spending breakdowns categorized by type
 - **`monthly-summary`** - Get monthly income, expenses, and savings metrics
 - **`balance-history`** - View account balance changes over time
 
 ### Prompts
+
 - **`financial-insights`** - Generate insights and recommendations based on your financial data
 - **`budget-review`** - Analyze your budget compliance and suggest adjustments
 
 ## Installation
 
 ### Prerequisites
+
 - [Node.js](https://nodejs.org/) (v16 or higher)
 - [Actual Budget](https://actualbudget.com/) installed and configured
 - [Claude Desktop](https://claude.ai/download) or another MCP-compatible client
@@ -33,22 +37,26 @@ The Actual Budget MCP Server allows you to interact with your personal financial
 ### Setup
 
 1. Clone the repository:
+
 ```bash
-git clone https://github.com/s-stefanov/mcp-actualbudget.git
-cd mcp-actualbudget
+git clone https://github.com/s-stefanov/actual-mcp.git
+cd actual-mcp
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Build the server:
+
 ```bash
 npm run build
 ```
 
 4. Configure environment variables (optional):
+
 ```bash
 # Path to your Actual Budget data directory (default: ~/.actual)
 export ACTUAL_DATA_DIR="/path/to/your/actual/data"
@@ -66,22 +74,25 @@ export ACTUAL_BUDGET_SYNC_ID="your-budget-id"
 To use this server with Claude Desktop, add it to your Claude configuration:
 
 On MacOS:
+
 ```bash
 code ~/Library/Application\ Support/Claude/claude_desktop_config.json
 ```
 
 On Windows:
+
 ```bash
 code %APPDATA%\Claude\claude_desktop_config.json
 ```
 
 Add the following to your configuration:
+
 ```json
 {
   "mcpServers": {
     "actualBudget": {
       "command": "node",
-      "args": ["/absolute/path/to/actual-budget-mcp/build/index.js"],
+      "args": ["/absolute/path/to/actual-mcp/build/index.js"],
       "env": {
         "ACTUAL_DATA_DIR": "/path/to/your/actual/data"
       }
@@ -105,6 +116,7 @@ Once connected, you can ask Claude questions like:
 ## Development
 
 For development with auto-rebuild:
+
 ```bash
 npm run watch
 ```
@@ -112,6 +124,7 @@ npm run watch
 ### Testing the connection to Actual
 
 To verify the server can connect to your Actual Budget data:
+
 ```bash
 node build/index.js --test-resources
 ```
