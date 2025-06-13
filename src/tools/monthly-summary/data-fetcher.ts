@@ -1,9 +1,7 @@
-import {
-  getAccounts,
-  getCategories,
-  getTransactions,
-} from "../../actual-api.js";
-import type { Account, Category, Transaction } from "../../types.js";
+import { fetchAllAccounts } from "../../core/data/fetch-accounts.js";
+import { fetchAllCategories } from "../../core/data/fetch-categories.js";
+import { fetchTransactionsForAccount, fetchAllOnBudgetTransactions } from "../../core/data/fetch-transactions.js";
+import type { Account, Category, Transaction } from "../../core/types/domain.js";
 
 export class MonthlySummaryDataFetcher {
   /**
@@ -19,20 +17,14 @@ export class MonthlySummaryDataFetcher {
     categories: Category[];
     transactions: Transaction[];
   }> {
-    const accounts = await getAccounts();
-    const categories = await getCategories();
+    const accounts = await fetchAllAccounts();
+    const categories = await fetchAllCategories();
 
     let transactions: Transaction[] = [];
     if (accountId) {
-      transactions = await getTransactions(accountId, start, end);
+      transactions = await fetchTransactionsForAccount(accountId, start, end);
     } else {
-      const onBudgetAccounts = accounts.filter(
-        (a: Account) => !a.offbudget && !a.closed
-      );
-      for (const account of onBudgetAccounts) {
-        const tx = await getTransactions(account.id, start, end);
-        transactions = [...transactions, ...tx];
-      }
+      transactions = await fetchAllOnBudgetTransactions(accounts, start, end);
     }
 
     return { accounts, categories, transactions };

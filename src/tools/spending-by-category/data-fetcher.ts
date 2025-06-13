@@ -1,6 +1,8 @@
 // Fetches accounts, categories, groups, and transactions for spending-by-category tool
-import { getAccounts, getCategories, getCategoryGroups, getTransactions } from "../../actual-api.js";
-import type { Account, Category, CategoryGroup, Transaction } from "../../types.js";
+import { fetchAllAccounts } from "../../core/data/fetch-accounts.js";
+import { fetchAllCategories, fetchAllCategoryGroups } from "../../core/data/fetch-categories.js";
+import { fetchTransactionsForAccount, fetchAllOnBudgetTransactions } from "../../core/data/fetch-transactions.js";
+import type { Account, Category, CategoryGroup, Transaction } from "../../core/types/domain.js";
 
 export class SpendingByCategoryDataFetcher {
   /**
@@ -17,21 +19,15 @@ export class SpendingByCategoryDataFetcher {
     categoryGroups: CategoryGroup[];
     transactions: Transaction[];
   }> {
-    const accounts = await getAccounts();
-    const categories = await getCategories();
-    const categoryGroups = await getCategoryGroups();
+    const accounts = await fetchAllAccounts();
+    const categories = await fetchAllCategories();
+    const categoryGroups = await fetchAllCategoryGroups();
 
     let transactions: Transaction[] = [];
     if (accountId) {
-      transactions = await getTransactions(accountId, start, end);
+      transactions = await fetchTransactionsForAccount(accountId, start, end);
     } else {
-      const onBudgetAccounts = accounts.filter(
-        (a: Account) => !a.offbudget && !a.closed
-      );
-      for (const account of onBudgetAccounts) {
-        const tx = await getTransactions(account.id, start, end);
-        transactions = [...transactions, ...tx];
-      }
+      transactions = await fetchAllOnBudgetTransactions(accounts, start, end);
     }
     return { accounts, categories, categoryGroups, transactions };
   }

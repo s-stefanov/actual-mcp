@@ -13,6 +13,7 @@ import api from "@actual-app/api";
 import { Account, Transaction } from "./types.js";
 import { formatAmount, formatDate, getDateRange } from "./utils.js";
 import { initActualApi, shutdownActualApi } from "./actual-api.js";
+import { fetchAllAccounts } from "./core/data/fetch-accounts.js";
 
 export const setupResources = (server: Server) => {
   /**
@@ -21,7 +22,7 @@ export const setupResources = (server: Server) => {
   server.setRequestHandler(ListResourcesRequestSchema, async () => {
     try {
       await initActualApi();
-      const accounts: Account[] = await api.getAccounts();
+      const accounts: Account[] = await fetchAllAccounts();
       return {
         resources: accounts.map((account) => ({
           uri: `actual://accounts/${account.id}`,

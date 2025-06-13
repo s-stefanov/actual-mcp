@@ -1,37 +1,10 @@
 // Type definitions for Actual Budget API
-export interface Account {
-  id: string;
-  name: string;
-  type?: string;
-  offbudget?: boolean;
-  closed?: boolean;
-  balance?: number;
-}
-
-export interface Transaction {
-  id?: string;
-  account: string;
-  date: string;
-  amount: number;
-  payee?: string;
-  payee_name?: string;
-  category?: string;
-  category_name?: string;
-  notes?: string;
-}
-
-export interface Category {
-  id: string;
-  name: string;
-  group_id: string;
-  is_income?: boolean;
-}
-
-export interface CategoryGroup {
-  id: string;
-  name: string;
-  is_income?: boolean;
-}
+export {
+  Account,
+  Transaction,
+  Category,
+  CategoryGroup,
+} from "./core/types/domain.js";
 
 export interface BudgetFile {
   id?: string;

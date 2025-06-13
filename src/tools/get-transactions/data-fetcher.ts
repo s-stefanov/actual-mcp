@@ -1,6 +1,6 @@
 // Fetches transactions and related data for get-transactions tool
-import { getTransactions } from "../../actual-api.js";
-import type { Transaction } from "../../types.js";
+import { fetchTransactionsForAccount } from "../../core/data/fetch-transactions.js";
+import type { Transaction } from "../../core/types/domain.js";
 
 export class GetTransactionsDataFetcher {
   async fetch(
@@ -8,6 +8,6 @@ export class GetTransactionsDataFetcher {
     start: string,
     end: string
   ): Promise<Transaction[]> {
-    return await getTransactions(accountId, start, end);
+    return await fetchTransactionsForAccount(accountId, start, end);
   }
 }
