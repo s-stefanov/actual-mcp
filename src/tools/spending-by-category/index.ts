@@ -1,9 +1,9 @@
 // Orchestrator for spending-by-category tool
 import { SpendingByCategoryInputParser } from "./input-parser.js";
 import { SpendingByCategoryDataFetcher } from "./data-fetcher.js";
-import { SpendingByCategoryCategoryMapper } from "./category-mapper.js";
-import { SpendingByCategoryTransactionGrouper } from "./transaction-grouper.js";
-import { SpendingByCategoryGroupAggregator } from "./group-aggregator.js";
+import { CategoryMapper } from "../../core/mapping/category-mapper.js";
+import { TransactionGrouper } from "../../core/aggregation/transaction-grouper.js";
+import { GroupAggregator } from "../../core/aggregation/group-by.js";
 import { SpendingByCategoryReportGenerator } from "./report-generator.js";
 import { successWithContent, errorFromCatch } from "../../utils/response.js";
 import type { SpendingByCategoryInput } from "./input-parser.js";
@@ -43,14 +43,14 @@ export async function handler(args: any) {
     const { startDate, endDate, accountId, includeIncome } = input;
     const { accounts, categories, categoryGroups, transactions } =
       await new SpendingByCategoryDataFetcher().fetchAll(accountId, startDate, endDate);
-    const categoryMapper = new SpendingByCategoryCategoryMapper(categories, categoryGroups);
-    const spendingByCategory = new SpendingByCategoryTransactionGrouper().groupByCategory(
+    const categoryMapper = new CategoryMapper(categories, categoryGroups);
+    const spendingByCategory = new TransactionGrouper().groupByCategory(
       transactions,
       (categoryId) => categoryMapper.getCategoryName(categoryId),
       (categoryId) => categoryMapper.getGroupInfo(categoryId),
       includeIncome
     );
-    const sortedGroups = new SpendingByCategoryGroupAggregator().aggregateAndSort(spendingByCategory);
+    const sortedGroups = new GroupAggregator().aggregateAndSort(spendingByCategory);
 
     let accountLabel = "Accounts: All on-budget accounts";
     if (accountId) {
