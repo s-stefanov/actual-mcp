@@ -3,7 +3,7 @@ import { BalanceHistoryInputParser } from "./input-parser.js";
 import { BalanceHistoryDataFetcher } from "./data-fetcher.js";
 import { BalanceHistoryCalculator } from "./balance-calculator.js";
 import { BalanceHistoryReportGenerator } from "./report-generator.js";
-import { successWithContent, errorFromCatch } from "../../utils/response.js";
+import { success, errorFromCatch } from "../../utils/response.js";
 import { formatDate } from "../../utils.js";
 import type { BalanceHistoryArgs } from "./types.js";
 
@@ -26,6 +26,25 @@ export const schema = {
     },
     required: ["accountId"],
   },
+  outputSchema: {
+    type: "object",
+    description: "Balance history report response",
+    properties: {
+      content: {
+        type: "array",
+        description: "Array of content items",
+        items: {
+          type: "object",
+          properties: {
+            type: { type: "string", enum: ["text"] },
+            text: { type: "string", description: "Markdown formatted balance history report" }
+          },
+          required: ["type", "text"]
+        }
+      }
+    },
+    required: ["content"]
+  }
 };
 
 export async function handler(args: BalanceHistoryArgs) {
@@ -64,7 +83,7 @@ export async function handler(args: BalanceHistoryArgs) {
       { start, end },
       sortedMonths
     );
-    return successWithContent([{ type: "text", text: markdown }]);
+    return success(markdown);
   } catch (err) {
     return errorFromCatch(err);
   }
