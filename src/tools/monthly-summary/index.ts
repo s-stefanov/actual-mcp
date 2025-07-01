@@ -59,7 +59,7 @@ export async function handler(args: any) {
     );
     const markdown = new MonthlySummaryReportGenerator().generate(reportData);
 
-    return successWithContent([{ type: "text", text: markdown }]);
+    return successWithContent({ type: "text", text: markdown });
   } catch (err) {
     // Use the standardized error response
     // errorFromCatch is imported from ../../utils/response.js

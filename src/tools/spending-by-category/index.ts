@@ -5,7 +5,7 @@ import { CategoryMapper } from "../../core/mapping/category-mapper.js";
 import { TransactionGrouper } from "../../core/aggregation/transaction-grouper.js";
 import { GroupAggregator } from "../../core/aggregation/group-by.js";
 import { SpendingByCategoryReportGenerator } from "./report-generator.js";
-import { successWithContent, errorFromCatch } from "../../utils/response.js";
+import { success, errorFromCatch } from "../../utils/response.js";
 import type { SpendingByCategoryInput } from "./input-parser.js";
 import type { Account } from "../../types.js";
 
@@ -35,6 +35,25 @@ export const schema = {
       },
     },
   },
+  outputSchema: {
+    type: "object",
+    description: "Spending by category report response",
+    properties: {
+      content: {
+        type: "array",
+        description: "Array of content items",
+        items: {
+          type: "object",
+          properties: {
+            type: { type: "string", enum: ["text"] },
+            text: { type: "string", description: "Markdown formatted spending by category report" }
+          },
+          required: ["type", "text"]
+        }
+      }
+    },
+    required: ["content"]
+  }
 };
 
 export async function handler(args: any) {
@@ -64,7 +83,7 @@ export async function handler(args: any) {
       accountLabel,
       includeIncome
     );
-    return successWithContent([{ type: "text", text: markdown }]);
+    return success(markdown);
   } catch (err) {
     return errorFromCatch(err);
   }

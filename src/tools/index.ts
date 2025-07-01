@@ -31,6 +31,10 @@ import {
   handler as balanceHistoryHandler,
 } from "./balance-history/index.js";
 import { error, errorFromCatch } from "../utils/response.js";
+import {
+  schema as getAccountsSchema,
+  handler as getAccountsHandler,
+} from "./get-accounts/index.js";
 
 export const setupTools = (server: Server) => {
   /**
@@ -67,6 +71,10 @@ export const setupTools = (server: Server) => {
           return balanceHistoryHandler(args as unknown as BalanceHistoryArgs);
         }
 
+        case 'get-accounts': {
+          return getAccountsHandler();
+        }
+
         default:
           return error(`Unknown tool ${name}`);
       }
@@ -86,6 +94,7 @@ function toolsSchema() {
       spendingByCategorySchema,
       monthlySummarySchema,
       balanceHistorySchema,
+      getAccountsSchema,
     ],
   };
 }
