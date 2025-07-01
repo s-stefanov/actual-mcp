@@ -22,6 +22,10 @@ import { setupPrompts } from "./prompts.js";
 import { setupResources } from "./resources.js";
 import { setupTools } from "./tools/index.js";
 
+import dotenv from 'dotenv';
+dotenv.config({ path: '.env.local' });
+
+
 // Redirect logs to stderr to avoid interfering with stdio transport
 console.log = (...args: any[]) => console.error(...args);
 console.info = (...args: any[]) => console.error(...args);
