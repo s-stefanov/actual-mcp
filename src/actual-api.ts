@@ -1,11 +1,11 @@
-import api from "@actual-app/api";
-import fs from "fs";
-import path from "path";
-import { BudgetFile } from "./types.js";
+import api from '@actual-app/api';
+import fs from 'fs';
+import path from 'path';
+import { BudgetFile } from './types.js';
 
 const DEFAULT_DATA_DIR: string = path.resolve(
-  process.env.HOME || process.env.USERPROFILE || ".",
-  ".actual"
+  process.env.HOME || process.env.USERPROFILE || '.',
+  '.actual',
 );
 
 // API initialization state
@@ -28,7 +28,7 @@ export async function initActualApi(): Promise<void> {
   }
 
   try {
-    console.log("Initializing Actual Budget API...");
+    console.log('Initializing Actual Budget API...');
     const dataDir = process.env.ACTUAL_DATA_DIR || DEFAULT_DATA_DIR;
     if (!fs.existsSync(dataDir)) {
       fs.mkdirSync(dataDir, { recursive: true });
@@ -42,7 +42,7 @@ export async function initActualApi(): Promise<void> {
     const budgets: BudgetFile[] = await api.getBudgets();
     if (!budgets || budgets.length === 0) {
       throw new Error(
-        "No budgets found. Please create a budget in Actual first."
+        'No budgets found. Please create a budget in Actual first.',
       );
     }
 
@@ -51,14 +51,14 @@ export async function initActualApi(): Promise<void> {
       process.env.ACTUAL_BUDGET_SYNC_ID ||
       budgets[0].cloudFileId ||
       budgets[0].id ||
-      "";
+      '';
     console.log(`Loading budget: ${budgetId}`);
     await api.downloadBudget(budgetId);
 
     initialized = true;
-    console.log("Actual Budget API initialized successfully");
+    console.log('Actual Budget API initialized successfully');
   } catch (error) {
-    console.error("Failed to initialize Actual Budget API:", error);
+    console.error('Failed to initialize Actual Budget API:', error);
     initializationError =
       error instanceof Error ? error : new Error(String(error));
     throw initializationError;
@@ -103,7 +103,11 @@ export async function getCategoryGroups() {
 /**
  * Get transactions for a specific account and date range (ensures API is initialized)
  */
-export async function getTransactions(accountId: string, start: string, end: string) {
+export async function getTransactions(
+  accountId: string,
+  start: string,
+  end: string,
+) {
   await initActualApi();
   return api.getTransactions(accountId, start, end);
 }
