@@ -22,6 +22,11 @@ import { setupPrompts } from "./prompts.js";
 import { setupResources } from "./resources.js";
 import { setupTools } from "./tools/index.js";
 
+// Redirect logs to stderr to avoid interfering with stdio transport
+console.log = (...args: any[]) => console.error(...args);
+console.info = (...args: any[]) => console.error(...args);
+console.warn = (...args: any[]) => console.error(...args);
+
 // Configuration
 const DEFAULT_DATA_DIR: string = path.resolve(
   process.env.HOME || process.env.USERPROFILE || ".",
@@ -45,7 +50,7 @@ const server = new Server(
 
 // Argument parsing
 const {
-  values: { sse: useSse, port, 'test-resources': testResources },
+  values: { sse: useSse, port, "test-resources": testResources },
 } = parseArgs({
   options: {
     sse: { type: "boolean", default: false },
@@ -81,7 +86,7 @@ async function main(): Promise<void> {
       process.exit(1);
     }
   }
-  
+
   // Validate environment variables
   if (!process.env.ACTUAL_DATA_DIR && !process.env.ACTUAL_SERVER_URL) {
     console.error(

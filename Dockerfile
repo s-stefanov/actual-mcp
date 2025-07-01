@@ -22,4 +22,4 @@ ENV NODE_ENV=production
 RUN npm ci --omit=dev
 
 EXPOSE 3000
-ENTRYPOINT ["node", "build/index.js", "--sse"]
+ENTRYPOINT ["node", "build/index.js"]
