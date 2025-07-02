@@ -27,6 +27,10 @@ console.log = (...args: any[]) => console.error(...args);
 console.info = (...args: any[]) => console.error(...args);
 console.warn = (...args: any[]) => console.error(...args);
 
+if (process.env.MCP_MODE === "stdio") {
+  console.log = (...args) => console.error(...args);
+}
+
 // Configuration
 const DEFAULT_DATA_DIR: string = path.resolve(
   process.env.HOME || process.env.USERPROFILE || '.',
