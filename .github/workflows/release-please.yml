@@ -21,8 +21,6 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - run: npm ci
         if: ${{ steps.release.outputs.release_created }}
-      - run: npm run prepublishOnly
-        if: ${{ steps.release.outputs.release_created }}
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
@@ -38,4 +36,4 @@ jobs:
         if: ${{ steps.release.outputs.release_created }}
         with:
           push: true
-          tags: ${{ github.repository }}:${{ steps.release.outputs.tag_name }} ${{ github.repository }}:latest
+          tags: ${{ github.repository }}:${{ steps.release.outputs.tag_name }},${{ github.repository }}:latest
