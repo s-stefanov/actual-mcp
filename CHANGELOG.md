@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/s-stefanov/actual-mcp/compare/v1.0.1...v1.0.2) (2025-07-02)
+
+
+### Bug Fixes
+
+* deployment steps ([66a0311](https://github.com/s-stefanov/actual-mcp/commit/66a0311dccfa8f1cdb47052c74e21f070c0e7863))
+
 ## [1.0.1](https://github.com/s-stefanov/actual-mcp/compare/v1.0.0...v1.0.1) (2025-07-01)
 
 
