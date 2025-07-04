@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.3](https://github.com/s-stefanov/actual-mcp/compare/v1.0.2...v1.0.3) (2025-07-04)
+
+
+### Bug Fixes
+
+* update actual version to latest ([f4b18e1](https://github.com/s-stefanov/actual-mcp/commit/f4b18e13329bbf78ef498e1e200ea51dae3f9d88))
+* update response type of accounts tool. test return is correct ([3dbe79a](https://github.com/s-stefanov/actual-mcp/commit/3dbe79a665a26acea6133812f36bf8a41ac60eae))
+
 ## [1.0.2](https://github.com/s-stefanov/actual-mcp/compare/v1.0.1...v1.0.2) (2025-07-02)
 
 
