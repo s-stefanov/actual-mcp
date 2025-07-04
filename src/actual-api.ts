@@ -1,12 +1,11 @@
 import api from "@actual-app/api";
 import fs from "fs";
 import path from "path";
+import os from "os";
 import { BudgetFile } from "./types.js";
+import { APIAccountEntity } from "@actual-app/api/@types/loot-core/src/server/api-models.js";
 
-const DEFAULT_DATA_DIR: string = path.resolve(
-  process.env.HOME || process.env.USERPROFILE || ".",
-  ".actual"
-);
+const DEFAULT_DATA_DIR: string = path.resolve(os.homedir() || ".", ".actual");
 
 // API initialization state
 let initialized: boolean = false;
@@ -79,7 +78,7 @@ export async function shutdownActualApi(): Promise<void> {
 /**
  * Get all accounts (ensures API is initialized)
  */
-export async function getAccounts() {
+export async function getAccounts(): Promise<APIAccountEntity[]> {
   await initActualApi();
   return api.getAccounts();
 }
@@ -103,7 +102,11 @@ export async function getCategoryGroups() {
 /**
  * Get transactions for a specific account and date range (ensures API is initialized)
  */
-export async function getTransactions(accountId: string, start: string, end: string) {
+export async function getTransactions(
+  accountId: string,
+  start: string,
+  end: string
+) {
   await initActualApi();
   return api.getTransactions(accountId, start, end);
 }

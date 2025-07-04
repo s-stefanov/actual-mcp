@@ -4,7 +4,7 @@
 
 import { successWithJson, errorFromCatch } from "../../utils/response.js";
 import { fetchAllAccounts } from "../../core/data/fetch-accounts.js";
-import type { Account } from "../../types.js";
+import type { Account } from "../../core/types/domain.js";
 
 export const schema = {
   name: "get-accounts",
@@ -28,7 +28,6 @@ export async function handler(): Promise<
       id: account.id,
       name: account.name,
       type: account.type || "Account",
-      balance: account.balance ?? null,
       closed: account.closed,
       offBudget: account.offbudget,
     }));
