@@ -3,7 +3,7 @@ import { GetTransactionsInputParser } from "./input-parser.js";
 import { GetTransactionsDataFetcher } from "./data-fetcher.js";
 import { GetTransactionsMapper } from "./transaction-mapper.js";
 import { GetTransactionsReportGenerator } from "./report-generator.js";
-import { successWithContent, errorFromCatch } from "../../utils/response.js";
+import { success, errorFromCatch } from "../../utils/response.js";
 import { getDateRange } from "../../utils.js";
 import type { GetTransactionsArgs } from "./types.js";
 
@@ -49,6 +49,25 @@ export const schema = {
     },
     required: ["accountId"],
   },
+  outputSchema: {
+    type: "object",
+    description: "Transaction report response",
+    properties: {
+      content: {
+        type: "array",
+        description: "Array of content items",
+        items: {
+          type: "object",
+          properties: {
+            type: { type: "string", enum: ["text"] },
+            text: { type: "string", description: "Markdown formatted transaction report" }
+          },
+          required: ["type", "text"]
+        }
+      }
+    },
+    required: ["content"]
+  }
 };
 
 export async function handler(args: GetTransactionsArgs) {
@@ -116,7 +135,7 @@ export async function handler(args: GetTransactionsArgs) {
       filtered.length,
       transactions.length
     );
-    return successWithContent([{ type: "text", text: markdown }]);
+    return success(markdown);
   } catch (err) {
     return errorFromCatch(err);
   }

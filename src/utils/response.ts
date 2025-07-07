@@ -3,29 +3,42 @@
 // ----------------------------
 
 /**
- * Response content item types
+ * Standard MCP content item types
  */
 export type ContentItem = {
+  // Common properties
   type: string;
-  text: string;
+
+  // Content type-specific properties
+  text?: string; // For text content
+  mimeType?: string; // For media content
+  blob?: string; // For binary content (base64 encoded)
+  resource?: any; // For resource content
 };
 
 /**
- * Standard response structure
+ * Text content item (most common type)
+ */
+export interface TextContentItem extends ContentItem {
+  type: "text";
+  text: string;
+}
+
+/**
+ * Standard MCP response structure
  */
 export type Response = {
-  isError: boolean;
-  content: ContentItem[];
+  isError?: boolean; // Optional error flag (true for errors)
+  content: ContentItem[]; // Array of content items
 };
 
 /**
- * Create a successful response
+ * Create a successful plain text response
  * @param text - The text message
- * @returns A success response object
+ * @returns A success response object with text content
  */
 export function success(text: string): Response {
   return {
-    isError: false,
     content: [{ type: "text", text }],
   };
 }
@@ -35,10 +48,25 @@ export function success(text: string): Response {
  * @param content - Array of content items
  * @returns A success response object with provided content
  */
-export function successWithContent(content: ContentItem[]): Response {
+export function successWithContent(content: ContentItem): Response {
   return {
-    isError: false,
-    content,
+    content: [content],
+  };
+}
+
+/**
+ * Create a success response with JSON data
+ * @param data - Any data object that can be JSON-stringified
+ * @returns A success response with JSON data wrapped as a resource
+ */
+export function successWithJson<T>(data: T): Response {
+  return {
+    content: [
+      {
+        type: "text",
+        text: JSON.stringify(data),
+      },
+    ],
   };
 }
 
