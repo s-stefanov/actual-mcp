@@ -35,6 +35,14 @@ import {
   schema as getAccountsSchema,
   handler as getAccountsHandler,
 } from "./get-accounts/index.js";
+import {
+  schema as getCategoriesSchema,
+  handler as getCategoriesHandler,
+} from "./get-categories/index.js";
+import {
+  schema as getPayeesSchema,
+  handler as getPayeesHandler,
+} from "./get-payees/index.js";
 
 export const setupTools = (server: Server) => {
   /**
@@ -71,8 +79,16 @@ export const setupTools = (server: Server) => {
           return balanceHistoryHandler(args as unknown as BalanceHistoryArgs);
         }
 
-        case 'get-accounts': {
+        case "get-accounts": {
           return getAccountsHandler();
+        }
+
+        case "get-categories": {
+          return getCategoriesHandler();
+        }
+
+        case "get-payees": {
+          return getPayeesHandler();
         }
 
         default:
@@ -95,6 +111,8 @@ function toolsSchema() {
       monthlySummarySchema,
       balanceHistorySchema,
       getAccountsSchema,
+      getCategoriesSchema,
+      getPayeesSchema,
     ],
   };
 }

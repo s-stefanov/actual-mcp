@@ -56,3 +56,9 @@ export interface GroupSpending {
   categories: CategorySpending[];
 }
 
+export interface Payee {
+  id?: string;
+  name: string;
+  category?: string;
+  transfer_acct?: string;
+}

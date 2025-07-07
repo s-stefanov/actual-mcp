@@ -15,10 +15,14 @@ import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import express, { Request, Response } from "express";
 import { parseArgs } from "node:util";
+import { initActualApi, shutdownActualApi } from "./actual-api.js";
+import { fetchAllAccounts } from "./core/data/fetch-accounts.js";
 import path from "path";
 import { setupPrompts } from "./prompts.js";
 import { setupResources } from "./resources.js";
 import { setupTools } from "./tools/index.js";
+import dotenv from "dotenv";
+dotenv.config({ path: ".env.local" });
 
 // Configuration
 const DEFAULT_DATA_DIR: string = path.resolve(
@@ -44,11 +48,12 @@ const server = new Server(
 
 // Argument parsing
 const {
-  values: { sse: useSse, port },
+  values: { sse: useSse, port, "test-resources": testResources },
 } = parseArgs({
   options: {
     sse: { type: "boolean", default: false },
     port: { type: "string" },
+    "test-resources": { type: "boolean", default: false },
   },
   allowPositionals: true,
 });
@@ -61,6 +66,25 @@ const resolvedPort = port ? parseInt(port, 10) : 3000;
 
 // Start the server
 async function main(): Promise<void> {
+  // If testing resources, verify connectivity and list accounts, then exit
+  if (testResources) {
+    console.log("Testing resources...");
+    try {
+      await initActualApi();
+      const accounts = await fetchAllAccounts();
+      console.log(`Found ${accounts.length} account(s).`);
+      accounts.forEach((account) =>
+        console.log(`- ${account.id}: ${account.name}`)
+      );
+      console.log("Resource test passed.");
+      await shutdownActualApi();
+      process.exit(0);
+    } catch (error) {
+      console.error("Resource test failed:", error);
+      process.exit(1);
+    }
+  }
+
   // Validate environment variables
   if (!process.env.ACTUAL_DATA_DIR && !process.env.ACTUAL_SERVER_URL) {
     console.error(

@@ -2,7 +2,7 @@ import api from "@actual-app/api";
 import fs from "fs";
 import path from "path";
 import os from "os";
-import { BudgetFile } from "./types.js";
+import { BudgetFile, Payee } from "./types.js";
 import { APIAccountEntity } from "@actual-app/api/@types/loot-core/src/server/api-models.js";
 
 const DEFAULT_DATA_DIR: string = path.resolve(os.homedir() || ".", ".actual");
@@ -75,6 +75,10 @@ export async function shutdownActualApi(): Promise<void> {
   initialized = false;
 }
 
+// ----------------------------
+// FETCH
+// ----------------------------
+
 /**
  * Get all accounts (ensures API is initialized)
  */
@@ -100,6 +104,14 @@ export async function getCategoryGroups() {
 }
 
 /**
+ * Get all payees (ensures API is initialized)
+ */
+export async function getPayees() {
+  await initActualApi();
+  return api.getPayees();
+}
+
+/**
  * Get transactions for a specific account and date range (ensures API is initialized)
  */
 export async function getTransactions(
@@ -109,4 +121,32 @@ export async function getTransactions(
 ) {
   await initActualApi();
   return api.getTransactions(accountId, start, end);
+}
+
+// ----------------------------
+// ACTION
+// ----------------------------
+
+/**
+ * Create a new payee (ensures API is initialized)
+ */
+export async function createPayee(payee: Payee) {
+  await initActualApi();
+  return api.createPayee(payee);
+}
+
+/**
+ * Update a payee (ensures API is initialized)
+ */
+export async function updatePayee(id: string, payee: Payee) {
+  await initActualApi();
+  return api.updatePayee(id, payee);
+}
+
+/**
+ * Delete a payee (ensures API is initialized)
+ */
+export async function deletePayee(id: string) {
+  await initActualApi();
+  return api.deletePayee(id);
 }

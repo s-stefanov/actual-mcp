@@ -4,6 +4,7 @@ export {
   Transaction,
   Category,
   CategoryGroup,
+  Payee,
 } from "./core/types/domain.js";
 
 export interface BudgetFile {
