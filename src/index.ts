@@ -22,7 +22,7 @@ import { setupPrompts } from "./prompts.js";
 import { setupResources } from "./resources.js";
 import { setupTools } from "./tools/index.js";
 import dotenv from "dotenv";
-dotenv.config({ path: ".env.local" });
+dotenv.config({ path: ".env" });
 
 // Configuration
 const DEFAULT_DATA_DIR: string = path.resolve(

@@ -36,7 +36,7 @@ export async function handler(
 > {
   try {
     if (!args.id || typeof args.id !== "string") {
-      throw new Error("id is required and must be a string");
+      return errorFromCatch("id is required and must be a string");
     }
 
     await updatePayee(args.id, {
