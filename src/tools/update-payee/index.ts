@@ -1,28 +1,31 @@
 // ----------------------------
-// CREATE PAYEE TOOL
+// UPDATE PAYEE TOOL
 // ----------------------------
 
 import { successWithJson, errorFromCatch } from "../../utils/response.js";
-import { createPayee } from "../../core/actions/modify-payee.js";
+import { updatePayee } from "../../core/actions/modify-payee.js";
 import type { Payee } from "../../types.js";
 
 export const schema = {
-  name: "create-payee",
-  description: "Create a new payee",
+  name: "update-payee",
+  description: "Update a payee",
   inputSchema: {
     type: "object",
     properties: {
+      id: {
+        type: "id",
+        description: "ID of the payee",
+      },
       name: {
         type: "string",
-        description: "Name of the payee",
+        description: "New name for the payee",
       },
       transferAccount: {
         type: "string",
-        description:
-          "ID of the transfer account. Should be in UUID format. Only for transfer payees.",
+        description: "New ID for the transfer account",
       },
     },
-    required: ["name"],
+    required: ["id"],
   },
 };
 
@@ -32,12 +35,16 @@ export async function handler(
   ReturnType<typeof successWithJson> | ReturnType<typeof errorFromCatch>
 > {
   try {
-    const id: string = await createPayee({
-      name: args.name,
+    if (!args.id || typeof args.id !== "string") {
+      throw new Error("id is required and must be a string");
+    }
+
+    await updatePayee(args.id, {
+      name: args.name || undefined,
       transfer_acct: args.transfer_acct || undefined,
     });
 
-    return successWithJson(id);
+    return successWithJson("Successfully updated payee " + args.id);
   } catch (err) {
     return errorFromCatch(err);
   }

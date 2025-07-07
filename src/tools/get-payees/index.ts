@@ -26,7 +26,6 @@ export async function handler(): Promise<
     const structured = categories.map((payee) => ({
       id: payee.id,
       name: payee.name,
-      category: payee.category || "(no category)",
       transfer_acct: payee.transfer_acct || "(not a transfer payee)",
     }));
 

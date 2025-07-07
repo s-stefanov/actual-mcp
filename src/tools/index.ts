@@ -13,6 +13,7 @@ import {
   SpendingByCategoryArgs,
   MonthlySummaryArgs,
   BalanceHistoryArgs,
+  Payee,
 } from "../types.js";
 import {
   schema as getTransactionsSchema,
@@ -43,6 +44,18 @@ import {
   schema as getPayeesSchema,
   handler as getPayeesHandler,
 } from "./get-payees/index.js";
+import {
+  schema as createPayeeSchema,
+  handler as createPayeeHandler,
+} from "./create-payee/index.js";
+import {
+  schema as updatePayeeSchema,
+  handler as updatePayeeHandler,
+} from "./update-payee/index.js";
+import {
+  schema as deletePayeeSchema,
+  handler as deletePayeeHandler,
+} from "./delete-payee/index.js";
 
 export const setupTools = (server: Server) => {
   /**
@@ -91,6 +104,18 @@ export const setupTools = (server: Server) => {
           return getPayeesHandler();
         }
 
+        case "create-payee": {
+          return createPayeeHandler(args as unknown as Payee);
+        }
+
+        case "update-payee": {
+          return updatePayeeHandler(args as unknown as Payee);
+        }
+
+        case "delete-payee": {
+          return deletePayeeHandler(args as unknown as string);
+        }
+
         default:
           return error(`Unknown tool ${name}`);
       }
@@ -113,6 +138,9 @@ function toolsSchema() {
       getAccountsSchema,
       getCategoriesSchema,
       getPayeesSchema,
+      createPayeeSchema,
+      updatePayeeSchema,
+      deletePayeeSchema,
     ],
   };
 }
