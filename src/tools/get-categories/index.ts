@@ -21,7 +21,9 @@ export const schema = {
   },
 };
 
-export async function handler(): Promise<
+export async function handler(
+  args: unknown
+): Promise<
   ReturnType<typeof successWithJson> | ReturnType<typeof errorFromCatch>
 > {
   try {

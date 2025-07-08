@@ -2,8 +2,8 @@
 // DELETE PAYEE TOOL
 // ----------------------------
 
+import { deletePayee } from "../../actual-api.js";
 import { successWithJson, errorFromCatch } from "../../utils/response.js";
-import { deletePayee } from "../../core/actions/modify-payee.js";
 
 export const schema = {
   name: "delete-payee",

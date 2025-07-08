@@ -3,8 +3,8 @@
 // ----------------------------
 
 import { successWithJson, errorFromCatch } from "../../utils/response.js";
-import { createPayee } from "../../core/actions/modify-payee.js";
 import type { Payee } from "../../types.js";
+import { createPayee } from "../../actual-api.js";
 
 export const schema = {
   name: "create-payee",

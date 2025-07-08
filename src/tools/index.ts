@@ -8,60 +8,39 @@ import {
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import { initActualApi, shutdownActualApi } from "../actual-api.js";
-import {
-  GetTransactionsArgs,
-  SpendingByCategoryArgs,
-  MonthlySummaryArgs,
-  BalanceHistoryArgs,
-  Payee,
-} from "../types.js";
-import {
-  schema as getTransactionsSchema,
-  handler as getTransactionsHandler,
-} from "./get-transactions/index.js";
-import {
-  schema as spendingByCategorySchema,
-  handler as spendingByCategoryHandler,
-} from "./spending-by-category/index.js";
-import {
-  schema as monthlySummarySchema,
-  handler as monthlySummaryHandler,
-} from "./monthly-summary/index.js";
-import {
-  schema as balanceHistorySchema,
-  handler as balanceHistoryHandler,
-} from "./balance-history/index.js";
 import { error, errorFromCatch } from "../utils/response.js";
-import {
-  schema as getAccountsSchema,
-  handler as getAccountsHandler,
-} from "./get-accounts/index.js";
-import {
-  schema as getCategoriesSchema,
-  handler as getCategoriesHandler,
-} from "./get-categories/index.js";
-import {
-  schema as getPayeesSchema,
-  handler as getPayeesHandler,
-} from "./get-payees/index.js";
-import {
-  schema as createPayeeSchema,
-  handler as createPayeeHandler,
-} from "./create-payee/index.js";
-import {
-  schema as updatePayeeSchema,
-  handler as updatePayeeHandler,
-} from "./update-payee/index.js";
-import {
-  schema as deletePayeeSchema,
-  handler as deletePayeeHandler,
-} from "./delete-payee/index.js";
+
+import * as getTransactions from "./get-transactions/index.js";
+import * as spendingByCategory from "./spending-by-category/index.js";
+import * as monthlySummary from "./monthly-summary/index.js";
+import * as balanceHistory from "./balance-history/index.js";
+import * as getAccounts from "./get-accounts/index.js";
+import * as getCategories from "./get-categories/index.js";
+import * as getPayees from "./get-payees/index.js";
+import * as createPayee from "./create-payee/index.js";
+import * as updatePayee from "./update-payee/index.js";
+import * as deletePayee from "./delete-payee/index.js";
+
+const allTools = [
+  getTransactions,
+  spendingByCategory,
+  monthlySummary,
+  balanceHistory,
+  getAccounts,
+  getCategories,
+  getPayees,
+  createPayee,
+  updatePayee,
+  deletePayee,
+];
 
 export const setupTools = (server: Server) => {
   /**
    * Handler for listing available tools
    */
-  server.setRequestHandler(ListToolsRequestSchema, toolsSchema);
+  server.setRequestHandler(ListToolsRequestSchema, () => ({
+    tools: allTools.map((tool) => tool.schema),
+  }));
 
   /**
    * Handler for calling tools
@@ -71,76 +50,17 @@ export const setupTools = (server: Server) => {
       await initActualApi();
       const { name, arguments: args } = request.params;
 
-      // Execute the requested tool
-      switch (name) {
-        case "get-transactions": {
-          // TODO: Validate against schema
-          return getTransactionsHandler(args as unknown as GetTransactionsArgs);
-        }
-
-        case "spending-by-category": {
-          return spendingByCategoryHandler(
-            args as unknown as SpendingByCategoryArgs
-          );
-        }
-
-        case "monthly-summary": {
-          return monthlySummaryHandler(args as unknown as MonthlySummaryArgs);
-        }
-
-        case "balance-history": {
-          return balanceHistoryHandler(args as unknown as BalanceHistoryArgs);
-        }
-
-        case "get-accounts": {
-          return getAccountsHandler();
-        }
-
-        case "get-categories": {
-          return getCategoriesHandler();
-        }
-
-        case "get-payees": {
-          return getPayeesHandler();
-        }
-
-        case "create-payee": {
-          return createPayeeHandler(args as unknown as Payee);
-        }
-
-        case "update-payee": {
-          return updatePayeeHandler(args as unknown as Payee);
-        }
-
-        case "delete-payee": {
-          return deletePayeeHandler(args as unknown as string);
-        }
-
-        default:
-          return error(`Unknown tool ${name}`);
+      const tool = allTools.find((t) => t.schema.name === name);
+      if (!tool) {
+        return error(`Unknown tool ${name}`);
       }
-    } catch (error) {
-      console.error(`Error executing tool ${request.params.name}:`, error);
-      return errorFromCatch(error);
+
+      return tool.handler(args);
+    } catch (err) {
+      console.error(`Error executing tool ${request.params.name}:`, err);
+      return errorFromCatch(err);
     } finally {
       await shutdownActualApi();
     }
   });
 };
-
-function toolsSchema() {
-  return {
-    tools: [
-      getTransactionsSchema,
-      spendingByCategorySchema,
-      monthlySummarySchema,
-      balanceHistorySchema,
-      getAccountsSchema,
-      getCategoriesSchema,
-      getPayeesSchema,
-      createPayeeSchema,
-      updatePayeeSchema,
-      deletePayeeSchema,
-    ],
-  };
-}

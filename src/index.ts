@@ -15,13 +15,14 @@ import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import express, { Request, Response } from "express";
 import { parseArgs } from "node:util";
-import { initActualApi, shutdownActualApi } from "./actual-api.js";
+import { initActualApi, shutdownActualApi, updatePayee } from "./actual-api.js";
 import { fetchAllAccounts } from "./core/data/fetch-accounts.js";
 import path from "path";
 import { setupPrompts } from "./prompts.js";
 import { setupResources } from "./resources.js";
 import { setupTools } from "./tools/index.js";
 import dotenv from "dotenv";
+import { fetchAllPayees } from "./core/data/fetch-payees.js";
 dotenv.config({ path: ".env" });
 
 // Configuration
@@ -48,12 +49,18 @@ const server = new Server(
 
 // Argument parsing
 const {
-  values: { sse: useSse, port, "test-resources": testResources },
+  values: {
+    sse: useSse,
+    port,
+    "test-resources": testResources,
+    "test-custom": testCustom,
+  },
 } = parseArgs({
   options: {
     sse: { type: "boolean", default: false },
     port: { type: "string" },
     "test-resources": { type: "boolean", default: false },
+    "test-custom": { type: "boolean", default: false },
   },
   allowPositionals: true,
 });
@@ -82,6 +89,23 @@ async function main(): Promise<void> {
     } catch (error) {
       console.error("Resource test failed:", error);
       process.exit(1);
+    }
+  }
+
+  if (testCustom) {
+    console.log("Initializing custom test...");
+    try {
+      await initActualApi();
+
+      // Custom test here
+
+      // ----------------
+
+      console.log("Custom test passed.");
+      await shutdownActualApi();
+      process.exit(0);
+    } catch (error) {
+      console.error("Custom test failed:", error);
     }
   }
 

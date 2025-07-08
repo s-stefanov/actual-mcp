@@ -3,8 +3,8 @@
 // ----------------------------
 
 import { successWithJson, errorFromCatch } from "../../utils/response.js";
-import { updatePayee } from "../../core/actions/modify-payee.js";
 import type { Payee } from "../../types.js";
+import { updatePayee } from "../../actual-api.js";
 
 export const schema = {
   name: "update-payee",
@@ -39,10 +39,14 @@ export async function handler(
       return errorFromCatch("id is required and must be a string");
     }
 
-    await updatePayee(args.id, {
-      name: args.name || undefined,
-      transfer_acct: args.transfer_acct || undefined,
-    });
+    const updateData: Record<string, unknown> = {};
+    if (args.name) {
+      updateData.name = args.name;
+    }
+    if (args.transfer_acct) {
+      updateData.transfer_acct = args.transfer_acct;
+    }
+    await updatePayee(args.id, updateData);
 
     return successWithJson("Successfully updated payee " + args.id);
   } catch (err) {

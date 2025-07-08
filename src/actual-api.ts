@@ -2,7 +2,7 @@ import api from "@actual-app/api";
 import fs from "fs";
 import path from "path";
 import os from "os";
-import { BudgetFile, Payee } from "./types.js";
+import { BudgetFile } from "./types.js";
 import { APIAccountEntity } from "@actual-app/api/@types/loot-core/src/server/api-models.js";
 
 const DEFAULT_DATA_DIR: string = path.resolve(os.homedir() || ".", ".actual");
@@ -130,7 +130,7 @@ export async function getTransactions(
 /**
  * Create a new payee (ensures API is initialized)
  */
-export async function createPayee(payee: Payee) {
+export async function createPayee(payee: Record<string, unknown>) {
   await initActualApi();
   return api.createPayee(payee);
 }
@@ -138,7 +138,7 @@ export async function createPayee(payee: Payee) {
 /**
  * Update a payee (ensures API is initialized)
  */
-export async function updatePayee(id: string, payee: Payee) {
+export async function updatePayee(id: string, payee: Record<string, unknown>) {
   await initActualApi();
   return api.updatePayee(id, payee);
 }
