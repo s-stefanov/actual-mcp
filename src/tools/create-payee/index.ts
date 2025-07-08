@@ -3,7 +3,6 @@
 // ----------------------------
 
 import { successWithJson, errorFromCatch } from "../../utils/response.js";
-import type { Payee } from "../../types.js";
 import { createPayee } from "../../actual-api.js";
 
 export const schema = {
@@ -27,15 +26,21 @@ export const schema = {
 };
 
 export async function handler(
-  args: Payee
+  args: Record<string, unknown>
 ): Promise<
   ReturnType<typeof successWithJson> | ReturnType<typeof errorFromCatch>
 > {
   try {
-    const id: string = await createPayee({
-      name: args.name,
-      transfer_acct: args.transfer_acct || undefined,
-    });
+    if (!args.name || typeof args.name !== "string") {
+      return errorFromCatch("name is required and must be a string");
+    }
+
+    const data: Record<string, unknown> = { name: args.name };
+    if (args.transferAccount) {
+      data.transfer_acct = args.transferAccount;
+    }
+
+    const id: string = await createPayee(data);
 
     return successWithJson(id);
   } catch (err) {

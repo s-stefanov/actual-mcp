@@ -12,8 +12,8 @@ export const schema = {
     type: "object",
     properties: {
       id: {
-        type: "id",
-        description: "ID of the payee",
+        type: "string",
+        description: "ID of the payee. Should be in UUID format.",
       },
     },
     required: ["id"],
@@ -27,7 +27,7 @@ export async function handler(
 > {
   try {
     if (!id || typeof id !== "string") {
-      throw new Error("id is required and must be a string");
+      return errorFromCatch("id is required and must be a string");
     }
 
     await deletePayee(id);

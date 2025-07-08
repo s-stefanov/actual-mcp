@@ -15,14 +15,13 @@ import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import express, { Request, Response } from "express";
 import { parseArgs } from "node:util";
-import { initActualApi, shutdownActualApi, updatePayee } from "./actual-api.js";
+import { initActualApi, shutdownActualApi } from "./actual-api.js";
 import { fetchAllAccounts } from "./core/data/fetch-accounts.js";
 import path from "path";
 import { setupPrompts } from "./prompts.js";
 import { setupResources } from "./resources.js";
 import { setupTools } from "./tools/index.js";
 import dotenv from "dotenv";
-import { fetchAllPayees } from "./core/data/fetch-payees.js";
 dotenv.config({ path: ".env" });
 
 // Configuration

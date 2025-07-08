@@ -130,17 +130,17 @@ export async function getTransactions(
 /**
  * Create a new payee (ensures API is initialized)
  */
-export async function createPayee(payee: Record<string, unknown>) {
+export async function createPayee(args: Record<string, unknown>) {
   await initActualApi();
-  return api.createPayee(payee);
+  return api.createPayee(args);
 }
 
 /**
  * Update a payee (ensures API is initialized)
  */
-export async function updatePayee(id: string, payee: Record<string, unknown>) {
+export async function updatePayee(id: string, args: Record<string, unknown>) {
   await initActualApi();
-  return api.updatePayee(id, payee);
+  return api.updatePayee(id, args);
 }
 
 /**

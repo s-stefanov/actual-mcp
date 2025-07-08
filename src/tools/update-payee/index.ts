@@ -3,7 +3,6 @@
 // ----------------------------
 
 import { successWithJson, errorFromCatch } from "../../utils/response.js";
-import type { Payee } from "../../types.js";
 import { updatePayee } from "../../actual-api.js";
 
 export const schema = {
@@ -13,8 +12,8 @@ export const schema = {
     type: "object",
     properties: {
       id: {
-        type: "id",
-        description: "ID of the payee",
+        type: "string",
+        description: "ID of the payee. Should be in UUID format.",
       },
       name: {
         type: "string",
@@ -30,7 +29,7 @@ export const schema = {
 };
 
 export async function handler(
-  args: Payee
+  args: Record<string, unknown>
 ): Promise<
   ReturnType<typeof successWithJson> | ReturnType<typeof errorFromCatch>
 > {
@@ -39,14 +38,15 @@ export async function handler(
       return errorFromCatch("id is required and must be a string");
     }
 
-    const updateData: Record<string, unknown> = {};
+    const data: Record<string, unknown> = {};
     if (args.name) {
-      updateData.name = args.name;
+      data.name = args.name;
     }
-    if (args.transfer_acct) {
-      updateData.transfer_acct = args.transfer_acct;
+    if (args.transferAccount) {
+      data.transfer_acct = args.transferAccount;
     }
-    await updatePayee(args.id, updateData);
+
+    await updatePayee(args.id, data);
 
     return successWithJson("Successfully updated payee " + args.id);
   } catch (err) {
