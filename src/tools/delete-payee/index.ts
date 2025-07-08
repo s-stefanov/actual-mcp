@@ -9,8 +9,14 @@ export const schema = {
   name: "delete-payee",
   description: "Delete a payee",
   inputSchema: {
-    type: "string",
-    description: "ID of the payee",
+    type: "object",
+    properties: {
+      id: {
+        type: "id",
+        description: "ID of the payee",
+      },
+    },
+    required: ["id"],
   },
 };
 

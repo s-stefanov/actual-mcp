@@ -30,7 +30,7 @@
     "@changesets/cli": "^2.29.4",
     "@types/express": "^5.0.2",
     "@types/node": "^20.11.24",
-    "dotenv": "^16.4.7",
+    "dotenv": "^16.6.1",
     "tsx": "^4.19.4",
     "typescript": "^5.3.3"
   },

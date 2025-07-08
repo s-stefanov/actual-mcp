@@ -3,6 +3,7 @@ export * from "./input/argument-parser.js";
 export * from "./input/validators.js";
 export * from "./data/fetch-accounts.js";
 export * from "./data/fetch-categories.js";
+export * from "./data/fetch-payees.js";
 export * from "./data/fetch-transactions.js";
 export * from "./aggregation/group-by.js";
 export * from "./aggregation/sum-by.js";
