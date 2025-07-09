@@ -21,18 +21,18 @@ export const schema = {
 };
 
 export async function handler(
-  id: string
+  args: Record<string, unknown>
 ): Promise<
   ReturnType<typeof successWithJson> | ReturnType<typeof errorFromCatch>
 > {
   try {
-    if (!id || typeof id !== "string") {
+    if (!args.id || typeof args.id !== "string") {
       return errorFromCatch("id is required and must be a string");
     }
 
-    await deletePayee(id);
+    await deletePayee(args.id);
 
-    return successWithJson("Successfully deleted payee " + id);
+    return successWithJson("Successfully deleted payee " + args.id);
   } catch (err) {
     return errorFromCatch(err);
   }
