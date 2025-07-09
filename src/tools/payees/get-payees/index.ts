@@ -2,9 +2,9 @@
 // GET PAYEES TOOL
 // ----------------------------
 
-import { successWithJson, errorFromCatch } from "../../utils/response.js";
-import { fetchAllPayees } from "../../core/data/fetch-payees.js";
-import type { Payee } from "../../types.js";
+import { successWithJson, errorFromCatch } from "../../../utils/response.js";
+import { fetchAllPayees } from "../../../core/data/fetch-payees.js";
+import type { Payee } from "../../../types.js";
 
 export const schema = {
   name: "get-payees",

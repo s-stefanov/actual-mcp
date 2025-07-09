@@ -2,8 +2,8 @@
 // CREATE PAYEE TOOL
 // ----------------------------
 
-import { successWithJson, errorFromCatch } from "../../utils/response.js";
-import { createPayee } from "../../actual-api.js";
+import { successWithJson, errorFromCatch } from "../../../utils/response.js";
+import { createPayee } from "../../../actual-api.js";
 
 export const schema = {
   name: "create-payee",

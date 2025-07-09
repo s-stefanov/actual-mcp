@@ -16,10 +16,14 @@ import * as monthlySummary from "./monthly-summary/index.js";
 import * as balanceHistory from "./balance-history/index.js";
 import * as getAccounts from "./get-accounts/index.js";
 import * as getCategories from "./get-categories/index.js";
-import * as getPayees from "./get-payees/index.js";
-import * as createPayee from "./create-payee/index.js";
-import * as updatePayee from "./update-payee/index.js";
-import * as deletePayee from "./delete-payee/index.js";
+import * as getPayees from "./payees/get-payees/index.js";
+import * as createPayee from "./payees/create-payee/index.js";
+import * as updatePayee from "./payees/update-payee/index.js";
+import * as deletePayee from "./payees/delete-payee/index.js";
+import * as getRules from "./rules/get-rules/index.js";
+import * as createRule from "./rules/create-rule/index.js";
+import * as updateRule from "./rules/update-rule/index.js";
+import * as deleteRule from "./rules/delete-rule/index.js";
 
 const allTools = [
   getTransactions,
@@ -32,6 +36,10 @@ const allTools = [
   createPayee,
   updatePayee,
   deletePayee,
+  getRules,
+  createRule,
+  updateRule,
+  deleteRule,
 ];
 
 export const setupTools = (server: Server) => {

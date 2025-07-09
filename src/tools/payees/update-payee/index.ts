@@ -2,8 +2,8 @@
 // UPDATE PAYEE TOOL
 // ----------------------------
 
-import { successWithJson, errorFromCatch } from "../../utils/response.js";
-import { updatePayee } from "../../actual-api.js";
+import { successWithJson, errorFromCatch } from "../../../utils/response.js";
+import { updatePayee } from "../../../actual-api.js";
 
 export const schema = {
   name: "update-payee",

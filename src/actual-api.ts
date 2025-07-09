@@ -123,6 +123,14 @@ export async function getTransactions(
   return api.getTransactions(accountId, start, end);
 }
 
+/**
+ * Get all rules (ensures API is initialized)
+ */
+export async function getRules() {
+  await initActualApi();
+  return api.getRules();
+}
+
 // ----------------------------
 // ACTION
 // ----------------------------
@@ -149,4 +157,28 @@ export async function updatePayee(id: string, args: Record<string, unknown>) {
 export async function deletePayee(id: string) {
   await initActualApi();
   return api.deletePayee(id);
+}
+
+/**
+ * Create a new rule (ensures API is initialized)
+ */
+export async function createRule(args: Record<string, unknown>) {
+  await initActualApi();
+  return api.createRule(args);
+}
+
+/**
+ * Update a rule (ensures API is initialized)
+ */
+export async function updateRule(args: Record<string, unknown>) {
+  await initActualApi();
+  return api.updateRule(args);
+}
+
+/**
+ * Delete a rule (ensures API is initialized)
+ */
+export async function deleteRule(id: string) {
+  await initActualApi();
+  return api.deleteRule(id);
 }

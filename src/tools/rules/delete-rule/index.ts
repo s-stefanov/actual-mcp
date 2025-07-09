@@ -1,19 +1,19 @@
 // ----------------------------
-// DELETE PAYEE TOOL
+// DELETE RULE TOOL
 // ----------------------------
 
-import { deletePayee } from "../../actual-api.js";
-import { successWithJson, errorFromCatch } from "../../utils/response.js";
+import { deleteRule } from "../../../actual-api.js";
+import { successWithJson, errorFromCatch } from "../../../utils/response.js";
 
 export const schema = {
-  name: "delete-payee",
-  description: "Delete a payee",
+  name: "delete-rule",
+  description: "Delete a rule",
   inputSchema: {
     type: "object",
     properties: {
       id: {
         type: "string",
-        description: "ID of the payee. Should be in UUID format.",
+        description: "ID of the rule. Should be in UUID format.",
       },
     },
     required: ["id"],
@@ -30,9 +30,9 @@ export async function handler(
       return errorFromCatch("id is required and must be a string");
     }
 
-    await deletePayee(args.id);
+    await deleteRule(args.id);
 
-    return successWithJson("Successfully deleted payee " + args.id);
+    return successWithJson("Successfully deleted rule " + args.id);
   } catch (err) {
     return errorFromCatch(err);
   }
