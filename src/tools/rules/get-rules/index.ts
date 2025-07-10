@@ -8,7 +8,8 @@ import { fetchAllRules } from "../../../core/data/fetch-rules.js";
 
 export const schema = {
   name: "get-rules",
-  description: "Retrieve a list of all rules.",
+  description:
+    "Retrieve a list of all rules. PS amount comes in cents: positive for deposit, negative for payment",
   inputSchema: {
     type: "object",
     description: "This tool does not accept any arguments.",
