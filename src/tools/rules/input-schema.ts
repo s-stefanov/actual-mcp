@@ -99,13 +99,17 @@ export const RuleInputSchema = {
           },
           value: {
             type: ["boolean", "string", "number", "null"],
-            description: `Action value. Format depends on field type:
+            description: `Action value. For regular actions depends on field type:
               account, category, payee: ID in UUID format,
               date: YYYY-MM-DD format,
-              amount: number,
+              amount: number (in cents: positive for deposit, negative for payment),
               cleared: boolean,
               notes: string.
-              Use null for 'remainder' split actions actions.`,
+              For split actions depends on method:
+              remainder: null,
+              fixed-amount: number (in cents: positive for deposit, negative for payment),
+              fixed-percent: number (0-100).
+              `,
           },
           options: {
             type: "object",

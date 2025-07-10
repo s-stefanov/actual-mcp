@@ -117,6 +117,8 @@ code %APPDATA%\Claude\claude_desktop_config.json
 
 Add the following to your configuration:
 
+_(data_dir optional)_
+
 ```json
 {
   "mcpServers": {
@@ -124,6 +126,7 @@ Add the following to your configuration:
       "command": "node",
       "args": ["/path/to/your/clone/build/index.js"],
       "env": {
+        "ACTUAL_DATA_DIR": "path/to/your/data",
         "ACTUAL_PASSWORD": "your-password",
         "ACTUAL_SERVER_URL": "http://your-actual-server.com",
         "ACTUAL_BUDGET_SYNC_ID": "your-budget-id"
@@ -142,9 +145,14 @@ Add the following to your configuration:
         "run",
         "-i",
         "--rm",
-        "-e", "ACTUAL_PASSWORD=your-password",
-        "-e", "ACTUAL_SERVER_URL=http://your-actual-server.com",
-        "-e", "ACTUAL_BUDGET_SYNC_ID=your-budget-id",
+        "-v",
+        "/path/to/your/data:/data",
+        "-e",
+        "ACTUAL_PASSWORD=your-password",
+        "-e",
+        "ACTUAL_SERVER_URL=http://your-actual-server.com",
+        "-e",
+        "ACTUAL_BUDGET_SYNC_ID=your-budget-id",
         "adomas399/actual-mcp:latest"
       ]
     }

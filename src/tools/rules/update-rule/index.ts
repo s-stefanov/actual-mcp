@@ -3,9 +3,8 @@
 // ----------------------------
 
 import { successWithJson, errorFromCatch } from "../../../utils/response.js";
-import { createRule, updateRule } from "../../../actual-api.js";
+import { updateRule } from "../../../actual-api.js";
 import { RuleInputSchema } from "../input-schema.js";
-import { Rule } from "../../../types.js";
 
 export const schema = {
   name: "update-rule",
