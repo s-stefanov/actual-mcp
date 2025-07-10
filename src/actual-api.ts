@@ -1,11 +1,9 @@
 import api from "@actual-app/api";
 import fs from "fs";
-import path from "path";
-import os from "os";
 import { BudgetFile } from "./types.js";
 import { APIAccountEntity } from "@actual-app/api/@types/loot-core/src/server/api-models.js";
 
-const DEFAULT_DATA_DIR: string = path.resolve(os.homedir() || ".", ".actual");
+const DEFAULT_DATA_DIR: string = "/data";
 
 // API initialization state
 let initialized: boolean = false;
