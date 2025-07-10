@@ -1,31 +1,30 @@
 // ----------------------------
-// UPDATE PAYEE TOOL
+// UPDATE CATEGORY TOOL
 // ----------------------------
 
 import { successWithJson, errorFromCatch } from "../../../utils/response.js";
-import { updatePayee } from "../../../actual-api.js";
+import { updateCategory } from "../../../actual-api.js";
 
 export const schema = {
-  name: "update-payee",
-  description: "Update a payee",
+  name: "update-category",
+  description: "Update a category",
   inputSchema: {
     type: "object",
     properties: {
       id: {
         type: "string",
-        description: "ID of the payee. Should be in UUID format.",
+        description: "ID of the category. Should be in UUID format.",
       },
       name: {
         type: "string",
-        description: "New name for the payee",
+        description: "New name for the category. If not changing, repeat.",
       },
-      transferAccount: {
+      groupId: {
         type: "string",
-        description:
-          "New ID for the transfer account. Should be in UUID format.",
+        description: "New ID for the category group. Should be in UUID format.",
       },
     },
-    required: ["id"],
+    required: ["id", "name"],
   },
 };
 
@@ -43,13 +42,13 @@ export async function handler(
     if (args.name) {
       data.name = args.name;
     }
-    if (args.transferAccount) {
-      data.transfer_acct = args.transferAccount;
+    if (args.groupId) {
+      data.group_id = args.groupId;
     }
 
-    await updatePayee(args.id, data);
+    await updateCategory(args.id, data);
 
-    return successWithJson("Successfully updated payee " + args.id);
+    return successWithJson("Successfully updated category " + args.id);
   } catch (err) {
     return errorFromCatch(err);
   }

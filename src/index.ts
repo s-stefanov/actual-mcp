@@ -21,11 +21,10 @@ import path from "path";
 import { setupPrompts } from "./prompts.js";
 import { setupResources } from "./resources.js";
 import { setupTools } from "./tools/index.js";
-import dotenv from "dotenv";
-import { fetchAllPayees } from "./core/index.js";
-dotenv.config({ path: ".env" });
-import * as deletePayee from "./tools/payees/delete-payee/index.js";
-import { getRules } from "@actual-app/api";
+// import dotenv from "dotenv";
+// dotenv.config({ path: ".env" });
+
+console.error("url ", process.env.ACTUAL_SERVER_URL);
 
 // Configuration
 const DEFAULT_DATA_DIR: string = path.resolve(
@@ -100,18 +99,7 @@ async function main(): Promise<void> {
       await initActualApi();
 
       // Custom test here
-      const rules = await getRules();
-      rules.forEach((rule) => {
-        if (
-          rule.actions &&
-          rule.actions.some((action: any) => action.op === "link-schedule")
-        ) {
-          return;
-        }
-        console.log(rule.id);
-        console.log(rule.conditions);
-        console.log(rule.actions);
-      });
+
       // ----------------
 
       console.log("Custom test passed.");
@@ -179,9 +167,9 @@ async function main(): Promise<void> {
   }
 }
 
-//setupResources(server);
+setupResources(server);
 setupTools(server);
-//setupPrompts(server);
+setupPrompts(server);
 
 process.on("SIGINT", () => {
   console.error("SIGINT received, shutting down server");

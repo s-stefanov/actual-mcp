@@ -1,24 +1,19 @@
 // ----------------------------
-// CREATE PAYEE TOOL
+// CREATE CATEGORY GROUP TOOL
 // ----------------------------
 
 import { successWithJson, errorFromCatch } from "../../../utils/response.js";
-import { createPayee } from "../../../actual-api.js";
+import { createCategoryGroup } from "../../../actual-api.js";
 
 export const schema = {
-  name: "create-payee",
-  description: "Create a new payee",
+  name: "create-category-group",
+  description: "Create a new category group",
   inputSchema: {
     type: "object",
     properties: {
       name: {
         type: "string",
-        description: "Name of the payee",
-      },
-      transferAccount: {
-        type: "string",
-        description:
-          "ID of the transfer account. Should be in UUID format. Only for transfer payees.",
+        description: "Name of the category",
       },
     },
     required: ["name"],
@@ -35,14 +30,13 @@ export async function handler(
       return errorFromCatch("name is required and must be a string");
     }
 
-    const data: Record<string, unknown> = { name: args.name };
-    if (args.transferAccount) {
-      data.transfer_acct = args.transferAccount;
-    }
+    const data: Record<string, unknown> = {
+      name: args.name,
+    };
 
-    const id: string = await createPayee(data);
+    const id: string = await createCategoryGroup(data);
 
-    return successWithJson("Successfully created payee " + id);
+    return successWithJson("Successfully created category group " + id);
   } catch (err) {
     return errorFromCatch(err);
   }

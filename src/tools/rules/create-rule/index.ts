@@ -21,7 +21,7 @@ export async function handler(
   try {
     const { id }: Rule = await createRule(args);
 
-    return successWithJson(id);
+    return successWithJson("Successfully created rule " + id);
   } catch (err) {
     return errorFromCatch(err);
   }

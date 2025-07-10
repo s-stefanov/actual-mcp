@@ -182,3 +182,57 @@ export async function deleteRule(id: string) {
   await initActualApi();
   return api.deleteRule(id);
 }
+
+/**
+ * Create a new category (ensures API is initialized)
+ */
+export async function createCategory(args: Record<string, unknown>) {
+  await initActualApi();
+  return api.createCategory(args);
+}
+
+/**
+ * Update a category (ensures API is initialized)
+ */
+export async function updateCategory(
+  id: string,
+  args: Record<string, unknown>
+) {
+  await initActualApi();
+  return api.updateCategory(id, args);
+}
+
+/**
+ * Delete a category (ensures API is initialized)
+ */
+export async function deleteCategory(id: string) {
+  await initActualApi();
+  return api.deleteCategory(id);
+}
+
+/**
+ * Create a new category group (ensures API is initialized)
+ */
+export async function createCategoryGroup(args: Record<string, unknown>) {
+  await initActualApi();
+  return api.createCategoryGroup(args);
+}
+
+/**
+ * Update a category group (ensures API is initialized)
+ */
+export async function updateCategoryGroup(
+  id: string,
+  args: Record<string, unknown>
+) {
+  await initActualApi();
+  return api.updateCategoryGroup(id, args);
+}
+
+/**
+ * Delete a category group (ensures API is initialized)
+ */
+export async function deleteCategoryGroup(id: string) {
+  await initActualApi();
+  return api.deleteCategoryGroup(id);
+}

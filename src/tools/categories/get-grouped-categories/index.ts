@@ -1,15 +1,15 @@
 // ----------------------------
-// GET PAYEES TOOL
+// GET GROUPED CATEGORY TOOL
 // ----------------------------
 
 import { successWithJson, errorFromCatch } from "../../../utils/response.js";
-import { fetchAllPayees } from "../../../core/data/fetch-payees.js";
-import type { Payee } from "../../../types.js";
+import { fetchAllCategoryGroups } from "../../../core/data/fetch-categories.js";
+import type { CategoryGroup } from "../../../core/types/domain.js";
 
 export const schema = {
-  name: "get-payees",
+  name: "get-grouped-categories",
   description:
-    "Retrieve a list of all payees with their id, name, categoryId and transferAccountId.",
+    "Retrieve a list of all category groups with their id, name, type and category list.",
   inputSchema: {
     type: "object",
     description: "This tool does not accept any arguments.",
@@ -24,15 +24,9 @@ export async function handler(
   ReturnType<typeof successWithJson> | ReturnType<typeof errorFromCatch>
 > {
   try {
-    const categories: Payee[] = await fetchAllPayees();
+    const categoryGroups: CategoryGroup[] = await fetchAllCategoryGroups();
 
-    const structured = categories.map((payee) => ({
-      id: payee.id,
-      name: payee.name,
-      transfer_acct: payee.transfer_acct || "(not a transfer payee)",
-    }));
-
-    return successWithJson(structured);
+    return successWithJson(categoryGroups);
   } catch (err) {
     return errorFromCatch(err);
   }

@@ -32,6 +32,7 @@ export interface CategoryGroup {
   id: string;
   name: string;
   is_income?: boolean;
+  categories?: Category[];
 }
 
 export interface CategoryGroupInfo {

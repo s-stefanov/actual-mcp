@@ -16,76 +16,45 @@ The Actual Budget MCP Server allows you to interact with your personal financial
 
 ### Tools
 
+#### Transaction & Account Management
+
 - **`get-transactions`** - Retrieve and filter transactions by account, date, amount, category, or payee
+- **`get-accounts`** - Retrieve a list of all accounts with their current balance and ID
+- **`balance-history`** - View account balance changes over time
+
+#### Reporting & Analytics
+
 - **`spending-by-category`** - Generate spending breakdowns categorized by type
 - **`monthly-summary`** - Get monthly income, expenses, and savings metrics
-- **`balance-history`** - View account balance changes over time
+
+#### Categories
+
+- **`get-grouped-categories`** - Retrieve a list of all category groups with their categories
+- **`create-category`** - Create a new category within a category group
+- **`update-category`** - Update an existing category's name or group
+- **`delete-category`** - Delete a category
+- **`create-category-group`** - Create a new category group
+- **`update-category-group`** - Update a category group's name
+- **`delete-category-group`** - Delete a category group
+
+#### Payees
+
+- **`get-payees`** - Retrieve a list of all payees with their details
+- **`create-payee`** - Create a new payee
+- **`update-payee`** - Update an existing payee's details
+- **`delete-payee`** - Delete a payee
+
+#### Rules
+
+- **`get-rules`** - Retrieve a list of all transaction rules
+- **`create-rule`** - Create a new transaction rule with conditions and actions
+- **`update-rule`** - Update an existing transaction rule
+- **`delete-rule`** - Delete a transaction rule
 
 ### Prompts
 
 - **`financial-insights`** - Generate insights and recommendations based on your financial data
 - **`budget-review`** - Analyze your budget compliance and suggest adjustments
-
-## Usage with Claude Desktop
-
-To use this server with Claude Desktop, add it to your Claude configuration:
-
-On MacOS:
-
-```bash
-code ~/Library/Application\ Support/Claude/claude_desktop_config.json
-```
-
-On Windows:
-
-```bash
-code %APPDATA%\Claude\claude_desktop_config.json
-```
-
-Add the following to your configuration:
-
-```json
-{
-  "mcpServers": {
-    "actualBudget": {
-      "command": "npx",
-      "args": ["-y", "actual-mcp"],
-      "env": {
-        "ACTUAL_DATA_DIR": "/path/to/your/actual/data",
-        "ACTUAL_PASSWORD": "your-password",
-        "ACTUAL_SERVER_URL": "https://your-actual-server.com",
-        "ACTUAL_BUDGET_SYNC_ID": "your-budget-id"
-      }
-    }
-  }
-}
-```
-
-```json
-{
-  "mcpServers": {
-    "actualBudget": {
-      "command": "docker",
-      "args": [
-        "run",
-        "-it",
-        "--rm",
-        "-p",
-        "3000:3000",
-        "sstefanov/actual-mcp:latest"
-      ],
-      "env": {
-        "ACTUAL_DATA_DIR": "/path/to/your/actual/data",
-        "ACTUAL_PASSWORD": "your-password",
-        "ACTUAL_SERVER_URL": "https://your-actual-server.com",
-        "ACTUAL_BUDGET_SYNC_ID": "your-budget-id"
-      }
-    }
-  }
-}
-```
-
-After saving the configuration, restart Claude Desktop.
 
 ## Installation
 
@@ -100,7 +69,7 @@ After saving the configuration, restart Claude Desktop.
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/s-stefanov/actual-mcp.git
+git clone https://github.com/kekkei-genkai/actual-mcp.git
 cd actual-mcp
 ```
 
@@ -129,6 +98,61 @@ export ACTUAL_PASSWORD="your-password"
 # Specific budget to use (optional)
 export ACTUAL_BUDGET_SYNC_ID="your-budget-id"
 ```
+
+## Usage with Claude Desktop
+
+To use this server with Claude Desktop, add it to your Claude configuration:
+
+On MacOS:
+
+```bash
+code ~/Library/Application\ Support/Claude/claude_desktop_config.json
+```
+
+On Windows:
+
+```bash
+code %APPDATA%\Claude\claude_desktop_config.json
+```
+
+Add the following to your configuration:
+
+```json
+{
+  "mcpServers": {
+    "actualBudget": {
+      "command": "node",
+      "args": ["/path/to/your/clone/build/index.js"],
+      "env": {
+        "ACTUAL_PASSWORD": "your-password",
+        "ACTUAL_SERVER_URL": "http://your-actual-server.com",
+        "ACTUAL_BUDGET_SYNC_ID": "your-budget-id"
+      }
+    }
+  }
+}
+```
+
+```json
+{
+  "mcpServers": {
+    "actualBudget": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e", "ACTUAL_PASSWORD=your-password",
+        "-e", "ACTUAL_SERVER_URL=http://your-actual-server.com",
+        "-e", "ACTUAL_BUDGET_SYNC_ID=your-budget-id",
+        "kekkei-genkai/actual-mcp:latest"
+      ]
+    }
+  }
+}
+```
+
+After saving the configuration, restart Claude Desktop.
 
 ## Example Queries
 
