@@ -69,7 +69,7 @@ The Actual Budget MCP Server allows you to interact with your personal financial
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/kekkei-genkai/actual-mcp.git
+git clone https://github.com/adomas399/actual-mcp.git
 cd actual-mcp
 ```
 
@@ -145,7 +145,7 @@ Add the following to your configuration:
         "-e", "ACTUAL_PASSWORD=your-password",
         "-e", "ACTUAL_SERVER_URL=http://your-actual-server.com",
         "-e", "ACTUAL_BUDGET_SYNC_ID=your-budget-id",
-        "kekkei-genkai/actual-mcp:latest"
+        "adomas399/actual-mcp:latest"
       ]
     }
   }
