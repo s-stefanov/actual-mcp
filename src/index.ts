@@ -17,7 +17,6 @@ import express, { Request, Response } from "express";
 import { parseArgs } from "node:util";
 import { initActualApi, shutdownActualApi } from "./actual-api.js";
 import { fetchAllAccounts } from "./core/data/fetch-accounts.js";
-import path from "path";
 import { setupPrompts } from "./prompts.js";
 import { setupResources } from "./resources.js";
 import { setupTools } from "./tools/index.js";
@@ -25,12 +24,6 @@ import dotenv from "dotenv";
 dotenv.config({ path: ".env" });
 
 console.error("url ", process.env.ACTUAL_SERVER_URL);
-
-// Configuration
-const DEFAULT_DATA_DIR: string = path.resolve(
-  process.env.HOME || process.env.USERPROFILE || ".",
-  ".actual"
-);
 
 // Initialize the MCP server
 const server = new Server(
@@ -114,9 +107,6 @@ async function main(): Promise<void> {
   if (!process.env.ACTUAL_DATA_DIR && !process.env.ACTUAL_SERVER_URL) {
     console.error(
       "Warning: Neither ACTUAL_DATA_DIR nor ACTUAL_SERVER_URL is set."
-    );
-    console.error(
-      `Will try to use default data directory: ${DEFAULT_DATA_DIR}`
     );
   }
 
