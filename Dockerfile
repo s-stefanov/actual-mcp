@@ -23,7 +23,5 @@ RUN npm ci --omit=dev
 
 RUN --mount=type=cache,target=/root/.npm npm ci --omit=dev
 
-ENV TMPDIR=$(mktemp -d)
-
 EXPOSE 3000
 ENTRYPOINT ["node", "build/index.js"]
