@@ -21,8 +21,8 @@ import path from "path";
 import { setupPrompts } from "./prompts.js";
 import { setupResources } from "./resources.js";
 import { setupTools } from "./tools/index.js";
-// import dotenv from "dotenv";
-// dotenv.config({ path: ".env" });
+import dotenv from "dotenv";
+dotenv.config({ path: ".env" });
 
 console.error("url ", process.env.ACTUAL_SERVER_URL);
 
