@@ -1,7 +1,7 @@
 import api from "@actual-app/api";
 import fs from "fs";
 import { BudgetFile } from "./types.js";
-import { APIAccountEntity } from "@actual-app/api/@types/loot-core/src/server/api-models.js";
+// import { APIAccountEntity } from "@actual-app/api/@types/loot-core/src/server/api-models.js";
 import os from "os";
 import path from "path";
 
@@ -82,7 +82,7 @@ export async function shutdownActualApi(): Promise<void> {
 /**
  * Get all accounts (ensures API is initialized)
  */
-export async function getAccounts(): Promise<APIAccountEntity[]> {
+export async function getAccounts(): Promise<any[]> {
   await initActualApi();
   return api.getAccounts();
 }

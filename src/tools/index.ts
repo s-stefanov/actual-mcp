@@ -30,6 +30,7 @@ import * as getRules from "./rules/get-rules/index.js";
 import * as createRule from "./rules/create-rule/index.js";
 import * as updateRule from "./rules/update-rule/index.js";
 import * as deleteRule from "./rules/delete-rule/index.js";
+import * as updateTransaction from "./update-transaction/index.js";
 
 const allTools = [
   getTransactions,
@@ -52,6 +53,7 @@ const allTools = [
   createRule,
   updateRule,
   deleteRule,
+  updateTransaction,
 ];
 
 export const setupTools = (server: Server) => {
