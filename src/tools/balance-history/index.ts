@@ -26,25 +26,6 @@ export const schema = {
     },
     required: ["accountId"],
   },
-  outputSchema: {
-    type: "object",
-    description: "Balance history report response",
-    properties: {
-      content: {
-        type: "array",
-        description: "Array of content items",
-        items: {
-          type: "object",
-          properties: {
-            type: { type: "string", enum: ["text"] },
-            text: { type: "string", description: "Markdown formatted balance history report" }
-          },
-          required: ["type", "text"]
-        }
-      }
-    },
-    required: ["content"]
-  }
 };
 
 export async function handler(args: BalanceHistoryArgs) {
@@ -60,11 +41,8 @@ export async function handler(args: BalanceHistoryArgs) {
     const end = formatDate(endDate);
 
     // Fetch data
-    const { accounts, account, transactions, currentBalance } = await new BalanceHistoryDataFetcher().fetchAll(
-      accountId,
-      start,
-      end
-    );
+    const { accounts, account, transactions, currentBalance } =
+      await new BalanceHistoryDataFetcher().fetchAll(accountId, start, end);
     if (!account) {
       return errorFromCatch(`Account with ID ${accountId} not found`);
     }
