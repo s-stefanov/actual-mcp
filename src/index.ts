@@ -131,7 +131,17 @@ async function main(): Promise<void> {
 
     app.get("/sse", (req: Request, res: Response) => {
       transport = new SSEServerTransport("/messages", res);
-      server.connect(transport);
+      server.connect(transport).then(() => {
+        console.log = (message: string) =>
+          server.sendLoggingMessage({ level: "info", message });
+
+        console.error = (message: string) =>
+          server.sendLoggingMessage({ level: "error", message });
+
+        console.error(
+          `Actual Budget MCP Server (SSE) started on port ${resolvedPort}`
+        );
+      });
     });
     app.post("/messages", async (req: Request, res: Response) => {
       if (transport) {
@@ -169,16 +179,18 @@ process.on("SIGINT", () => {
 
 main()
   .then(() => {
-    console.log = (message: string) =>
-      server.sendLoggingMessage({
-        level: "info",
-        message,
-      });
-    console.error = (message: string) =>
-      server.sendLoggingMessage({
-        level: "error",
-        message,
-      });
+    if (!useSse) {
+      console.log = (message: string) =>
+        server.sendLoggingMessage({
+          level: "info",
+          message,
+        });
+      console.error = (message: string) =>
+        server.sendLoggingMessage({
+          level: "error",
+          message,
+        });
+    }
   })
   .catch((error: unknown) => {
     console.error("Server error:", error);
