@@ -26,14 +26,23 @@
 
 ### 🧪 Testing & Reliability
 
-- **Always create Jest unit tests for new features** (functions, classes, modules, etc).
+- **Always create Vitest unit tests for new features** (functions, classes, modules, etc).
 - **Use TypeScript in tests** and maintain type safety throughout test suites.
 - **After updating any logic**, check whether existing unit tests need to be updated. If so, do it.
-- **Tests should live in a `/tests` folder** mirroring the main app structure.
-  - Include at least:
-    - 1 test for expected use
-    - 1 edge case
-    - 1 failure case
+- **Tests should be co-located** with source files using `.test.ts` naming convention.
+  - Example: `src/core/data/fetch-accounts.ts` → `src/core/data/fetch-accounts.test.ts`
+- **Use proper ESM module mocking** with `vi.mock()` for external dependencies.
+- **Test commands available**:
+  - `npm run test` - Run all tests once
+  - `npm run test:unit:watch` - Run tests in watch mode
+  - `npm run test:coverage` - Generate coverage reports
+  - `npm run test:ui` - Open Vitest UI for interactive testing
+- **Include comprehensive test coverage**:
+  - 1 test for expected use (happy path)
+  - 1 edge case (boundary conditions)
+  - 1 failure case (error handling)
+  - Mock external dependencies (actual-api.js, etc.)
+- **Follow existing test patterns** in `src/core/` for consistency.
 
 ### ✅ Task Completion
 
