@@ -1,5 +1,5 @@
 // Type definitions for Actual Budget API
-export {
+export type {
   Account,
   Transaction,
   Category,

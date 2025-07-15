@@ -1,8 +1,11 @@
 node_modules/
 build/
+coverage/
 *.log
 .env
 data/**
 .DS_Store
 .vscode/launch.json
 .gemini/
+
+**/*.local.*
