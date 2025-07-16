@@ -7,16 +7,16 @@ export interface BalanceHistoryInput {
 
 export class BalanceHistoryInputParser {
   parse(args: any): BalanceHistoryInput {
-    if (!args || typeof args !== "object") {
-      throw new Error("Arguments must be an object");
+    if (!args || typeof args !== 'object') {
+      throw new Error('Arguments must be an object');
     }
     const { accountId, months } = args;
-    if (!accountId || typeof accountId !== "string") {
-      throw new Error("accountId is required and must be a string");
+    if (!accountId || typeof accountId !== 'string') {
+      throw new Error('accountId is required and must be a string');
     }
     return {
       accountId,
-      months: typeof months === "number" && months > 0 ? months : 12,
+      months: typeof months === 'number' && months > 0 ? months : 12,
     };
   }
 }

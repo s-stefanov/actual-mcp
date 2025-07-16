@@ -1,5 +1,5 @@
 // Calculates balance history per month for balance-history tool
-import type { Transaction } from "../../types.js";
+import type { Transaction } from '../../types.js';
 
 export interface MonthBalance {
   year: number;
@@ -9,12 +9,7 @@ export interface MonthBalance {
 }
 
 export class BalanceHistoryCalculator {
-  calculate(
-    transactions: Transaction[],
-    currentBalance: number,
-    months: number,
-    endDate: Date
-  ): MonthBalance[] {
+  calculate(transactions: Transaction[], currentBalance: number, months: number, endDate: Date): MonthBalance[] {
     const balanceHistory: Record<string, MonthBalance> = {};
     let runningBalance: number = currentBalance;
 
@@ -24,9 +19,7 @@ export class BalanceHistoryCalculator {
     });
 
     // Initialize with current balance for current month
-    const currentYearMonth: string = `${endDate.getFullYear()}-${String(
-      endDate.getMonth() + 1
-    ).padStart(2, "0")}`;
+    const currentYearMonth = `${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, '0')}`;
 
     balanceHistory[currentYearMonth] = {
       year: endDate.getFullYear(),
@@ -38,9 +31,7 @@ export class BalanceHistoryCalculator {
     // Process transactions to calculate past balances
     sortedTransactions.forEach((transaction) => {
       const date = new Date(transaction.date);
-      const yearMonth: string = `${date.getFullYear()}-${String(
-        date.getMonth() + 1
-      ).padStart(2, "0")}`;
+      const yearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 
       // Subtract transaction amount from running balance (going backwards in time)
       runningBalance -= transaction.amount;
@@ -58,12 +49,10 @@ export class BalanceHistoryCalculator {
     });
 
     // Convert to array and sort by date
-    let sortedMonths: MonthBalance[] = Object.values(balanceHistory).sort(
-      (a, b) => {
-        if (a.year !== b.year) return a.year - b.year;
-        return a.month - b.month;
-      }
-    );
+    let sortedMonths: MonthBalance[] = Object.values(balanceHistory).sort((a, b) => {
+      if (a.year !== b.year) return a.year - b.year;
+      return a.month - b.month;
+    });
 
     // Only include the most recent N months
     if (sortedMonths.length > months) {

@@ -1,5 +1,5 @@
-import type { MonthData, Account } from "../../types.js";
-import type { MonthlySummaryReportData } from "./types.js";
+import type { MonthData, Account } from '../../types.js';
+import type { MonthlySummaryReportData } from './types.js';
 
 export class MonthlySummaryReportDataBuilder {
   build(
@@ -10,9 +10,7 @@ export class MonthlySummaryReportDataBuilder {
     sortedMonths: MonthData[],
     averages: any
   ): MonthlySummaryReportData {
-    const accountName = accountId
-      ? accounts.find((a) => a.id === accountId)?.name
-      : undefined;
+    const accountName = accountId ? accounts.find((a) => a.id === accountId)?.name : undefined;
 
     return {
       start,

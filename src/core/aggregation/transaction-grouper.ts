@@ -1,5 +1,5 @@
 // Groups transactions by category and aggregates spending
-import type { Transaction, CategorySpending, CategoryGroupInfo } from "../types/domain.js";
+import type { Transaction, CategorySpending, CategoryGroupInfo } from '../types/domain.js';
 
 export class TransactionGrouper {
   groupByCategory(
@@ -13,7 +13,10 @@ export class TransactionGrouper {
       if (!transaction.category) return; // Skip uncategorized
       const categoryId = transaction.category;
       const categoryName = getCategoryName(categoryId);
-      const group = getGroupInfo(categoryId) || { name: "Unknown Group", isIncome: false };
+      const group = getGroupInfo(categoryId) || {
+        name: 'Unknown Group',
+        isIncome: false,
+      };
       // Skip income categories if not requested
       if (group.isIncome && !includeIncome) return;
       if (!spendingByCategory[categoryId]) {

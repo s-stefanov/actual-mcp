@@ -55,4 +55,3 @@ export interface GroupSpending {
   total: number;
   categories: CategorySpending[];
 }
-

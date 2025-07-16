@@ -1,35 +1,32 @@
-import { Server } from "@modelcontextprotocol/sdk/server/index.js";
-import {
-  GetPromptRequestSchema,
-  ListPromptsRequestSchema,
-} from "@modelcontextprotocol/sdk/types.js";
-import { FinancialInsightsArgs, BudgetReviewArgs } from "./types.js";
-import { getDateRange } from "./utils.js";
+import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { GetPromptRequestSchema, ListPromptsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
+import { FinancialInsightsArgs, BudgetReviewArgs } from './types.js';
+import { getDateRange } from './utils.js';
 
 export const promptsSchema = [
   {
-    name: "financial-insights",
-    description: "Generate financial insights and advice",
+    name: 'financial-insights',
+    description: 'Generate financial insights and advice',
     arguments: [
       {
-        name: "startDate",
-        description: "Start date in YYYY-MM-DD format",
+        name: 'startDate',
+        description: 'Start date in YYYY-MM-DD format',
         required: false,
       },
       {
-        name: "endDate",
-        description: "End date in YYYY-MM-DD format",
+        name: 'endDate',
+        description: 'End date in YYYY-MM-DD format',
         required: false,
       },
     ],
   },
   {
-    name: "budget-review",
-    description: "Review my budget and spending",
+    name: 'budget-review',
+    description: 'Review my budget and spending',
     arguments: [
       {
-        name: "months",
-        description: "Number of months to analyze",
+        name: 'months',
+        description: 'Number of months to analyze',
         required: false,
       },
     ],
@@ -44,9 +41,9 @@ const financialInsightsPrompt = (args: FinancialInsightsArgs) => {
     description: `Financial insights and recommendations from ${start} to ${end}`,
     messages: [
       {
-        role: "user",
+        role: 'user',
         content: {
-          type: "text",
+          type: 'text',
           text: `Please analyze my financial data and provide insights and recommendations. Focus on spending patterns, savings rate, and potential areas to optimize my budget. Analyze data from ${start} to ${end}.
 
 IMPORTANT: Any transactions in the "Investment & Savings" category group should be treated as POSITIVE savings, not as spending. These represent money I'm putting aside for the future, so they should be counted as savings achievements rather than expenses.
@@ -82,9 +79,9 @@ const budgetReviewPrompt = (args: BudgetReviewArgs) => {
     description: `Budget review for the past ${months} months`,
     messages: [
       {
-        role: "user",
+        role: 'user',
         content: {
-          type: "text",
+          type: 'text',
           text: `Please review my budget and spending for the past ${months} months. I'd like to understand how well I'm sticking to my budget and where I might be able to make adjustments.
     
 IMPORTANT: Any transactions in the "Investment & Savings" category group should be treated as POSITIVE savings, not as spending. These represent money I'm putting aside for the future, so they should be counted as savings achievements rather than expenses.
@@ -134,11 +131,11 @@ export const setupPrompts = (server: Server) => {
       const { name, arguments: promptArgs } = request.params;
 
       switch (name) {
-        case "financial-insights": {
+        case 'financial-insights': {
           return financialInsightsPrompt(promptArgs as FinancialInsightsArgs);
         }
 
-        case "budget-review": {
+        case 'budget-review': {
           return budgetReviewPrompt(promptArgs as BudgetReviewArgs);
         }
 

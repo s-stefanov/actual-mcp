@@ -1,50 +1,53 @@
 // Orchestrator for balance-history tool
-import { BalanceHistoryInputParser } from "./input-parser.js";
-import { BalanceHistoryDataFetcher } from "./data-fetcher.js";
-import { BalanceHistoryCalculator } from "./balance-calculator.js";
-import { BalanceHistoryReportGenerator } from "./report-generator.js";
-import { success, errorFromCatch } from "../../utils/response.js";
-import { formatDate } from "../../utils.js";
-import type { BalanceHistoryArgs } from "./types.js";
+import { BalanceHistoryInputParser } from './input-parser.js';
+import { BalanceHistoryDataFetcher } from './data-fetcher.js';
+import { BalanceHistoryCalculator } from './balance-calculator.js';
+import { BalanceHistoryReportGenerator } from './report-generator.js';
+import { success, errorFromCatch } from '../../utils/response.js';
+import { formatDate } from '../../utils.js';
+import type { BalanceHistoryArgs } from './types.js';
 
 export const schema = {
-  name: "balance-history",
-  description: "Get account balance history over time",
+  name: 'balance-history',
+  description: 'Get account balance history over time',
   inputSchema: {
-    type: "object",
+    type: 'object',
     properties: {
       accountId: {
-        type: "string",
+        type: 'string',
         description:
-          "ID of the account to get balance history for. Should be in UUID format and retrieved from the accounts resource.",
+          'ID of the account to get balance history for. Should be in UUID format and retrieved from the accounts resource.',
       },
       months: {
-        type: "number",
-        description: "Number of months to include",
+        type: 'number',
+        description: 'Number of months to include',
         default: 12,
       },
     },
-    required: ["accountId"],
+    required: ['accountId'],
   },
   outputSchema: {
-    type: "object",
-    description: "Balance history report response",
+    type: 'object',
+    description: 'Balance history report response',
     properties: {
       content: {
-        type: "array",
-        description: "Array of content items",
+        type: 'array',
+        description: 'Array of content items',
         items: {
-          type: "object",
+          type: 'object',
           properties: {
-            type: { type: "string", enum: ["text"] },
-            text: { type: "string", description: "Markdown formatted balance history report" }
+            type: { type: 'string', enum: ['text'] },
+            text: {
+              type: 'string',
+              description: 'Markdown formatted balance history report',
+            },
           },
-          required: ["type", "text"]
-        }
-      }
+          required: ['type', 'text'],
+        },
+      },
     },
-    required: ["content"]
-  }
+    required: ['content'],
+  },
 };
 
 export async function handler(args: BalanceHistoryArgs) {
@@ -60,29 +63,21 @@ export async function handler(args: BalanceHistoryArgs) {
     const end = formatDate(endDate);
 
     // Fetch data
-    const { accounts, account, transactions, currentBalance } = await new BalanceHistoryDataFetcher().fetchAll(
-      accountId,
-      start,
-      end
-    );
+    const {
+      accounts: _accounts,
+      account,
+      transactions,
+      currentBalance,
+    } = await new BalanceHistoryDataFetcher().fetchAll(accountId, start, end);
     if (!account) {
       return errorFromCatch(`Account with ID ${accountId} not found`);
     }
 
     // Calculate balance history
-    const sortedMonths = new BalanceHistoryCalculator().calculate(
-      transactions,
-      currentBalance,
-      months,
-      endDate
-    );
+    const sortedMonths = new BalanceHistoryCalculator().calculate(transactions, currentBalance, months, endDate);
 
     // Generate report
-    const markdown = new BalanceHistoryReportGenerator().generate(
-      account,
-      { start, end },
-      sortedMonths
-    );
+    const markdown = new BalanceHistoryReportGenerator().generate(account, { start, end }, sortedMonths);
     return success(markdown);
   } catch (err) {
     return errorFromCatch(err);

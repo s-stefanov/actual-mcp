@@ -20,7 +20,7 @@ export type ContentItem = {
  * Text content item (most common type)
  */
 export interface TextContentItem extends ContentItem {
-  type: "text";
+  type: 'text';
   text: string;
 }
 
@@ -39,7 +39,7 @@ export type Response = {
  */
 export function success(text: string): Response {
   return {
-    content: [{ type: "text", text }],
+    content: [{ type: 'text', text }],
   };
 }
 
@@ -63,7 +63,7 @@ export function successWithJson<T>(data: T): Response {
   return {
     content: [
       {
-        type: "text",
+        type: 'text',
         text: JSON.stringify(data),
       },
     ],
@@ -78,7 +78,7 @@ export function successWithJson<T>(data: T): Response {
 export function error(message: string): Response {
   return {
     isError: true,
-    content: [{ type: "text", text: `Error: ${message}` }],
+    content: [{ type: 'text', text: `Error: ${message}` }],
   };
 }
 

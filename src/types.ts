@@ -1,10 +1,5 @@
 // Type definitions for Actual Budget API
-export type {
-  Account,
-  Transaction,
-  Category,
-  CategoryGroup,
-} from "./core/types/domain.js";
+export type { Account, Transaction, Category, CategoryGroup } from './core/types/domain.js';
 
 export interface BudgetFile {
   id?: string;
