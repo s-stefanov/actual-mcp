@@ -22,3 +22,16 @@ export async function fetchAllOnBudgetTransactions(
   }
   return transactions;
 }
+
+export async function fetchAllTransactions(
+  accounts: Account[],
+  start: string,
+  end: string
+): Promise<Transaction[]> {
+  let transactions: Transaction[] = [];
+  for (const account of accounts) {
+    const tx = await getTransactions(account.id, start, end);
+    transactions = [...transactions, ...tx];
+  }
+  return transactions;
+}

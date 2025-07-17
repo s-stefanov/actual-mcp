@@ -9,14 +9,14 @@ import type { BalanceHistoryArgs } from "./types.js";
 
 export const schema = {
   name: "balance-history",
-  description: "Get account balance history over time",
+  description: "Get balance history over time",
   inputSchema: {
     type: "object",
     properties: {
       accountId: {
         type: "string",
         description:
-          "ID of the account to get balance history for. Should be in UUID format and retrieved from the accounts resource.",
+          "Optional ID of a specific account to get balance history of. If not provided, all on-budget accounts will be used.",
       },
       months: {
         type: "number",
@@ -24,7 +24,6 @@ export const schema = {
         default: 12,
       },
     },
-    required: ["accountId"],
   },
 };
 
@@ -41,16 +40,14 @@ export async function handler(args: BalanceHistoryArgs) {
     const end = formatDate(endDate);
 
     // Fetch data
-    const { accounts, account, transactions, currentBalance } =
+    const { account, accounts, transactions } =
       await new BalanceHistoryDataFetcher().fetchAll(accountId, start, end);
-    if (!account) {
-      return errorFromCatch(`Account with ID ${accountId} not found`);
-    }
 
     // Calculate balance history
     const sortedMonths = new BalanceHistoryCalculator().calculate(
+      account,
+      accounts,
       transactions,
-      currentBalance,
       months,
       endDate
     );

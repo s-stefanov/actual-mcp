@@ -23,8 +23,6 @@ import { setupTools } from "./tools/index.js";
 import dotenv from "dotenv";
 dotenv.config({ path: ".env" });
 
-console.error("url ", process.env.ACTUAL_SERVER_URL);
-
 // Initialize the MCP server
 const server = new Server(
   {
