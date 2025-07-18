@@ -3,7 +3,13 @@ import { formatAmount, formatDate } from '../../utils.js';
 import type { Transaction } from '../../types.js';
 
 export class GetTransactionsMapper {
-  map(transactions: Transaction[]) {
+  map(transactions: Transaction[]): Array<{
+    date: string;
+    payee: string;
+    category: string;
+    amount: string;
+    notes: string;
+  }> {
     // TODO: Payee and category are not visible in the transaction object
     return transactions.map((t) => ({
       date: formatDate(t.date),

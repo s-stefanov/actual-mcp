@@ -259,38 +259,38 @@ CREATE src/core/input/validators.test.ts:
 export default defineConfig({
   plugins: [tsconfigPaths()],
   test: {
-    environment: "node",
-    include: ["src/core/**/*.test.ts"],
+    environment: 'node',
+    include: ['src/core/**/*.test.ts'],
     globals: true,
     coverage: {
-      provider: "v8",
-      include: ["src/core/**/*.ts"],
-      exclude: ["src/core/**/*.test.ts", "src/core/types/domain.ts"],
+      provider: 'v8',
+      include: ['src/core/**/*.ts'],
+      exclude: ['src/core/**/*.test.ts', 'src/core/types/domain.ts'],
     },
     alias: {
-      "^(\\.{1,2}/.*)\\.js$": "$1", // Handle .js imports in TypeScript
+      '^(\\.{1,2}/.*)\\.js$': '$1', // Handle .js imports in TypeScript
     },
   },
 });
 
 // Task 5: fetch-accounts.test.ts pattern
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { fetchAllAccounts } from "./fetch-accounts.js";
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { fetchAllAccounts } from './fetch-accounts.js';
 
 // CRITICAL: Mock before imports
-vi.mock("../../actual-api.js", () => ({
+vi.mock('../../actual-api.js', () => ({
   getAccounts: vi.fn(),
 }));
 
-import { getAccounts } from "../../actual-api.js";
+import { getAccounts } from '../../actual-api.js';
 
-describe("fetchAllAccounts", () => {
+describe('fetchAllAccounts', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("should return accounts from API", async () => {
-    const mockAccounts = [{ id: "1", name: "Test Account" }];
+  it('should return accounts from API', async () => {
+    const mockAccounts = [{ id: '1', name: 'Test Account' }];
     vi.mocked(getAccounts).mockResolvedValue(mockAccounts);
 
     const result = await fetchAllAccounts();
@@ -299,43 +299,43 @@ describe("fetchAllAccounts", () => {
     expect(getAccounts).toHaveBeenCalledOnce();
   });
 
-  it("should handle API errors", async () => {
-    vi.mocked(getAccounts).mockRejectedValue(new Error("API Error"));
+  it('should handle API errors', async () => {
+    vi.mocked(getAccounts).mockRejectedValue(new Error('API Error'));
 
-    await expect(fetchAllAccounts()).rejects.toThrow("API Error");
+    await expect(fetchAllAccounts()).rejects.toThrow('API Error');
   });
 });
 
 // Task 6: group-by.test.ts pattern
-import { describe, it, expect } from "vitest";
-import { GroupAggregator } from "./group-by.js";
-import type { CategorySpending } from "../types/domain.js";
+import { describe, it, expect } from 'vitest';
+import { GroupAggregator } from './group-by.js';
+import type { CategorySpending } from '../types/domain.js';
 
-describe("GroupAggregator", () => {
+describe('GroupAggregator', () => {
   const aggregator = new GroupAggregator();
 
-  it("should aggregate and sort spending by group", () => {
+  it('should aggregate and sort spending by group', () => {
     const input: Record<string, CategorySpending> = {
       cat1: {
-        id: "1",
-        name: "Food",
-        group: "Living",
+        id: '1',
+        name: 'Food',
+        group: 'Living',
         isIncome: false,
         total: -100,
         transactions: 5,
       },
       cat2: {
-        id: "2",
-        name: "Rent",
-        group: "Living",
+        id: '2',
+        name: 'Rent',
+        group: 'Living',
         isIncome: false,
         total: -800,
         transactions: 1,
       },
       cat3: {
-        id: "3",
-        name: "Salary",
-        group: "Income",
+        id: '3',
+        name: 'Salary',
+        group: 'Income',
         isIncome: true,
         total: 2000,
         transactions: 1,
@@ -345,13 +345,13 @@ describe("GroupAggregator", () => {
     const result = aggregator.aggregateAndSort(input);
 
     expect(result).toHaveLength(2);
-    expect(result[0].name).toBe("Income"); // Highest absolute value
+    expect(result[0].name).toBe('Income'); // Highest absolute value
     expect(result[0].total).toBe(2000);
-    expect(result[1].name).toBe("Living");
+    expect(result[1].name).toBe('Living');
     expect(result[1].total).toBe(-900);
   });
 
-  it("should handle empty input", () => {
+  it('should handle empty input', () => {
     const result = aggregator.aggregateAndSort({});
     expect(result).toEqual([]);
   });

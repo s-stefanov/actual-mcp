@@ -3,7 +3,12 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import { BudgetFile } from './types.js';
-import { APIAccountEntity } from '@actual-app/api/@types/loot-core/src/server/api-models.js';
+import {
+  APIAccountEntity,
+  APICategoryEntity,
+  APICategoryGroupEntity,
+} from '@actual-app/api/@types/loot-core/src/server/api-models.js';
+import { TransactionEntity } from '@actual-app/api/@types/loot-core/src/types/models/index.js';
 
 const DEFAULT_DATA_DIR: string = path.resolve(os.homedir() || '.', '.actual');
 
@@ -79,7 +84,7 @@ export async function getAccounts(): Promise<APIAccountEntity[]> {
 /**
  * Get all categories (ensures API is initialized)
  */
-export async function getCategories() {
+export async function getCategories(): Promise<APICategoryEntity[]> {
   await initActualApi();
   return api.getCategories();
 }
@@ -87,7 +92,7 @@ export async function getCategories() {
 /**
  * Get all category groups (ensures API is initialized)
  */
-export async function getCategoryGroups() {
+export async function getCategoryGroups(): Promise<APICategoryGroupEntity[]> {
   await initActualApi();
   return api.getCategoryGroups();
 }
@@ -95,7 +100,7 @@ export async function getCategoryGroups() {
 /**
  * Get transactions for a specific account and date range (ensures API is initialized)
  */
-export async function getTransactions(accountId: string, start: string, end: string) {
+export async function getTransactions(accountId: string, start: string, end: string): Promise<TransactionEntity[]> {
   await initActualApi();
   return api.getTransactions(accountId, start, end);
 }

@@ -8,11 +8,12 @@ export interface SpendingByCategoryInput {
 }
 
 export class SpendingByCategoryInputParser {
-  parse(args: any): SpendingByCategoryInput {
+  parse(args: unknown): SpendingByCategoryInput {
     if (!args || typeof args !== 'object') {
       throw new Error('Arguments must be an object');
     }
-    const { startDate, endDate, accountId, includeIncome } = args;
+    const argsObj = args as Record<string, unknown>;
+    const { startDate, endDate, accountId, includeIncome } = argsObj;
     if (!startDate || typeof startDate !== 'string') {
       throw new Error('startDate is required and must be a string (YYYY-MM-DD)');
     }

@@ -1,7 +1,15 @@
 import type { MonthData } from '../../types.js';
 
 export class MonthlySummaryCalculator {
-  calculateAverages(sortedMonths: MonthData[]) {
+  calculateAverages(sortedMonths: MonthData[]): {
+    avgIncome: number;
+    avgExpenses: number;
+    avgInvestments: number;
+    avgTraditionalSavings: number;
+    avgTotalSavings: number;
+    avgTraditionalSavingsRate: number;
+    avgTotalSavingsRate: number;
+  } {
     const totalIncome = sortedMonths.reduce((sum, m) => sum + m.income, 0);
     const totalExpenses = sortedMonths.reduce((sum, m) => sum + m.expenses, 0);
     const totalInvestments = sortedMonths.reduce((sum, m) => sum + m.investments, 0);

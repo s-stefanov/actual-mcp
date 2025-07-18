@@ -1,56 +1,21 @@
 // Orchestrator for balance-history tool
+import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { BalanceHistoryInputParser } from './input-parser.js';
 import { BalanceHistoryDataFetcher } from './data-fetcher.js';
 import { BalanceHistoryCalculator } from './balance-calculator.js';
 import { BalanceHistoryReportGenerator } from './report-generator.js';
 import { success, errorFromCatch } from '../../utils/response.js';
 import { formatDate } from '../../utils.js';
-import type { BalanceHistoryArgs } from './types.js';
+import { BalanceHistoryArgsSchema, type BalanceHistoryArgs, ToolInput } from '../../types.js';
+import { zodToJsonSchema } from 'zod-to-json-schema';
 
 export const schema = {
   name: 'balance-history',
   description: 'Get account balance history over time',
-  inputSchema: {
-    type: 'object',
-    properties: {
-      accountId: {
-        type: 'string',
-        description:
-          'ID of the account to get balance history for. Should be in UUID format and retrieved from the accounts resource.',
-      },
-      months: {
-        type: 'number',
-        description: 'Number of months to include',
-        default: 12,
-      },
-    },
-    required: ['accountId'],
-  },
-  outputSchema: {
-    type: 'object',
-    description: 'Balance history report response',
-    properties: {
-      content: {
-        type: 'array',
-        description: 'Array of content items',
-        items: {
-          type: 'object',
-          properties: {
-            type: { type: 'string', enum: ['text'] },
-            text: {
-              type: 'string',
-              description: 'Markdown formatted balance history report',
-            },
-          },
-          required: ['type', 'text'],
-        },
-      },
-    },
-    required: ['content'],
-  },
+  inputSchema: zodToJsonSchema(BalanceHistoryArgsSchema) as ToolInput,
 };
 
-export async function handler(args: BalanceHistoryArgs) {
+export async function handler(args: BalanceHistoryArgs): Promise<CallToolResult> {
   try {
     const input = new BalanceHistoryInputParser().parse(args);
     const { accountId, months } = input;

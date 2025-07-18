@@ -51,8 +51,8 @@ describe('fetchAllCategoryGroups', () => {
 
   it('should return category groups from API', async () => {
     const mockCategoryGroups = [
-      { id: 'g1', name: 'Living', is_income: false },
-      { id: 'g2', name: 'Income', is_income: true },
+      { id: 'g1', name: 'Living', is_income: false, hidden: false, categories: [] },
+      { id: 'g2', name: 'Income', is_income: true, hidden: false, categories: [] },
     ];
     vi.mocked(getCategoryGroups).mockResolvedValue(mockCategoryGroups);
 

@@ -2,42 +2,29 @@
 // RESPONSE UTILITIES
 // ----------------------------
 
-/**
- * Standard MCP content item types
- */
-export type ContentItem = {
-  // Common properties
-  type: string;
+import { CallToolResult, TextContent, ImageContent, AudioContent } from '@modelcontextprotocol/sdk/types.js';
 
-  // Content type-specific properties
-  text?: string; // For text content
-  mimeType?: string; // For media content
-  blob?: string; // For binary content (base64 encoded)
-  resource?: any; // For resource content
-};
+/**
+ * Standard MCP content item types (union of all supported content types)
+ */
+export type ContentItem = TextContent | ImageContent | AudioContent;
 
 /**
  * Text content item (most common type)
  */
-export interface TextContentItem extends ContentItem {
-  type: 'text';
-  text: string;
-}
+export type TextContentItem = TextContent;
 
 /**
- * Standard MCP response structure
+ * Standard MCP response structure (compatible with CallToolResult)
  */
-export type Response = {
-  isError?: boolean; // Optional error flag (true for errors)
-  content: ContentItem[]; // Array of content items
-};
+export type Response = CallToolResult;
 
 /**
  * Create a successful plain text response
  * @param text - The text message
  * @returns A success response object with text content
  */
-export function success(text: string): Response {
+export function success(text: string): CallToolResult {
   return {
     content: [{ type: 'text', text }],
   };
@@ -48,7 +35,7 @@ export function success(text: string): Response {
  * @param content - Array of content items
  * @returns A success response object with provided content
  */
-export function successWithContent(content: ContentItem): Response {
+export function successWithContent(content: ContentItem): CallToolResult {
   return {
     content: [content],
   };
@@ -59,7 +46,7 @@ export function successWithContent(content: ContentItem): Response {
  * @param data - Any data object that can be JSON-stringified
  * @returns A success response with JSON data wrapped as a resource
  */
-export function successWithJson<T>(data: T): Response {
+export function successWithJson<T>(data: T): CallToolResult {
   return {
     content: [
       {
@@ -75,7 +62,7 @@ export function successWithJson<T>(data: T): Response {
  * @param message - The error message
  * @returns An error response object
  */
-export function error(message: string): Response {
+export function error(message: string): CallToolResult {
   return {
     isError: true,
     content: [{ type: 'text', text: `Error: ${message}` }],
@@ -87,7 +74,7 @@ export function error(message: string): Response {
  * @param err - The error object or value
  * @returns An error response object
  */
-export function errorFromCatch(err: unknown): Response {
+export function errorFromCatch(err: unknown): CallToolResult {
   const message = err instanceof Error ? err.message : String(err);
   return error(message);
 }

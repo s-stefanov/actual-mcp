@@ -5,16 +5,17 @@
 import { successWithJson, errorFromCatch } from '../../utils/response.js';
 import { fetchAllAccounts } from '../../core/data/fetch-accounts.js';
 import type { Account } from '../../core/types/domain.js';
+import { z } from 'zod';
+import { zodToJsonSchema } from 'zod-to-json-schema';
+import { type ToolInput } from '../../types.js';
+
+// Define an empty schema with zod
+const GetAccountsArgsSchema = z.object({});
 
 export const schema = {
   name: 'get-accounts',
   description: 'Retrieve a list of all accounts with their current balance and ID.',
-  inputSchema: {
-    type: 'object',
-    description: 'This tool does not accept any arguments.',
-    properties: {},
-    additionalProperties: false,
-  },
+  inputSchema: zodToJsonSchema(GetAccountsArgsSchema) as ToolInput,
 };
 
 export async function handler(): Promise<ReturnType<typeof successWithJson> | ReturnType<typeof errorFromCatch>> {

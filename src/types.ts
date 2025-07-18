@@ -1,5 +1,10 @@
 // Type definitions for Actual Budget API
 export type { Account, Transaction, Category, CategoryGroup } from './core/types/domain.js';
+import { z } from 'zod';
+import { ToolSchema } from '@modelcontextprotocol/sdk/types.js';
+
+const ToolInputSchema = ToolSchema.shape.inputSchema;
+export type ToolInput = z.infer<typeof ToolInputSchema>;
 
 export interface BudgetFile {
   id?: string;
@@ -8,43 +13,54 @@ export interface BudgetFile {
 }
 
 // Type definitions for tool arguments
-export interface GetTransactionsArgs {
-  accountId: string;
-  startDate?: string;
-  endDate?: string;
-  minAmount?: number;
-  maxAmount?: number;
-  category?: string;
-  payee?: string;
-  limit?: number;
-}
+export const GetTransactionsArgsSchema = z.object({
+  accountId: z.string(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+  minAmount: z.number().optional(),
+  maxAmount: z.number().optional(),
+  category: z.string().optional(),
+  payee: z.string().optional(),
+  limit: z.number().optional(),
+});
 
-export interface SpendingByCategoryArgs {
-  startDate?: string;
-  endDate?: string;
-  accountId?: string;
-  includeIncome?: boolean;
-}
+export type GetTransactionsArgs = z.infer<typeof GetTransactionsArgsSchema>;
 
-export interface MonthlySummaryArgs {
-  months?: number;
-  accountId?: string;
-}
+export const SpendingByCategoryArgsSchema = z.object({
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+  accountId: z.string().optional(),
+  includeIncome: z.boolean().optional(),
+});
 
-export interface BalanceHistoryArgs {
-  accountId: string;
-  months?: number;
-}
+export type SpendingByCategoryArgs = z.infer<typeof SpendingByCategoryArgsSchema>;
 
-// Type for prompt arguments
-export interface FinancialInsightsArgs {
-  startDate?: string;
-  endDate?: string;
-}
+export const MonthlySummaryArgsSchema = z.object({
+  months: z.number().optional().default(3),
+  accountId: z.string().optional(),
+});
 
-export interface BudgetReviewArgs {
-  months?: number;
-}
+export type MonthlySummaryArgs = z.infer<typeof MonthlySummaryArgsSchema>;
+
+export const BalanceHistoryArgsSchema = z.object({
+  accountId: z.string(),
+  months: z.number().optional().default(3),
+});
+
+export type BalanceHistoryArgs = z.infer<typeof BalanceHistoryArgsSchema>;
+
+export const FinancialInsightsArgsSchema = z.object({
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+});
+
+export type FinancialInsightsArgs = z.infer<typeof FinancialInsightsArgsSchema>;
+
+export const BudgetReviewArgsSchema = z.object({
+  months: z.number().optional().default(3),
+});
+
+export type BudgetReviewArgs = z.infer<typeof BudgetReviewArgsSchema>;
 
 // Additional types used in implementation
 export interface CategoryGroupInfo {

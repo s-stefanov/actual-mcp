@@ -8,7 +8,15 @@ export class MonthlySummaryReportDataBuilder {
     accountId: string | undefined,
     accounts: Account[],
     sortedMonths: MonthData[],
-    averages: any
+    averages: {
+      avgIncome: number;
+      avgExpenses: number;
+      avgInvestments: number;
+      avgTraditionalSavings: number;
+      avgTotalSavings: number;
+      avgTraditionalSavingsRate: number;
+      avgTotalSavingsRate: number;
+    }
   ): MonthlySummaryReportData {
     const accountName = accountId ? accounts.find((a) => a.id === accountId)?.name : undefined;
 

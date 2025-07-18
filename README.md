@@ -66,14 +66,7 @@ Add the following to your configuration:
   "mcpServers": {
     "actualBudget": {
       "command": "docker",
-      "args": [
-        "run",
-        "-it",
-        "--rm",
-        "-p",
-        "3000:3000",
-        "sstefanov/actual-mcp:latest"
-      ],
+      "args": ["run", "-it", "--rm", "-p", "3000:3000", "sstefanov/actual-mcp:latest"],
       "env": {
         "ACTUAL_DATA_DIR": "/path/to/your/actual/data",
         "ACTUAL_PASSWORD": "your-password",

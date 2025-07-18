@@ -12,7 +12,7 @@ import { formatAmount, formatDate, getDateRange } from './utils.js';
 import { initActualApi, shutdownActualApi } from './actual-api.js';
 import { fetchAllAccounts } from './core/data/fetch-accounts.js';
 
-export const setupResources = (server: Server) => {
+export const setupResources = (server: Server): void => {
   /**
    * Handler for listing available resources (accounts)
    */

@@ -3,7 +3,7 @@
 // ----------------------------
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
-import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
+import { CallToolRequestSchema, ListToolsRequestSchema, ListToolsResult } from '@modelcontextprotocol/sdk/types.js';
 import { initActualApi, shutdownActualApi } from '../actual-api.js';
 import { GetTransactionsArgs, SpendingByCategoryArgs, MonthlySummaryArgs, BalanceHistoryArgs } from '../types.js';
 import { schema as getTransactionsSchema, handler as getTransactionsHandler } from './get-transactions/index.js';
@@ -16,7 +16,7 @@ import { schema as balanceHistorySchema, handler as balanceHistoryHandler } from
 import { error, errorFromCatch } from '../utils/response.js';
 import { schema as getAccountsSchema, handler as getAccountsHandler } from './get-accounts/index.js';
 
-export const setupTools = (server: Server) => {
+export const setupTools = (server: Server): void => {
   /**
    * Handler for listing available tools
    */
@@ -65,7 +65,7 @@ export const setupTools = (server: Server) => {
   });
 };
 
-function toolsSchema() {
+function toolsSchema(): ListToolsResult {
   return {
     tools: [
       getTransactionsSchema,

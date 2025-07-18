@@ -6,11 +6,12 @@ export interface BalanceHistoryInput {
 }
 
 export class BalanceHistoryInputParser {
-  parse(args: any): BalanceHistoryInput {
+  parse(args: unknown): BalanceHistoryInput {
     if (!args || typeof args !== 'object') {
       throw new Error('Arguments must be an object');
     }
-    const { accountId, months } = args;
+    const argsObj = args as Record<string, unknown>;
+    const { accountId, months } = argsObj;
     if (!accountId || typeof accountId !== 'string') {
       throw new Error('accountId is required and must be a string');
     }

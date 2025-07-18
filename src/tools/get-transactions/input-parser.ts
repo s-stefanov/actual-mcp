@@ -12,11 +12,12 @@ export interface GetTransactionsInput {
 }
 
 export class GetTransactionsInputParser {
-  parse(args: any): GetTransactionsInput {
+  parse(args: unknown): GetTransactionsInput {
     if (!args || typeof args !== 'object') {
       throw new Error('Arguments must be an object');
     }
-    const { accountId, startDate, endDate, minAmount, maxAmount, category, payee, limit } = args;
+    const argsObj = args as Record<string, unknown>;
+    const { accountId, startDate, endDate, minAmount, maxAmount, category, payee, limit } = argsObj;
     if (!accountId || typeof accountId !== 'string') {
       throw new Error('accountId is required and must be a string');
     }

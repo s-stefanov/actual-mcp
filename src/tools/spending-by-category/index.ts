@@ -1,4 +1,5 @@
 // Orchestrator for spending-by-category tool
+import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { SpendingByCategoryInputParser } from './input-parser.js';
 import { SpendingByCategoryDataFetcher } from './data-fetcher.js';
 import { CategoryMapper } from '../../core/mapping/category-mapper.js';
@@ -7,58 +8,16 @@ import { GroupAggregator } from '../../core/aggregation/group-by.js';
 import { SpendingByCategoryReportGenerator } from './report-generator.js';
 import { success, errorFromCatch } from '../../utils/response.js';
 import type { SpendingByCategoryInput } from './input-parser.js';
-import type { Account } from '../../types.js';
+import { zodToJsonSchema } from 'zod-to-json-schema';
+import { SpendingByCategoryArgsSchema, type SpendingByCategoryArgs, ToolInput, type Account } from '../../types.js';
 
 export const schema = {
   name: 'spending-by-category',
   description: 'Get spending breakdown by category for a specified date range',
-  inputSchema: {
-    type: 'object',
-    properties: {
-      startDate: {
-        type: 'string',
-        description: 'Start date in YYYY-MM-DD format',
-      },
-      endDate: {
-        type: 'string',
-        description: 'End date in YYYY-MM-DD format',
-      },
-      accountId: {
-        type: 'string',
-        description:
-          'Optional ID of a specific account to analyze. If not provided, all on-budget accounts will be used.',
-      },
-      includeIncome: {
-        type: 'boolean',
-        description: 'Whether to include income categories in the report (default: false)',
-      },
-    },
-  },
-  outputSchema: {
-    type: 'object',
-    description: 'Spending by category report response',
-    properties: {
-      content: {
-        type: 'array',
-        description: 'Array of content items',
-        items: {
-          type: 'object',
-          properties: {
-            type: { type: 'string', enum: ['text'] },
-            text: {
-              type: 'string',
-              description: 'Markdown formatted spending by category report',
-            },
-          },
-          required: ['type', 'text'],
-        },
-      },
-    },
-    required: ['content'],
-  },
+  inputSchema: zodToJsonSchema(SpendingByCategoryArgsSchema) as ToolInput,
 };
 
-export async function handler(args: any) {
+export async function handler(args: SpendingByCategoryArgs): Promise<CallToolResult> {
   try {
     const input: SpendingByCategoryInput = new SpendingByCategoryInputParser().parse(args);
     const { startDate, endDate, accountId, includeIncome } = input;
