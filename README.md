@@ -63,8 +63,17 @@ The Actual Budget MCP Server allows you to interact with your personal financial
 - [Node.js](https://nodejs.org/) (v16 or higher)
 - [Actual Budget](https://actualbudget.com/) installed and configured
 - [Claude Desktop](https://claude.ai/download) or another MCP-compatible client
+- [Docker Desktop](https://www.docker.com/products/docker-desktop) (optional)
 
-### Setup
+### Remote access
+
+Pull the latest docker image:
+
+```
+docker pull adomas399/actual-mcp:latest
+```
+
+### Local setup
 
 1. Clone the repository:
 
@@ -85,7 +94,13 @@ npm install
 npm run build
 ```
 
-4. Configure environment variables (optional):
+4. Build the local docker image (optional):
+
+```bash
+docker build -t <local-image-name> .
+```
+
+5. Configure environment variables (optional):
 
 ```bash
 # Path to your Actual Budget data directory (default: ~/.actual)
@@ -115,16 +130,16 @@ On Windows:
 code %APPDATA%\Claude\claude_desktop_config.json
 ```
 
-Add the following to your configuration:
+Add the following to your configuration...
 
-_(data_dir optional)_
+### a. Using Node.js (local only):
 
 ```json
 {
   "mcpServers": {
     "actualBudget": {
       "command": "node",
-      "args": ["/path/to/your/clone/build/index.js"],
+      "args": ["/path/to/your/clone/build/index.js", "--enable-write"],
       "env": {
         "ACTUAL_DATA_DIR": "path/to/your/data",
         "ACTUAL_PASSWORD": "your-password",
@@ -135,6 +150,8 @@ _(data_dir optional)_
   }
 }
 ```
+
+### b. Using Docker (local or remote images):
 
 ```json
 {
@@ -153,7 +170,8 @@ _(data_dir optional)_
         "ACTUAL_SERVER_URL=http://your-actual-server.com",
         "-e",
         "ACTUAL_BUDGET_SYNC_ID=your-budget-id",
-        "adomas399/actual-mcp:latest"
+        "adomas399/actual-mcp:latest",
+        "--enable-write"
       ]
     }
   }
@@ -161,6 +179,29 @@ _(data_dir optional)_
 ```
 
 After saving the configuration, restart Claude Desktop.
+
+> 💡 `ACTUAL_DATA_DIR` is optional if you're using `ACTUAL_SERVER_URL`.
+
+> 💡 Use `--enable-write` to enable write-access tools.
+
+## Running an SSE Server
+
+To expose the server over a port using Docker:
+
+```bash
+docker run -i --rm \
+  -p 3000:3000 \
+  -v "/path/to/your/data:/data" \
+  -e ACTUAL_PASSWORD="your-password" \
+  -e ACTUAL_SERVER_URL="http://your-actual-server.com" \
+  -e ACTUAL_BUDGET_SYNC_ID="your-budget-id" \
+  -e BEARER_TOKEN="your-bearer-token" \
+  adomas399/actual-mcp:latest \
+  --sse --enable-write --enable-bearer
+```
+
+> ⚠️ Important: When using --enable-bearer, the BEARER_TOKEN environment variable must be set.  
+> 🔒 This is highly recommended if you're exposing your server via a public URL.
 
 ## Example Queries
 
