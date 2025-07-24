@@ -136,7 +136,7 @@ export const setupPrompts = (server: Server): void => {
         }
 
         case 'budget-review': {
-          return budgetReviewPrompt(promptArgs as BudgetReviewArgs);
+          return budgetReviewPrompt(promptArgs as unknown as BudgetReviewArgs);
         }
 
         default:

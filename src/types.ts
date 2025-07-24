@@ -3,8 +3,8 @@ export type { Account, Transaction, Category, CategoryGroup } from './core/types
 import { z } from 'zod';
 import { ToolSchema } from '@modelcontextprotocol/sdk/types.js';
 
-const ToolInputSchema = ToolSchema.shape.inputSchema;
-export type ToolInput = z.infer<typeof ToolInputSchema>;
+const _ToolInputSchema = ToolSchema.shape.inputSchema;
+export type ToolInput = z.infer<typeof _ToolInputSchema>;
 
 export interface BudgetFile {
   id?: string;
