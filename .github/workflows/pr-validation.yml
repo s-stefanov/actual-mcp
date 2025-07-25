@@ -6,32 +6,32 @@ on:
     types: [opened, synchronize, reopened]
 
 permissions:
-  contents: read        # Read repository contents
-  pull-requests: write  # Comment on PRs with coverage
-  checks: write        # Update check status
+  contents: read # Read repository contents
+  pull-requests: write # Comment on PRs with coverage
+  checks: write # Update check status
 
 jobs:
   build-and-test:
     name: Build and Test
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: 'npm'
-          
+
       - name: Install dependencies
         run: npm ci
-        
+
       - name: Build TypeScript
         run: npm run build
-        
+
       - name: Run tests with coverage
         run: npm run test:coverage
 
@@ -49,20 +49,20 @@ jobs:
     name: Type Check
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: 'npm'
-          
+
       - name: Install dependencies
         run: npm ci
-        
+
       - name: Type check
         run: npx tsc --noEmit
 
@@ -71,16 +71,16 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-and-test
     if: always()
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Download coverage reports
         uses: actions/download-artifact@v4
         with:
           name: coverage-reports
-          
+
       - name: Vitest Coverage Report
         uses: davelosert/vitest-coverage-report-action@v2
         if: always()
@@ -88,25 +88,23 @@ jobs:
           json-summary-path: ./coverage/coverage-summary.json
           json-final-path: ./coverage/coverage-final.json
 
-  # FUTURE: ESLint Setup (commented out for future activation)
-  # Uncomment the lines below when ready to enable ESLint
-  # lint:
-  #   name: Lint
-  #   runs-on: ubuntu-latest
-  #   timeout-minutes: 5
-  #   
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
-  #       
-  #     - name: Setup Node.js
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: 22
-  #         cache: 'npm'
-  #         
-  #     - name: Install dependencies
-  #       run: npm ci
-  #       
-  #     - name: Run ESLint
-  #       run: npm run lint
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run quality checks
+        run: npm run quality
