@@ -1,5 +1,5 @@
-import { getCategories, getCategoryGroups } from "../../actual-api.js";
-import type { Category, CategoryGroup } from "../../core/types/domain.js";
+import { getCategories, getCategoryGroups } from '../../actual-api.js';
+import type { Category, CategoryGroup } from '../../core/types/domain.js';
 
 export async function fetchAllCategories(): Promise<Category[]> {
   return getCategories();

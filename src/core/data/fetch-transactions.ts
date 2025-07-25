@@ -1,5 +1,5 @@
-import { getTransactions } from "../../actual-api.js";
-import type { Account, Transaction } from "../../core/types/domain.js";
+import { getTransactions } from '../../actual-api.js';
+import type { Account, Transaction } from '../../core/types/domain.js';
 
 export async function fetchTransactionsForAccount(
   accountId: string,

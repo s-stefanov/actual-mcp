@@ -1,10 +1,8 @@
 // Aggregates category spendings into groups and sorts them
-import type { CategorySpending, GroupSpending } from "../types/domain.js";
+import type { CategorySpending, GroupSpending } from '../types/domain.js';
 
 export class GroupAggregator {
-  aggregateAndSort(
-    spendingByCategory: Record<string, CategorySpending>
-  ): GroupSpending[] {
+  aggregateAndSort(spendingByCategory: Record<string, CategorySpending>): GroupSpending[] {
     const spendingByGroup: Record<string, GroupSpending> = {};
     Object.values(spendingByCategory).forEach((category) => {
       if (!spendingByGroup[category.group]) {

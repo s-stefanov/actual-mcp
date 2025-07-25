@@ -1,6 +1,6 @@
 // Generates the markdown report for spending-by-category tool
-import type { GroupSpending } from "./types.js";
-import { formatAmount } from "../../utils.js";
+import type { GroupSpending } from './types.js';
+import { formatAmount } from '../../utils.js';
 
 export class SpendingByCategoryReportGenerator {
   generate(
@@ -12,7 +12,7 @@ export class SpendingByCategoryReportGenerator {
     let markdown = `# Spending by Category\n\n`;
     markdown += `Period: ${period.start} to ${period.end}\n\n`;
     markdown += `${accountLabel}\n\n`;
-    markdown += `Income categories: ${includeIncome ? "Included" : "Excluded"}\n\n`;
+    markdown += `Income categories: ${includeIncome ? 'Included' : 'Excluded'}\n\n`;
     sortedGroups.forEach((group) => {
       markdown += `## ${group.name}\n`;
       markdown += `Total: ${formatAmount(group.total)}\n\n`;

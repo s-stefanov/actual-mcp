@@ -2,41 +2,21 @@
 // TOOLS
 // ----------------------------
 
-import { Server } from "@modelcontextprotocol/sdk/server/index.js";
-import {
-  CallToolRequestSchema,
-  ListToolsRequestSchema,
-} from "@modelcontextprotocol/sdk/types.js";
-import { initActualApi, shutdownActualApi } from "../actual-api.js";
-import {
-  GetTransactionsArgs,
-  SpendingByCategoryArgs,
-  MonthlySummaryArgs,
-  BalanceHistoryArgs,
-} from "../types.js";
-import {
-  schema as getTransactionsSchema,
-  handler as getTransactionsHandler,
-} from "./get-transactions/index.js";
+import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { CallToolRequestSchema, ListToolsRequestSchema, ListToolsResult } from '@modelcontextprotocol/sdk/types.js';
+import { initActualApi, shutdownActualApi } from '../actual-api.js';
+import { GetTransactionsArgs, SpendingByCategoryArgs, MonthlySummaryArgs, BalanceHistoryArgs } from '../types.js';
+import { schema as getTransactionsSchema, handler as getTransactionsHandler } from './get-transactions/index.js';
 import {
   schema as spendingByCategorySchema,
   handler as spendingByCategoryHandler,
-} from "./spending-by-category/index.js";
-import {
-  schema as monthlySummarySchema,
-  handler as monthlySummaryHandler,
-} from "./monthly-summary/index.js";
-import {
-  schema as balanceHistorySchema,
-  handler as balanceHistoryHandler,
-} from "./balance-history/index.js";
-import { error, errorFromCatch } from "../utils/response.js";
-import {
-  schema as getAccountsSchema,
-  handler as getAccountsHandler,
-} from "./get-accounts/index.js";
+} from './spending-by-category/index.js';
+import { schema as monthlySummarySchema, handler as monthlySummaryHandler } from './monthly-summary/index.js';
+import { schema as balanceHistorySchema, handler as balanceHistoryHandler } from './balance-history/index.js';
+import { error, errorFromCatch } from '../utils/response.js';
+import { schema as getAccountsSchema, handler as getAccountsHandler } from './get-accounts/index.js';
 
-export const setupTools = (server: Server) => {
+export const setupTools = (server: Server): void => {
   /**
    * Handler for listing available tools
    */
@@ -52,22 +32,20 @@ export const setupTools = (server: Server) => {
 
       // Execute the requested tool
       switch (name) {
-        case "get-transactions": {
+        case 'get-transactions': {
           // TODO: Validate against schema
           return getTransactionsHandler(args as unknown as GetTransactionsArgs);
         }
 
-        case "spending-by-category": {
-          return spendingByCategoryHandler(
-            args as unknown as SpendingByCategoryArgs
-          );
+        case 'spending-by-category': {
+          return spendingByCategoryHandler(args as unknown as SpendingByCategoryArgs);
         }
 
-        case "monthly-summary": {
+        case 'monthly-summary': {
           return monthlySummaryHandler(args as unknown as MonthlySummaryArgs);
         }
 
-        case "balance-history": {
+        case 'balance-history': {
           return balanceHistoryHandler(args as unknown as BalanceHistoryArgs);
         }
 
@@ -87,7 +65,7 @@ export const setupTools = (server: Server) => {
   });
 };
 
-function toolsSchema() {
+function toolsSchema(): ListToolsResult {
   return {
     tools: [
       getTransactionsSchema,

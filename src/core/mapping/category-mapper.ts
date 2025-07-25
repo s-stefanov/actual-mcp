@@ -1,9 +1,5 @@
 // Maps category IDs to names/groups and identifies income/savings/investment categories
-import type {
-  Category,
-  CategoryGroup,
-  CategoryGroupInfo,
-} from "../types/domain.js";
+import type { Category, CategoryGroup, CategoryGroupInfo } from '../types/domain.js';
 
 export class CategoryMapper {
   categoryNames: Record<string, string> = {};
@@ -19,11 +15,10 @@ export class CategoryMapper {
       this.groupNames[group.id] = group.name;
     });
     categories.forEach((cat) => {
-      const groupName = this.groupNames[cat.group_id] || "Unknown Group";
+      const groupName = this.groupNames[cat.group_id] || 'Unknown Group';
       const isIncome = !!cat.is_income;
       const isSavingsOrInvestment =
-        groupName.toLowerCase().includes("investment") ||
-        groupName.toLowerCase().includes("savings");
+        groupName.toLowerCase().includes('investment') || groupName.toLowerCase().includes('savings');
       this.categoryToGroup[cat.id] = {
         id: cat.group_id,
         name: groupName,
@@ -37,7 +32,7 @@ export class CategoryMapper {
   }
 
   getCategoryName(categoryId: string): string {
-    return this.categoryNames[categoryId] || "Unknown Category";
+    return this.categoryNames[categoryId] || 'Unknown Category';
   }
 
   getGroupInfo(categoryId: string): CategoryGroupInfo | undefined {

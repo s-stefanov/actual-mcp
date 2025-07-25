@@ -13,14 +13,10 @@ export class GetTransactionsReportGenerator {
     filteredCount: number,
     totalCount: number
   ): string {
-    const header =
-      "| Date | Payee | Category | Amount | Notes |\n| ---- | ----- | -------- | ------ | ----- |\n";
+    const header = '| Date | Payee | Category | Amount | Notes |\n| ---- | ----- | -------- | ------ | ----- |\n';
     const rows = mappedTransactions
-      .map(
-        (t) =>
-          `| ${t.date} | ${t.payee} | ${t.category} | ${t.amount} | ${t.notes} |`
-      )
-      .join("\n");
+      .map((t) => `| ${t.date} | ${t.payee} | ${t.category} | ${t.amount} | ${t.notes} |`)
+      .join('\n');
     return `# Filtered Transactions\n\n${filterDescription}\nMatching Transactions: ${filteredCount}/${totalCount}\n\n${header}${rows}`;
   }
 }
