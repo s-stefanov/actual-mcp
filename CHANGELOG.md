@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.1.0](https://github.com/s-stefanov/actual-mcp/compare/v1.0.2...v1.1.0) (2025-07-26)
+
+
+### Features
+
+* Add Vitest unit testing framework for src/core module ([#14](https://github.com/s-stefanov/actual-mcp/issues/14)) ([80d3d80](https://github.com/s-stefanov/actual-mcp/commit/80d3d8028fec938ed06f03b60b234be19b3881d1))
+* create PR checks ([#16](https://github.com/s-stefanov/actual-mcp/issues/16)) ([b60ea97](https://github.com/s-stefanov/actual-mcp/commit/b60ea973ddffc9b93a32679beb61d616decb0455))
+* ESLint Introduction. Typings and fixes ([#15](https://github.com/s-stefanov/actual-mcp/issues/15)) ([8f33ad8](https://github.com/s-stefanov/actual-mcp/commit/8f33ad88c91ab3636fa95a53337cc8cc952a5773))
+
+
+### Bug Fixes
+
+* update actual version to latest ([f4b18e1](https://github.com/s-stefanov/actual-mcp/commit/f4b18e13329bbf78ef498e1e200ea51dae3f9d88))
+* update response type of accounts tool. test return is correct ([3dbe79a](https://github.com/s-stefanov/actual-mcp/commit/3dbe79a665a26acea6133812f36bf8a41ac60eae))
+
 ## [1.0.2](https://github.com/s-stefanov/actual-mcp/compare/v1.0.1...v1.0.2) (2025-07-02)
 
 
