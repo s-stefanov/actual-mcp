@@ -49,25 +49,6 @@ export const schema = {
     },
     required: ["accountId"],
   },
-  outputSchema: {
-    type: "object",
-    description: "Transaction report response",
-    properties: {
-      content: {
-        type: "array",
-        description: "Array of content items",
-        items: {
-          type: "object",
-          properties: {
-            type: { type: "string", enum: ["text"] },
-            text: { type: "string", description: "Markdown formatted transaction report" }
-          },
-          required: ["type", "text"]
-        }
-      }
-    },
-    required: ["content"]
-  }
 };
 
 export async function handler(args: GetTransactionsArgs) {

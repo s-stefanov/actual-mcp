@@ -34,6 +34,10 @@ export const promptsSchema = [
       },
     ],
   },
+  {
+    name: "actual-cleanup",
+    description: "Analyze budget for cleanup opportunities",
+  },
 ];
 
 const financialInsightsPrompt = (args: FinancialInsightsArgs) => {
@@ -112,6 +116,49 @@ Please provide:
   };
 };
 
+const actualCleanupPrompt = () => {
+  return {
+    description: "Analyze budget for cleanup opportunities",
+    messages: [
+      {
+        role: "user",
+        content: {
+          type: "text",
+          text: `Please review my budget structure and suggest cleanup or maintenance actions. Focus on simplifying and organizing the following resources:
+
+1. **Payees**: Identify potential duplicate payees (e.g., same name or same transfer account), payees that are no longer in use (not used in any transaction for 6+ months), or those with unclear names.
+
+2. **Rules**: Look for transaction rules that are:
+   - Not used (e.g., haven't matched any transactions recently)
+   - Duplicates (identical or overlapping conditions and actions)
+   - Possibly too broad or too specific to be useful
+
+3. **Categories & Category Groups**:
+   - Find empty categories or category groups
+   - Highlight overlapping or unclear category names
+   - Suggest merging or removing underused categories
+
+4. **Optional - Accounts**: Suggest closing or archiving any inactive or zero-balance accounts that haven't been used recently.
+
+You can use these tools to gather the necessary data:
+- \`get-payees\`
+- \`get-rules\`
+- \`get-grouped-categories\`
+- \`get-transactions\` (for checking recent activity)
+- \`get-accounts\` (optional, for inactive accounts)
+
+Please provide:
+1. A list of cleanup suggestions with a short explanation for each
+2. Group suggestions by type (payees, rules, categories, etc.)
+3. Prioritize suggestions that will improve clarity, reduce clutter, or prevent confusion in future budgeting
+4. Any additional advice to help maintain a tidy and understandable budget structure going forward
+`,
+        },
+      },
+    ],
+  };
+};
+
 // ----------------------------
 // PROMPTS
 // ----------------------------
@@ -140,6 +187,10 @@ export const setupPrompts = (server: Server) => {
 
         case "budget-review": {
           return budgetReviewPrompt(promptArgs as BudgetReviewArgs);
+        }
+
+        case "actual-cleanup": {
+          return actualCleanupPrompt();
         }
 
         default:

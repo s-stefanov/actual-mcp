@@ -35,33 +35,19 @@ export const schema = {
       },
     },
   },
-  outputSchema: {
-    type: "object",
-    description: "Spending by category report response",
-    properties: {
-      content: {
-        type: "array",
-        description: "Array of content items",
-        items: {
-          type: "object",
-          properties: {
-            type: { type: "string", enum: ["text"] },
-            text: { type: "string", description: "Markdown formatted spending by category report" }
-          },
-          required: ["type", "text"]
-        }
-      }
-    },
-    required: ["content"]
-  }
 };
 
 export async function handler(args: any) {
   try {
-    const input: SpendingByCategoryInput = new SpendingByCategoryInputParser().parse(args);
+    const input: SpendingByCategoryInput =
+      new SpendingByCategoryInputParser().parse(args);
     const { startDate, endDate, accountId, includeIncome } = input;
     const { accounts, categories, categoryGroups, transactions } =
-      await new SpendingByCategoryDataFetcher().fetchAll(accountId, startDate, endDate);
+      await new SpendingByCategoryDataFetcher().fetchAll(
+        accountId,
+        startDate,
+        endDate
+      );
     const categoryMapper = new CategoryMapper(categories, categoryGroups);
     const spendingByCategory = new TransactionGrouper().groupByCategory(
       transactions,
@@ -69,11 +55,15 @@ export async function handler(args: any) {
       (categoryId) => categoryMapper.getGroupInfo(categoryId),
       includeIncome
     );
-    const sortedGroups = new GroupAggregator().aggregateAndSort(spendingByCategory);
+    const sortedGroups = new GroupAggregator().aggregateAndSort(
+      spendingByCategory
+    );
 
     let accountLabel = "Accounts: All on-budget accounts";
     if (accountId) {
-      const account: Account | undefined = accounts.find((a) => a.id === accountId);
+      const account: Account | undefined = accounts.find(
+        (a) => a.id === accountId
+      );
       accountLabel = `Account: ${account ? account.name : accountId}`;
     }
 

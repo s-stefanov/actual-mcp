@@ -2,6 +2,7 @@
 
 export interface BalanceHistoryInput {
   accountId: string;
+  includeOffBudget: boolean;
   months: number;
 }
 
@@ -10,12 +11,10 @@ export class BalanceHistoryInputParser {
     if (!args || typeof args !== "object") {
       throw new Error("Arguments must be an object");
     }
-    const { accountId, months } = args;
-    if (!accountId || typeof accountId !== "string") {
-      throw new Error("accountId is required and must be a string");
-    }
+    const { accountId, includeOffBudget, months } = args;
     return {
       accountId,
+      includeOffBudget: includeOffBudget ?? false,
       months: typeof months === "number" && months > 0 ? months : 12,
     };
   }

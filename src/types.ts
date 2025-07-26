@@ -4,6 +4,10 @@ export {
   Transaction,
   Category,
   CategoryGroup,
+  Payee,
+  Rule,
+  Condition,
+  Action,
 } from "./core/types/domain.js";
 
 export interface BudgetFile {

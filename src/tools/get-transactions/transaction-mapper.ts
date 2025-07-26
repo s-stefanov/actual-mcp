@@ -7,8 +7,8 @@ export class GetTransactionsMapper {
     // TODO: Payee and category are not visible in the transaction object
     return transactions.map((t) => ({
       date: formatDate(t.date),
-      payee: t.payee_name || "(No payee)",
-      category: t.category_name || "(Uncategorized)",
+      payee: t.payee || "(No payee)",
+      category: t.category || "(Uncategorized)",
       amount: formatAmount(t.amount),
       notes: t.notes || "",
     }));
