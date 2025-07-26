@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.1.0](https://github.com/s-stefanov/actual-mcp/compare/v1.0.2...v1.1.0) (2025-07-25)
+## [1.1.0](https://github.com/s-stefanov/actual-mcp/compare/v1.0.2...v1.1.0) (2025-07-26)
 
 
 ### Features
