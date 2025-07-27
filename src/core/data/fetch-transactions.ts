@@ -1,5 +1,5 @@
 import { getTransactions } from "../../actual-api.js";
-import type { Account, Transaction } from "../../core/types/domain.js";
+import type { Account, Transaction } from "../types/domain.js";
 
 export async function fetchTransactionsForAccount(
   accountId: string,
@@ -17,6 +17,19 @@ export async function fetchAllOnBudgetTransactions(
   let transactions: Transaction[] = [];
   const onBudgetAccounts = accounts.filter((a) => !a.offbudget && !a.closed);
   for (const account of onBudgetAccounts) {
+    const tx = await getTransactions(account.id, start, end);
+    transactions = [...transactions, ...tx];
+  }
+  return transactions;
+}
+
+export async function fetchAllTransactions(
+  accounts: Account[],
+  start: string,
+  end: string
+): Promise<Transaction[]> {
+  let transactions: Transaction[] = [];
+  for (const account of accounts) {
     const tx = await getTransactions(account.id, start, end);
     transactions = [...transactions, ...tx];
   }

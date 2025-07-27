@@ -63,9 +63,8 @@ export function successWithJson<T>(data: T): Response {
   return {
     content: [
       {
-        type: "resource",
-        mimeType: "application/json",
-        resource: data,
+        type: "text",
+        text: JSON.stringify(data),
       },
     ],
   };
