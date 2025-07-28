@@ -15,10 +15,15 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsc && node -e \"require('fs').chmodSync('build/index.js', '755')\"",
+    "build": "tsc -p tsconfig.build.json && node -e \"require('fs').chmodSync('build/index.js', '755')\"",
     "watch": "tsc --watch",
     "inspector": "npx @modelcontextprotocol/inspector -e ACTUAL_SERVER_URL=$ACTUAL_SERVER_URL -e ACTUAL_PASSWORD=$ACTUAL_PASSWORD -e ACTUAL_BUDGET_SYNC_ID=$ACTUAL_BUDGET_SYNC_ID node build/index.js",
     "start": "tsx src/index.ts",
+    "test": "npm run test:unit",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
@@ -31,8 +36,13 @@
     "@changesets/cli": "^2.29.4",
     "@types/express": "^5.0.2",
     "@types/node": "^20.11.24",
+    "@vitest/coverage-v8": "^2.1.9",
+    "@vitest/ui": "^2.1.9",
+    "dotenv": "^16.4.7",
     "tsx": "^4.19.4",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^2.1.9"
   },
   "publishConfig": {
     "access": "public"
