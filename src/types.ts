@@ -1,5 +1,14 @@
 // Type definitions for Actual Budget API
-export type { Account, Transaction, Category, CategoryGroup } from './core/types/domain.js';
+export type {
+  Account,
+  Transaction,
+  Category,
+  CategoryGroup,
+  Payee,
+  Rule,
+  Condition,
+  Action,
+} from './core/types/domain.js';
 import { z } from 'zod';
 import { ToolSchema } from '@modelcontextprotocol/sdk/types.js';
 

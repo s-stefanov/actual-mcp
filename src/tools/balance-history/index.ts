@@ -11,6 +11,23 @@ import { zodToJsonSchema } from 'zod-to-json-schema';
 
 export const schema = {
   name: 'balance-history',
+  description: 'Get balance history over time',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      accountId: {
+        type: 'string',
+        description:
+          'Optional ID of a specific account to get balance history of. If not provided, all on-budget accounts will be used.',
+      },
+      months: {
+        type: 'number',
+        description: 'Number of months to include',
+        default: 12,
+      },
+    },
+  },
+  name: 'balance-history',
   description: 'Get account balance history over time',
   inputSchema: zodToJsonSchema(BalanceHistoryArgsSchema) as ToolInput,
 };
@@ -28,6 +45,10 @@ export async function handler(args: BalanceHistoryArgs): Promise<CallToolResult>
     const end = formatDate(endDate);
 
     // Fetch data
+    const { account, accounts, transactions } = await new BalanceHistoryDataFetcher().fetchAll(accountId, start, end);
+
+    // Calculate balance history
+    const sortedMonths = new BalanceHistoryCalculator().calculate(account, accounts, transactions, months, endDate);
     const {
       accounts: _accounts,
       account,
