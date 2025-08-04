@@ -10,24 +10,25 @@
  * - View transactions with filtering
  * - Generate financial statistics and analysis
  */
-import { Server } from "@modelcontextprotocol/sdk/server/index.js";
-import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import dotenv from "dotenv";
-import express, { NextFunction, Request, Response } from "express";
-import { parseArgs } from "node:util";
-import { initActualApi, shutdownActualApi } from "./actual-api.js";
-import { fetchAllAccounts } from "./core/data/fetch-accounts.js";
-import { setupPrompts } from "./prompts.js";
-import { setupResources } from "./resources.js";
-import { setupTools } from "./tools/index.js";
-dotenv.config({ path: ".env" });
+import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import dotenv from 'dotenv';
+import express, { NextFunction, Request, Response } from 'express';
+import { parseArgs } from 'node:util';
+import { initActualApi, shutdownActualApi } from './actual-api.js';
+import { fetchAllAccounts } from './core/data/fetch-accounts.js';
+import { setupPrompts } from './prompts.js';
+import { setupResources } from './resources.js';
+import { setupTools } from './tools/index.js';
+
+dotenv.config({ path: '.env' });
 
 // Initialize the MCP server
 const server = new Server(
   {
-    name: "Actual Budget",
-    version: "1.0.0",
+    name: 'Actual Budget',
+    version: '1.0.0',
   },
   {
     capabilities: {
@@ -43,20 +44,20 @@ const server = new Server(
 const {
   values: {
     sse: useSse,
-    "enable-write": enableWrite,
-    "enable-bearer": enableBearer,
+    'enable-write': enableWrite,
+    'enable-bearer': enableBearer,
     port,
-    "test-resources": testResources,
-    "test-custom": testCustom,
+    'test-resources': testResources,
+    'test-custom': testCustom,
   },
 } = parseArgs({
   options: {
-    sse: { type: "boolean", default: false },
-    "enable-write": { type: "boolean", default: false },
-    "enable-bearer": { type: "boolean", default: false },
-    port: { type: "string" },
-    "test-resources": { type: "boolean", default: false },
-    "test-custom": { type: "boolean", default: false },
+    sse: { type: 'boolean', default: false },
+    'enable-write': { type: 'boolean', default: false },
+    'enable-bearer': { type: 'boolean', default: false },
+    port: { type: 'string' },
+    'test-resources': { type: 'boolean', default: false },
+    'test-custom': { type: 'boolean', default: false },
   },
   allowPositionals: true,
 });
@@ -74,12 +75,12 @@ const bearerAuth = (req: Request, res: Response, next: NextFunction): void => {
 
   if (!authHeader) {
     res.status(401).json({
-      error: "Authorization header required",
+      error: 'Authorization header required',
     });
     return;
   }
 
-  if (!authHeader.startsWith("Bearer ")) {
+  if (!authHeader.startsWith('Bearer ')) {
     res.status(401).json({
       error: "Authorization header must start with 'Bearer '",
     });
@@ -90,16 +91,16 @@ const bearerAuth = (req: Request, res: Response, next: NextFunction): void => {
   const expectedToken = process.env.BEARER_TOKEN;
 
   if (!expectedToken) {
-    console.error("BEARER_TOKEN environment variable not set");
+    console.error('BEARER_TOKEN environment variable not set');
     res.status(500).json({
-      error: "Server configuration error",
+      error: 'Server configuration error',
     });
     return;
   }
 
   if (token !== expectedToken) {
     res.status(401).json({
-      error: "Invalid bearer token",
+      error: 'Invalid bearer token',
     });
     return;
   }
@@ -115,25 +116,23 @@ const bearerAuth = (req: Request, res: Response, next: NextFunction): void => {
 async function main(): Promise<void> {
   // If testing resources, verify connectivity and list accounts, then exit
   if (testResources) {
-    console.log("Testing resources...");
+    console.log('Testing resources...');
     try {
       await initActualApi();
       const accounts = await fetchAllAccounts();
       console.log(`Found ${accounts.length} account(s).`);
-      accounts.forEach((account) =>
-        console.log(`- ${account.id}: ${account.name}`)
-      );
-      console.log("Resource test passed.");
+      accounts.forEach((account) => console.log(`- ${account.id}: ${account.name}`));
+      console.log('Resource test passed.');
       await shutdownActualApi();
       process.exit(0);
     } catch (error) {
-      console.error("Resource test failed:", error);
+      console.error('Resource test failed:', error);
       process.exit(1);
     }
   }
 
   if (testCustom) {
-    console.log("Initializing custom test...");
+    console.log('Initializing custom test...');
     try {
       await initActualApi();
 
@@ -141,28 +140,22 @@ async function main(): Promise<void> {
 
       // ----------------
 
-      console.log("Custom test passed.");
+      console.log('Custom test passed.');
       await shutdownActualApi();
       process.exit(0);
     } catch (error) {
-      console.error("Custom test failed:", error);
+      console.error('Custom test failed:', error);
     }
   }
 
   // Validate environment variables
   if (!process.env.ACTUAL_DATA_DIR && !process.env.ACTUAL_SERVER_URL) {
-    console.error(
-      "Warning: Neither ACTUAL_DATA_DIR nor ACTUAL_SERVER_URL is set."
-    );
+    console.error('Warning: Neither ACTUAL_DATA_DIR nor ACTUAL_SERVER_URL is set.');
   }
 
   if (process.env.ACTUAL_SERVER_URL && !process.env.ACTUAL_PASSWORD) {
-    console.error(
-      "Warning: ACTUAL_SERVER_URL is set but ACTUAL_PASSWORD is not."
-    );
-    console.error(
-      "If your server requires authentication, initialization will fail."
-    );
+    console.error('Warning: ACTUAL_SERVER_URL is set but ACTUAL_PASSWORD is not.');
+    console.error('If your server requires authentication, initialization will fail.');
   }
 
   if (useSse) {
@@ -172,51 +165,45 @@ async function main(): Promise<void> {
 
     // Log bearer auth status
     if (enableBearer) {
-      console.error("Bearer authentication enabled for SSE endpoints");
+      console.error('Bearer authentication enabled for SSE endpoints');
     } else {
-      console.error("Bearer authentication disabled - endpoints are public");
+      console.error('Bearer authentication disabled - endpoints are public');
     }
 
     // Placeholder for future HTTP transport (stateless)
-    app.post("/mcp", bearerAuth, async (req: Request, res: Response) => {
-      res.status(501).json({ error: "HTTP transport not implemented yet" });
+    app.post('/mcp', bearerAuth, async (req: Request, res: Response) => {
+      res.status(501).json({ error: 'HTTP transport not implemented yet' });
     });
 
-    app.get("/sse", bearerAuth, (req: Request, res: Response) => {
-      transport = new SSEServerTransport("/messages", res);
+    app.get('/sse', bearerAuth, (req: Request, res: Response) => {
+      transport = new SSEServerTransport('/messages', res);
       server.connect(transport).then(() => {
-        console.log = (message: string) =>
-          server.sendLoggingMessage({ level: "info", message });
+        console.log = (message: string) => server.sendLoggingMessage({ level: 'info', message });
 
-        console.error = (message: string) =>
-          server.sendLoggingMessage({ level: "error", message });
+        console.error = (message: string) => server.sendLoggingMessage({ level: 'error', message });
 
-        console.error(
-          `Actual Budget MCP Server (SSE) started on port ${resolvedPort}`
-        );
+        console.error(`Actual Budget MCP Server (SSE) started on port ${resolvedPort}`);
       });
     });
-    app.post("/messages", bearerAuth, async (req: Request, res: Response) => {
+    app.post('/messages', bearerAuth, async (req: Request, res: Response) => {
       if (transport) {
         await transport.handlePostMessage(req, res, req.body);
       } else {
-        res.status(500).json({ error: "Transport not initialized" });
+        res.status(500).json({ error: 'Transport not initialized' });
       }
     });
 
     app.listen(resolvedPort, (error) => {
       if (error) {
-        console.error("Error:", error);
+        console.error('Error:', error);
       } else {
-        console.error(
-          `Actual Budget MCP Server (SSE) started on port ${resolvedPort}`
-        );
+        console.error(`Actual Budget MCP Server (SSE) started on port ${resolvedPort}`);
       }
     });
   } else {
     const transport = new StdioServerTransport();
     await server.connect(transport);
-    console.error("Actual Budget MCP Server (stdio) started");
+    console.error('Actual Budget MCP Server (stdio) started');
   }
 }
 
@@ -224,8 +211,8 @@ setupResources(server);
 setupTools(server, enableWrite);
 setupPrompts(server);
 
-process.on("SIGINT", () => {
-  console.error("SIGINT received, shutting down server");
+process.on('SIGINT', () => {
+  console.error('SIGINT received, shutting down server');
   server.close();
   process.exit(0);
 });
@@ -235,17 +222,17 @@ main()
     if (!useSse) {
       console.log = (message: string) =>
         server.sendLoggingMessage({
-          level: "info",
+          level: 'info',
           message,
         });
       console.error = (message: string) =>
         server.sendLoggingMessage({
-          level: "error",
+          level: 'error',
           message,
         });
     }
   })
   .catch((error: unknown) => {
-    console.error("Server error:", error);
+    console.error('Server error:', error);
     process.exit(1);
   });

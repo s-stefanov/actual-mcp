@@ -1,5 +1,6 @@
 // Calculates balance history per month for balance-history tool
 import type { Account, Transaction } from "../../types.js";
+import type { Transaction } from '../../types.js';
 
 export interface MonthBalance {
   account?: string;
@@ -96,6 +97,10 @@ export class BalanceHistoryCalculator {
     months: number,
     endDate: Date
   ): MonthBalance[] {
+  calculate(transactions: Transaction[], currentBalance: number, months: number, endDate: Date): MonthBalance[] {
+    const balanceHistory: Record<string, MonthBalance> = {};
+    let runningBalance: number = currentBalance;
+
     // Sort transactions by date (newest first)
     const sortedTransactions: Transaction[] = [...transactions].sort((a, b) => {
       return new Date(b.date).getTime() - new Date(a.date).getTime();
@@ -103,12 +108,18 @@ export class BalanceHistoryCalculator {
 
     // Generate all months we need to include
     const monthRange = this.generateMonthRange(endDate, months);
+    // Initialize with current balance for current month
+    const currentYearMonth = `${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, '0')}`;
 
     // Single-account mode
     if (account) {
       const balanceHistory: Record<string, MonthBalance> = {};
 
       let runningBalance: number = account.balance ?? 0;
+    // Process transactions to calculate past balances
+    sortedTransactions.forEach((transaction) => {
+      const date = new Date(transaction.date);
+      const yearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 
       // Initialize all months with current balance and 0 transactions
       monthRange.forEach(({ year, month, yearMonth }) => {
@@ -183,6 +194,11 @@ export class BalanceHistoryCalculator {
         const yearMonth: string = `${date.getFullYear()}-${String(
           date.getMonth() + 1
         ).padStart(2, "0")}`;
+    // Convert to array and sort by date
+    let sortedMonths: MonthBalance[] = Object.values(balanceHistory).sort((a, b) => {
+      if (a.year !== b.year) return a.year - b.year;
+      return a.month - b.month;
+    });
 
         runningBalances[accIndex] -= transaction.amount;
 

@@ -37,6 +37,13 @@
   - `npm run test:unit:watch` - Run tests in watch mode
   - `npm run test:coverage` - Generate coverage reports
   - `npm run test:ui` - Open Vitest UI for interactive testing
+- **Code quality commands**:
+  - `npm run lint` - Run ESLint to check for code quality issues
+  - `npm run lint:fix` - Auto-fix ESLint issues where possible
+  - `npm run format` - Format code with Prettier
+  - `npm run format:check` - Check if code is properly formatted
+  - `npm run type-check` - Run TypeScript type checking without compilation
+  - `npm run quality` - Run full quality check (lint + format + type-check)
 - **Include comprehensive test coverage**:
   - 1 test for expected use (happy path)
   - 1 edge case (boundary conditions)

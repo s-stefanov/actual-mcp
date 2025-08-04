@@ -29,18 +29,21 @@ The AI agent only gets the context you are appending to the PRP and training dat
 Using PRPs/templates/prp_base.md as template:
 
 ### Critical Context to Include and pass to the AI agent as part of the PRP
+
 - **Documentation**: URLs with specific sections
 - **Code Examples**: Real snippets from codebase
 - **Gotchas**: Library quirks, version issues
 - **Patterns**: Existing approaches to follow
 
 ### Implementation Blueprint
+
 - Start with pseudocode showing approach
 - Reference real files for patterns
 - Include error handling strategy
 - list tasks to be completed to fullfill the PRP in the order they should be completed
 
 ### Validation Gates (Must be Executable) eg for python
+
 ```bash
 # Syntax/Style
 ruff check --fix && mypy .
@@ -50,14 +53,16 @@ uv run pytest tests/ -v
 
 ```
 
-*** CRITICAL AFTER YOU ARE DONE RESEARCHING AND EXPLORING THE CODEBASE BEFORE YOU START WRITING THE PRP ***
+**_ CRITICAL AFTER YOU ARE DONE RESEARCHING AND EXPLORING THE CODEBASE BEFORE YOU START WRITING THE PRP _**
 
-*** ULTRATHINK ABOUT THE PRP AND PLAN YOUR APPROACH THEN START WRITING THE PRP ***
+**_ ULTRATHINK ABOUT THE PRP AND PLAN YOUR APPROACH THEN START WRITING THE PRP _**
 
 ## Output
+
 Save as: `PRPs/{feature-name}.md`
 
 ## Quality Checklist
+
 - [ ] All necessary context included
 - [ ] Validation gates are executable by AI
 - [ ] References existing patterns

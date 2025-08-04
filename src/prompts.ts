@@ -1,46 +1,43 @@
-import { Server } from "@modelcontextprotocol/sdk/server/index.js";
-import {
-  GetPromptRequestSchema,
-  ListPromptsRequestSchema,
-} from "@modelcontextprotocol/sdk/types.js";
-import { FinancialInsightsArgs, BudgetReviewArgs } from "./types.js";
-import { getDateRange } from "./utils.js";
+import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { GetPromptRequestSchema, ListPromptsRequestSchema, GetPromptResult } from '@modelcontextprotocol/sdk/types.js';
+import { FinancialInsightsArgs, BudgetReviewArgs } from './types.js';
+import { getDateRange } from './utils.js';
 
 export const promptsSchema = [
   {
-    name: "financial-insights",
-    description: "Generate financial insights and advice",
+    name: 'financial-insights',
+    description: 'Generate financial insights and advice',
     arguments: [
       {
-        name: "startDate",
-        description: "Start date in YYYY-MM-DD format",
+        name: 'startDate',
+        description: 'Start date in YYYY-MM-DD format',
         required: false,
       },
       {
-        name: "endDate",
-        description: "End date in YYYY-MM-DD format",
+        name: 'endDate',
+        description: 'End date in YYYY-MM-DD format',
         required: false,
       },
     ],
   },
   {
-    name: "budget-review",
-    description: "Review my budget and spending",
+    name: 'budget-review',
+    description: 'Review my budget and spending',
     arguments: [
       {
-        name: "months",
-        description: "Number of months to analyze",
+        name: 'months',
+        description: 'Number of months to analyze',
         required: false,
       },
     ],
   },
   {
-    name: "actual-cleanup",
-    description: "Analyze budget for cleanup opportunities",
+    name: 'actual-cleanup',
+    description: 'Analyze budget for cleanup opportunities',
   },
 ];
 
-const financialInsightsPrompt = (args: FinancialInsightsArgs) => {
+const financialInsightsPrompt = (args: FinancialInsightsArgs): GetPromptResult => {
   const { startDate, endDate } = args || {};
   const { startDate: start, endDate: end } = getDateRange(startDate, endDate);
 
@@ -48,9 +45,9 @@ const financialInsightsPrompt = (args: FinancialInsightsArgs) => {
     description: `Financial insights and recommendations from ${start} to ${end}`,
     messages: [
       {
-        role: "user",
+        role: 'user',
         content: {
-          type: "text",
+          type: 'text',
           text: `Please analyze my financial data and provide insights and recommendations. Focus on spending patterns, savings rate, and potential areas to optimize my budget. Analyze data from ${start} to ${end}.
 
 IMPORTANT: Any transactions in the "Investment & Savings" category group should be treated as POSITIVE savings, not as spending. These represent money I'm putting aside for the future, so they should be counted as savings achievements rather than expenses.
@@ -79,16 +76,16 @@ Based on this analysis, please provide:
   };
 };
 
-const budgetReviewPrompt = (args: BudgetReviewArgs) => {
+const budgetReviewPrompt = (args: BudgetReviewArgs): GetPromptResult => {
   const { months = 3 } = args || {};
 
   return {
     description: `Budget review for the past ${months} months`,
     messages: [
       {
-        role: "user",
+        role: 'user',
         content: {
-          type: "text",
+          type: 'text',
           text: `Please review my budget and spending for the past ${months} months. I'd like to understand how well I'm sticking to my budget and where I might be able to make adjustments.
     
 IMPORTANT: Any transactions in the "Investment & Savings" category group should be treated as POSITIVE savings, not as spending. These represent money I'm putting aside for the future, so they should be counted as savings achievements rather than expenses.
@@ -118,12 +115,12 @@ Please provide:
 
 const actualCleanupPrompt = () => {
   return {
-    description: "Analyze budget for cleanup opportunities",
+    description: 'Analyze budget for cleanup opportunities',
     messages: [
       {
-        role: "user",
+        role: 'user',
         content: {
-          type: "text",
+          type: 'text',
           text: `Please review my budget structure and suggest cleanup or maintenance actions. Focus on simplifying and organizing the following resources:
 
 1. **Payees**: Identify potential duplicate payees (e.g., same name or same transfer account), payees that are no longer in use (not used in any transaction for 6+ months), or those with unclear names.
@@ -163,7 +160,7 @@ Please provide:
 // PROMPTS
 // ----------------------------
 
-export const setupPrompts = (server: Server) => {
+export const setupPrompts = (server: Server): void => {
   /**
    * Handler for listing available prompts
    */
@@ -181,15 +178,15 @@ export const setupPrompts = (server: Server) => {
       const { name, arguments: promptArgs } = request.params;
 
       switch (name) {
-        case "financial-insights": {
+        case 'financial-insights': {
           return financialInsightsPrompt(promptArgs as FinancialInsightsArgs);
         }
 
-        case "budget-review": {
-          return budgetReviewPrompt(promptArgs as BudgetReviewArgs);
+        case 'budget-review': {
+          return budgetReviewPrompt(promptArgs as unknown as BudgetReviewArgs);
         }
 
-        case "actual-cleanup": {
+        case 'actual-cleanup': {
           return actualCleanupPrompt();
         }
 

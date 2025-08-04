@@ -1,5 +1,5 @@
-import { getTransactions } from "../../actual-api.js";
-import type { Account, Transaction } from "../types/domain.js";
+import { getTransactions } from '../../actual-api.js';
+import type { Account, Transaction } from '../types/domain.js';
 
 export async function fetchTransactionsForAccount(
   accountId: string,
@@ -23,11 +23,7 @@ export async function fetchAllOnBudgetTransactions(
   return transactions;
 }
 
-export async function fetchAllTransactions(
-  accounts: Account[],
-  start: string,
-  end: string
-): Promise<Transaction[]> {
+export async function fetchAllTransactions(accounts: Account[], start: string, end: string): Promise<Transaction[]> {
   let transactions: Transaction[] = [];
   for (const account of accounts) {
     const tx = await getTransactions(account.id, start, end);

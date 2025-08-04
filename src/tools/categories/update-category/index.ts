@@ -2,40 +2,38 @@
 // UPDATE CATEGORY TOOL
 // ----------------------------
 
-import { successWithJson, errorFromCatch } from "../../../utils/response.js";
-import { updateCategory } from "../../../actual-api.js";
+import { successWithJson, errorFromCatch } from '../../../utils/response.js';
+import { updateCategory } from '../../../actual-api.js';
 
 export const schema = {
-  name: "update-category",
-  description: "Update a category",
+  name: 'update-category',
+  description: 'Update a category',
   inputSchema: {
-    type: "object",
+    type: 'object',
     properties: {
       id: {
-        type: "string",
-        description: "ID of the category. Should be in UUID format.",
+        type: 'string',
+        description: 'ID of the category. Should be in UUID format.',
       },
       name: {
-        type: "string",
-        description: "New name for the category. If not changing, repeat.",
+        type: 'string',
+        description: 'New name for the category. If not changing, repeat.',
       },
       groupId: {
-        type: "string",
-        description: "New ID for the category group. Should be in UUID format.",
+        type: 'string',
+        description: 'New ID for the category group. Should be in UUID format.',
       },
     },
-    required: ["id", "name"],
+    required: ['id', 'name'],
   },
 };
 
 export async function handler(
   args: Record<string, unknown>
-): Promise<
-  ReturnType<typeof successWithJson> | ReturnType<typeof errorFromCatch>
-> {
+): Promise<ReturnType<typeof successWithJson> | ReturnType<typeof errorFromCatch>> {
   try {
-    if (!args.id || typeof args.id !== "string") {
-      return errorFromCatch("id is required and must be a string");
+    if (!args.id || typeof args.id !== 'string') {
+      return errorFromCatch('id is required and must be a string');
     }
 
     const data: Record<string, unknown> = {};
@@ -48,7 +46,7 @@ export async function handler(
 
     await updateCategory(args.id, data);
 
-    return successWithJson("Successfully updated category " + args.id);
+    return successWithJson('Successfully updated category ' + args.id);
   } catch (err) {
     return errorFromCatch(err);
   }

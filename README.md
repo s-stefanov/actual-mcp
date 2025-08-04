@@ -167,10 +167,10 @@ Add the following to your configuration...
         "-e",
         "ACTUAL_PASSWORD=your-password",
         "-e",
-        "ACTUAL_SERVER_URL=http://your-actual-server.com",
+        "ACTUAL_SERVER_URL=https://your-actual-server.com",
         "-e",
         "ACTUAL_BUDGET_SYNC_ID=your-budget-id",
-        "adomas399/actual-mcp:latest",
+        "sstefanov/actual-mcp:latest",
         "--enable-write"
       ]
     }

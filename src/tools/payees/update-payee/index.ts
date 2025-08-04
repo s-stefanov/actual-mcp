@@ -2,41 +2,38 @@
 // UPDATE PAYEE TOOL
 // ----------------------------
 
-import { successWithJson, errorFromCatch } from "../../../utils/response.js";
-import { updatePayee } from "../../../actual-api.js";
+import { successWithJson, errorFromCatch } from '../../../utils/response.js';
+import { updatePayee } from '../../../actual-api.js';
 
 export const schema = {
-  name: "update-payee",
-  description: "Update a payee",
+  name: 'update-payee',
+  description: 'Update a payee',
   inputSchema: {
-    type: "object",
+    type: 'object',
     properties: {
       id: {
-        type: "string",
-        description: "ID of the payee. Should be in UUID format.",
+        type: 'string',
+        description: 'ID of the payee. Should be in UUID format.',
       },
       name: {
-        type: "string",
-        description: "New name for the payee",
+        type: 'string',
+        description: 'New name for the payee',
       },
       transferAccount: {
-        type: "string",
-        description:
-          "New ID for the transfer account. Should be in UUID format.",
+        type: 'string',
+        description: 'New ID for the transfer account. Should be in UUID format.',
       },
     },
-    required: ["id"],
+    required: ['id'],
   },
 };
 
 export async function handler(
   args: Record<string, unknown>
-): Promise<
-  ReturnType<typeof successWithJson> | ReturnType<typeof errorFromCatch>
-> {
+): Promise<ReturnType<typeof successWithJson> | ReturnType<typeof errorFromCatch>> {
   try {
-    if (!args.id || typeof args.id !== "string") {
-      return errorFromCatch("id is required and must be a string");
+    if (!args.id || typeof args.id !== 'string') {
+      return errorFromCatch('id is required and must be a string');
     }
 
     const data: Record<string, unknown> = {};
@@ -49,7 +46,7 @@ export async function handler(
 
     await updatePayee(args.id, data);
 
-    return successWithJson("Successfully updated payee " + args.id);
+    return successWithJson('Successfully updated payee ' + args.id);
   } catch (err) {
     return errorFromCatch(err);
   }

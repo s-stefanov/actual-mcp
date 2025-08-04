@@ -65,56 +65,42 @@ export interface Payee {
 
 export interface Rule {
   id: string;
-  stage: "pre" | "post" | null;
-  conditionsOp: "and" | "or";
+  stage: 'pre' | 'post' | null;
+  conditionsOp: 'and' | 'or';
   conditions: Condition[];
   actions: Action[];
 }
 
 export interface Condition {
-  field:
-    | "account"
-    | "category"
-    | "date"
-    | "payee"
-    | "amount"
-    | "imported_payee";
+  field: 'account' | 'category' | 'date' | 'payee' | 'amount' | 'imported_payee';
   op:
-    | "is"
-    | "isNot"
-    | "oneOf"
-    | "notOneOf"
-    | "onBudget"
-    | "offBudget"
-    | "isapprox"
-    | "gt"
-    | "gte"
-    | "lt"
-    | "lte"
-    | "isbetween"
-    | "contains"
-    | "doesNotContain"
-    | "matches"
-    | "hasTags";
+    | 'is'
+    | 'isNot'
+    | 'oneOf'
+    | 'notOneOf'
+    | 'onBudget'
+    | 'offBudget'
+    | 'isapprox'
+    | 'gt'
+    | 'gte'
+    | 'lt'
+    | 'lte'
+    | 'isbetween'
+    | 'contains'
+    | 'doesNotContain'
+    | 'matches'
+    | 'hasTags';
   value: string | number | string[] | number[];
   type?: string;
 }
 
 export interface Action {
-  field:
-    | "account"
-    | "category"
-    | "date"
-    | "payee"
-    | "amount"
-    | "cleared"
-    | "notes"
-    | null;
-  op: "set" | "prepend-notes" | "append-notes" | "set-split-amount";
+  field: 'account' | 'category' | 'date' | 'payee' | 'amount' | 'cleared' | 'notes' | null;
+  op: 'set' | 'prepend-notes' | 'append-notes' | 'set-split-amount';
   value: boolean | string | number | null;
   type?: string;
   options: {
     splitIndex: number;
-    method?: "fixed-amount" | "fixed-percent" | "remainder";
+    method?: 'fixed-amount' | 'fixed-percent' | 'remainder';
   };
 }

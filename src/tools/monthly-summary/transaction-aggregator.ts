@@ -1,4 +1,4 @@
-import { Transaction, MonthData } from "../../types.js";
+import { Transaction, MonthData } from '../../types.js';
 
 export class MonthlySummaryTransactionAggregator {
   aggregate(
@@ -10,9 +10,7 @@ export class MonthlySummaryTransactionAggregator {
 
     transactions.forEach((transaction) => {
       const date = new Date(transaction.date);
-      const yearMonth = `${date.getFullYear()}-${String(
-        date.getMonth() + 1
-      ).padStart(2, "0")}`;
+      const yearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 
       if (!monthlyData[yearMonth]) {
         monthlyData[yearMonth] = {
@@ -25,9 +23,7 @@ export class MonthlySummaryTransactionAggregator {
         };
       }
 
-      const isIncome = transaction.category
-        ? incomeCategories.has(transaction.category)
-        : false;
+      const isIncome = transaction.category ? incomeCategories.has(transaction.category) : false;
       const isInvestmentOrSavings = transaction.category
         ? investmentSavingsCategories.has(transaction.category)
         : false;
@@ -43,8 +39,6 @@ export class MonthlySummaryTransactionAggregator {
       monthlyData[yearMonth].transactions += 1;
     });
 
-    return Object.values(monthlyData).sort((a, b) =>
-      a.year !== b.year ? a.year - b.year : a.month - b.month
-    );
+    return Object.values(monthlyData).sort((a, b) => (a.year !== b.year ? a.year - b.year : a.month - b.month));
   }
 }

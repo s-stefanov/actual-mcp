@@ -1,4 +1,4 @@
-import type { Category } from "../../types.js";
+import type { Category } from '../../types.js';
 
 export class MonthlySummaryCategoryClassifier {
   classify(categories: Category[]): {
@@ -11,9 +11,9 @@ export class MonthlySummaryCategoryClassifier {
     categories.forEach((cat) => {
       if (cat.is_income) incomeCategories.add(cat.id);
       if (
-        cat.name.toLowerCase().includes("investment") ||
-        cat.name.toLowerCase().includes("vacation") ||
-        cat.name.toLowerCase().includes("savings")
+        cat.name.toLowerCase().includes('investment') ||
+        cat.name.toLowerCase().includes('vacation') ||
+        cat.name.toLowerCase().includes('savings')
       ) {
         investmentSavingsCategories.add(cat.id);
       }
