@@ -27,9 +27,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run:
-          - npm ci
-          - npm install @rollup/rollup-linux-x64-gnu
+        run: npm ci & npm install @rollup/rollup-linux-x64-gnu
 
       - name: Build TypeScript
         run: npm run build
@@ -63,9 +61,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run:
-          - npm ci
-          - npm install @rollup/rollup-linux-x64-gnu
+        run: npm ci & npm install @rollup/rollup-linux-x64-gnu
 
       - name: Type check
         run: npx tsc --noEmit
@@ -108,9 +104,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run:
-          - npm ci
-          - npm install @rollup/rollup-linux-x64-gnu
+        run: npm ci & npm install @rollup/rollup-linux-x64-gnu
 
       - name: Run quality checks
         run: npm run quality
