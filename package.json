@@ -43,7 +43,7 @@
   "devDependencies": {
     "@changesets/cli": "^2.29.4",
     "@types/express": "^5.0.2",
-    "@types/node": "^20.11.24",
+    "@types/node": "^22.13.14",
     "@vitest/coverage-v8": "^3.2.4",
     "@vitest/ui": "^3.2.4",
     "eslint": "^9.31.0",
