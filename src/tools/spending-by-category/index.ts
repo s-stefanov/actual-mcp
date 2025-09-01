@@ -14,30 +14,6 @@ import { SpendingByCategoryArgsSchema, type SpendingByCategoryArgs, ToolInput, t
 export const schema = {
   name: 'spending-by-category',
   description: 'Get spending breakdown by category for a specified date range',
-  inputSchema: {
-    type: 'object',
-    properties: {
-      startDate: {
-        type: 'string',
-        description: 'Start date in YYYY-MM-DD format',
-      },
-      endDate: {
-        type: 'string',
-        description: 'End date in YYYY-MM-DD format',
-      },
-      accountId: {
-        type: 'string',
-        description:
-          'Optional ID of a specific account to analyze. If not provided, all on-budget accounts will be used.',
-      },
-      includeIncome: {
-        type: 'boolean',
-        description: 'Whether to include income categories in the report (default: false)',
-      },
-    },
-  },
-  name: 'spending-by-category',
-  description: 'Get spending breakdown by category for a specified date range',
   inputSchema: zodToJsonSchema(SpendingByCategoryArgsSchema) as ToolInput,
 };
 
@@ -45,11 +21,6 @@ export async function handler(args: SpendingByCategoryArgs): Promise<CallToolRes
   try {
     const input: SpendingByCategoryInput = new SpendingByCategoryInputParser().parse(args);
     const { startDate, endDate, accountId, includeIncome } = input;
-    const { accounts, categories, categoryGroups, transactions } = await new SpendingByCategoryDataFetcher().fetchAll(
-      accountId,
-      startDate,
-      endDate
-    );
     const { accounts, categories, categoryGroups, transactions } = await new SpendingByCategoryDataFetcher().fetchAll(
       accountId,
       startDate,

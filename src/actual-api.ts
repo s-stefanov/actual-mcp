@@ -7,8 +7,9 @@ import {
   APIAccountEntity,
   APICategoryEntity,
   APICategoryGroupEntity,
+  APIPayeeEntity,
 } from '@actual-app/api/@types/loot-core/src/server/api-models.js';
-import { TransactionEntity } from '@actual-app/api/@types/loot-core/src/types/models/index.js';
+import { RuleEntity, TransactionEntity } from '@actual-app/api/@types/loot-core/src/types/models/index.js';
 
 const DEFAULT_DATA_DIR: string = path.resolve(os.homedir() || '.', '.actual');
 
@@ -104,7 +105,7 @@ export async function getCategoryGroups(): Promise<APICategoryGroupEntity[]> {
 /**
  * Get all payees (ensures API is initialized)
  */
-export async function getPayees() {
+export async function getPayees(): Promise<APIPayeeEntity[]> {
   await initActualApi();
   return api.getPayees();
 }
@@ -120,7 +121,7 @@ export async function getTransactions(accountId: string, start: string, end: str
 /**
  * Get all rules (ensures API is initialized)
  */
-export async function getRules() {
+export async function getRules(): Promise<RuleEntity[]> {
   await initActualApi();
   return api.getRules();
 }
@@ -132,7 +133,7 @@ export async function getRules() {
 /**
  * Create a new payee (ensures API is initialized)
  */
-export async function createPayee(args: Record<string, unknown>) {
+export async function createPayee(args: Record<string, unknown>): Promise<string> {
   await initActualApi();
   return api.createPayee(args);
 }
@@ -140,7 +141,7 @@ export async function createPayee(args: Record<string, unknown>) {
 /**
  * Update a payee (ensures API is initialized)
  */
-export async function updatePayee(id: string, args: Record<string, unknown>) {
+export async function updatePayee(id: string, args: Record<string, unknown>): Promise<unknown> {
   await initActualApi();
   return api.updatePayee(id, args);
 }
@@ -148,7 +149,7 @@ export async function updatePayee(id: string, args: Record<string, unknown>) {
 /**
  * Delete a payee (ensures API is initialized)
  */
-export async function deletePayee(id: string) {
+export async function deletePayee(id: string): Promise<unknown> {
   await initActualApi();
   return api.deletePayee(id);
 }
@@ -156,7 +157,7 @@ export async function deletePayee(id: string) {
 /**
  * Create a new rule (ensures API is initialized)
  */
-export async function createRule(args: Record<string, unknown>) {
+export async function createRule(args: Record<string, unknown>): Promise<RuleEntity> {
   await initActualApi();
   return api.createRule(args);
 }
@@ -164,7 +165,7 @@ export async function createRule(args: Record<string, unknown>) {
 /**
  * Update a rule (ensures API is initialized)
  */
-export async function updateRule(args: Record<string, unknown>) {
+export async function updateRule(args: Record<string, unknown>): Promise<RuleEntity> {
   await initActualApi();
   return api.updateRule(args);
 }
@@ -172,7 +173,7 @@ export async function updateRule(args: Record<string, unknown>) {
 /**
  * Delete a rule (ensures API is initialized)
  */
-export async function deleteRule(id: string) {
+export async function deleteRule(id: string): Promise<boolean> {
   await initActualApi();
   return api.deleteRule(id);
 }
@@ -180,7 +181,7 @@ export async function deleteRule(id: string) {
 /**
  * Create a new category (ensures API is initialized)
  */
-export async function createCategory(args: Record<string, unknown>) {
+export async function createCategory(args: Record<string, unknown>): Promise<string> {
   await initActualApi();
   return api.createCategory(args);
 }
@@ -188,7 +189,7 @@ export async function createCategory(args: Record<string, unknown>) {
 /**
  * Update a category (ensures API is initialized)
  */
-export async function updateCategory(id: string, args: Record<string, unknown>) {
+export async function updateCategory(id: string, args: Record<string, unknown>): Promise<unknown> {
   await initActualApi();
   return api.updateCategory(id, args);
 }
@@ -196,7 +197,7 @@ export async function updateCategory(id: string, args: Record<string, unknown>) 
 /**
  * Delete a category (ensures API is initialized)
  */
-export async function deleteCategory(id: string) {
+export async function deleteCategory(id: string): Promise<{ error?: string }> {
   await initActualApi();
   return api.deleteCategory(id);
 }
@@ -204,7 +205,7 @@ export async function deleteCategory(id: string) {
 /**
  * Create a new category group (ensures API is initialized)
  */
-export async function createCategoryGroup(args: Record<string, unknown>) {
+export async function createCategoryGroup(args: Record<string, unknown>): Promise<string> {
   await initActualApi();
   return api.createCategoryGroup(args);
 }
@@ -212,7 +213,7 @@ export async function createCategoryGroup(args: Record<string, unknown>) {
 /**
  * Update a category group (ensures API is initialized)
  */
-export async function updateCategoryGroup(id: string, args: Record<string, unknown>) {
+export async function updateCategoryGroup(id: string, args: Record<string, unknown>): Promise<unknown> {
   await initActualApi();
   return api.updateCategoryGroup(id, args);
 }
@@ -220,7 +221,7 @@ export async function updateCategoryGroup(id: string, args: Record<string, unkno
 /**
  * Delete a category group (ensures API is initialized)
  */
-export async function deleteCategoryGroup(id: string) {
+export async function deleteCategoryGroup(id: string): Promise<unknown> {
   await initActualApi();
   return api.deleteCategoryGroup(id);
 }

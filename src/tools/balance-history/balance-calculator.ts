@@ -1,6 +1,5 @@
 // Calculates balance history per month for balance-history tool
-import type { Account, Transaction } from "../../types.js";
-import type { Transaction } from '../../types.js';
+import type { Account, Transaction } from '../../types.js';
 
 export interface MonthBalance {
   account?: string;
@@ -33,14 +32,12 @@ export class BalanceHistoryCalculator {
   }
 
   // Helper function to calculate changes for multiple accounts
-  private calculateChangesForMultipleAccounts(
-    monthBalances: MonthBalance[]
-  ): void {
+  private calculateChangesForMultipleAccounts(monthBalances: MonthBalance[]): void {
     // Group by account
     const accountGroups = new Map<string, MonthBalance[]>();
 
     monthBalances.forEach((month) => {
-      const accountName = month.account || "";
+      const accountName = month.account || '';
       if (!accountGroups.has(accountName)) {
         accountGroups.set(accountName, []);
       }
@@ -69,17 +66,14 @@ export class BalanceHistoryCalculator {
   }
 
   // Helper function to generate all months in range
-  private generateMonthRange(
-    endDate: Date,
-    months: number
-  ): Array<{ year: number; month: number; yearMonth: string }> {
+  private generateMonthRange(endDate: Date, months: number): Array<{ year: number; month: number; yearMonth: string }> {
     const monthsArray = [];
     const currentDate = new Date(endDate);
 
     for (let i = 0; i < months; i++) {
       const year = currentDate.getFullYear();
       const month = currentDate.getMonth() + 1;
-      const yearMonth = `${year}-${String(month).padStart(2, "0")}`;
+      const yearMonth = `${year}-${String(month).padStart(2, '0')}`;
 
       monthsArray.push({ year, month, yearMonth });
 
@@ -97,10 +91,6 @@ export class BalanceHistoryCalculator {
     months: number,
     endDate: Date
   ): MonthBalance[] {
-  calculate(transactions: Transaction[], currentBalance: number, months: number, endDate: Date): MonthBalance[] {
-    const balanceHistory: Record<string, MonthBalance> = {};
-    let runningBalance: number = currentBalance;
-
     // Sort transactions by date (newest first)
     const sortedTransactions: Transaction[] = [...transactions].sort((a, b) => {
       return new Date(b.date).getTime() - new Date(a.date).getTime();
@@ -108,18 +98,12 @@ export class BalanceHistoryCalculator {
 
     // Generate all months we need to include
     const monthRange = this.generateMonthRange(endDate, months);
-    // Initialize with current balance for current month
-    const currentYearMonth = `${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, '0')}`;
 
     // Single-account mode
     if (account) {
       const balanceHistory: Record<string, MonthBalance> = {};
 
       let runningBalance: number = account.balance ?? 0;
-    // Process transactions to calculate past balances
-    sortedTransactions.forEach((transaction) => {
-      const date = new Date(transaction.date);
-      const yearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 
       // Initialize all months with current balance and 0 transactions
       monthRange.forEach(({ year, month, yearMonth }) => {
@@ -134,9 +118,7 @@ export class BalanceHistoryCalculator {
       // Process transactions and update balances/transaction counts
       sortedTransactions.forEach((transaction) => {
         const date = new Date(transaction.date);
-        const yearMonth: string = `${date.getFullYear()}-${String(
-          date.getMonth() + 1
-        ).padStart(2, "0")}`;
+        const yearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 
         runningBalance -= transaction.amount;
 
@@ -154,12 +136,10 @@ export class BalanceHistoryCalculator {
       });
 
       // Convert to array and sort by date (newest first)
-      const sortedMonths: MonthBalance[] = Object.values(balanceHistory).sort(
-        (a, b) => {
-          if (a.year !== b.year) return b.year - a.year; // Reversed
-          return b.month - a.month; // Reversed
-        }
-      );
+      const sortedMonths: MonthBalance[] = Object.values(balanceHistory).sort((a, b) => {
+        if (a.year !== b.year) return b.year - a.year; // Reversed
+        return b.month - a.month; // Reversed
+      });
 
       // Calculate changes between months
       this.calculateChanges(sortedMonths);
@@ -191,25 +171,14 @@ export class BalanceHistoryCalculator {
         if (accIndex === undefined) return;
 
         const date = new Date(transaction.date);
-        const yearMonth: string = `${date.getFullYear()}-${String(
-          date.getMonth() + 1
-        ).padStart(2, "0")}`;
-    // Convert to array and sort by date
-    let sortedMonths: MonthBalance[] = Object.values(balanceHistory).sort((a, b) => {
-      if (a.year !== b.year) return a.year - b.year;
-      return a.month - b.month;
-    });
+        const yearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 
         runningBalances[accIndex] -= transaction.amount;
 
         // Update balance for this month and all previous months for this account
         monthRange.forEach(({ yearMonth: monthKey }) => {
-          if (
-            balanceHistory[accounts[accIndex].name][monthKey] &&
-            monthKey <= yearMonth
-          ) {
-            balanceHistory[accounts[accIndex].name][monthKey].balance =
-              runningBalances[accIndex];
+          if (balanceHistory[accounts[accIndex].name][monthKey] && monthKey <= yearMonth) {
+            balanceHistory[accounts[accIndex].name][monthKey].balance = runningBalances[accIndex];
           }
         });
 
@@ -220,19 +189,18 @@ export class BalanceHistoryCalculator {
       });
 
       // Convert nested records to array with account names
-      let sortedMonths: MonthBalance[] = Object.entries(balanceHistory).flatMap(
-        ([accountName, months]) =>
-          Object.values(months).map((month) => ({
-            ...month,
-            account: accountName,
-          }))
+      const sortedMonths: MonthBalance[] = Object.entries(balanceHistory).flatMap(([accountName, months]) =>
+        Object.values(months).map((month) => ({
+          ...month,
+          account: accountName,
+        }))
       );
 
       // Sort by date (newest first) and then by account name
       sortedMonths.sort((a, b) => {
         if (a.year !== b.year) return b.year - a.year; // Reversed
         if (a.month !== b.month) return b.month - a.month; // Reversed
-        return (a.account ?? "").localeCompare(b.account ?? "");
+        return (a.account ?? '').localeCompare(b.account ?? '');
       });
 
       // Calculate changes between months for each account

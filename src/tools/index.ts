@@ -56,7 +56,7 @@ const writeTools = [
   updateTransaction,
 ];
 
-export const setupTools = (server: Server, enableWrite: boolean) => {
+export const setupTools = (server: Server, enableWrite: boolean): void => {
   // Selecting available tools based on permissions
   const allTools = enableWrite ? [...readTools, ...writeTools] : readTools;
 
@@ -82,6 +82,7 @@ export const setupTools = (server: Server, enableWrite: boolean) => {
         return error(`Unknown tool ${name}`);
       }
 
+      // @ts-expect-error: Argument type is handled by Zod schema validation
       return tool.handler(args);
     } catch (err) {
       console.error(`Error executing tool ${request.params.name}:`, err);

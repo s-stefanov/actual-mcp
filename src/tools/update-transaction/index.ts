@@ -1,39 +1,17 @@
 import api from '@actual-app/api';
+import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
+import { zodToJsonSchema } from 'zod-to-json-schema';
 import { initActualApi } from '../../actual-api.js';
 import { success, errorFromCatch } from '../../utils/response.js';
+import { UpdateTransactionArgsSchema, type UpdateTransactionArgs, ToolInput } from '../../types.js';
 
 export const schema = {
   name: 'update-transaction',
   description: 'Update an existing transaction with new category, payee, notes, or amount',
-  inputSchema: {
-    type: 'object',
-    properties: {
-      transactionId: {
-        type: 'string',
-        description: 'The ID of the transaction to update',
-      },
-      categoryId: {
-        type: 'string',
-        description: 'The category ID to assign to the transaction',
-      },
-      payeeId: {
-        type: 'string',
-        description: 'The payee ID to assign to the transaction',
-      },
-      notes: {
-        type: 'string',
-        description: 'Notes to add to the transaction',
-      },
-      amount: {
-        type: 'number',
-        description: 'The amount to update (in cents)',
-      },
-    },
-    required: ['transactionId'],
-  },
+  inputSchema: zodToJsonSchema(UpdateTransactionArgsSchema) as ToolInput,
 };
 
-export async function handler(args: any) {
+export async function handler(args: UpdateTransactionArgs): Promise<CallToolResult> {
   try {
     await initActualApi();
 
@@ -59,7 +37,7 @@ export async function handler(args: any) {
     }
 
     // Update the transaction using the Actual API
-    const result = await api.updateTransaction(transactionId, updateData);
+    await api.updateTransaction(transactionId, updateData);
 
     return success(`Successfully updated transaction ${transactionId}`);
   } catch (error) {

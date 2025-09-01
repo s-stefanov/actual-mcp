@@ -1,14 +1,5 @@
 // Type definitions for Actual Budget API
-export type {
-  Account,
-  Transaction,
-  Category,
-  CategoryGroup,
-  Payee,
-  Rule,
-  Condition,
-  Action,
-} from './core/types/domain.js';
+export type { Account, Transaction, Category, CategoryGroup, Payee } from './core/types/domain.js';
 import { z } from 'zod';
 import { ToolSchema } from '@modelcontextprotocol/sdk/types.js';
 
@@ -53,6 +44,7 @@ export type MonthlySummaryArgs = z.infer<typeof MonthlySummaryArgsSchema>;
 
 export const BalanceHistoryArgsSchema = z.object({
   accountId: z.string(),
+  includeOffBudget: z.boolean().optional().default(false),
   months: z.number().optional().default(3),
 });
 
@@ -70,6 +62,16 @@ export const BudgetReviewArgsSchema = z.object({
 });
 
 export type BudgetReviewArgs = z.infer<typeof BudgetReviewArgsSchema>;
+
+export const UpdateTransactionArgsSchema = z.object({
+  transactionId: z.string(),
+  categoryId: z.string().optional(),
+  payeeId: z.string().optional(),
+  notes: z.string().optional(),
+  amount: z.number().optional(),
+});
+
+export type UpdateTransactionArgs = z.infer<typeof UpdateTransactionArgsSchema>;
 
 // Additional types used in implementation
 export interface CategoryGroupInfo {

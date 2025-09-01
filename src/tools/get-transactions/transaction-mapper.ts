@@ -15,8 +15,6 @@ export class GetTransactionsMapper {
       date: formatDate(t.date),
       payee: t.payee || '(No payee)',
       category: t.category || '(Uncategorized)',
-      payee: t.payee_name || '(No payee)',
-      category: t.category_name || '(Uncategorized)',
       amount: formatAmount(t.amount),
       notes: t.notes || '',
     }));

@@ -113,7 +113,7 @@ Please provide:
   };
 };
 
-const actualCleanupPrompt = () => {
+const actualCleanupPrompt = (): GetPromptResult => {
   return {
     description: 'Analyze budget for cleanup opportunities',
     messages: [

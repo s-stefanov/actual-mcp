@@ -17,9 +17,7 @@ export const schema = {
   },
 };
 
-export async function handler(
-  args: unknown
-): Promise<ReturnType<typeof successWithJson> | ReturnType<typeof errorFromCatch>> {
+export async function handler(): Promise<ReturnType<typeof successWithJson> | ReturnType<typeof errorFromCatch>> {
   try {
     const categoryGroups: CategoryGroup[] = await fetchAllCategoryGroups();
 

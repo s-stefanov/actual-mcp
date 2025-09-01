@@ -2,14 +2,11 @@
 // GET ACCOUNTS TOOL
 // ----------------------------
 
-import { successWithJson, errorFromCatch } from "../../utils/response.js";
-import { fetchAllAccounts } from "../../core/data/fetch-accounts.js";
-import type { Account } from "../../core/types/domain.js";
-import { getAccountBalance } from "@actual-app/api";
-import { formatAmount } from "../../utils.js";
 import { successWithJson, errorFromCatch } from '../../utils/response.js';
 import { fetchAllAccounts } from '../../core/data/fetch-accounts.js';
 import type { Account } from '../../core/types/domain.js';
+import { getAccountBalance } from '@actual-app/api';
+import { formatAmount } from '../../utils.js';
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import { type ToolInput } from '../../types.js';
@@ -23,11 +20,6 @@ export const schema = {
   inputSchema: zodToJsonSchema(GetAccountsArgsSchema) as ToolInput,
 };
 
-export async function handler(
-  args: unknown
-): Promise<
-  ReturnType<typeof successWithJson> | ReturnType<typeof errorFromCatch>
-> {
 export async function handler(): Promise<ReturnType<typeof successWithJson> | ReturnType<typeof errorFromCatch>> {
   try {
     const accounts: Account[] = await fetchAllAccounts();
@@ -39,9 +31,8 @@ export async function handler(): Promise<ReturnType<typeof successWithJson> | Re
     const structured = accounts.map((account) => ({
       id: account.id,
       name: account.name,
-      type: account.type || "Account",
-      balance: formatAmount(account.balance),
       type: account.type || 'Account',
+      balance: formatAmount(account.balance),
       closed: account.closed,
       offBudget: account.offbudget,
     }));
