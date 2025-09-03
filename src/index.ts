@@ -21,6 +21,7 @@ import { fetchAllAccounts } from './core/data/fetch-accounts.js';
 import { setupPrompts } from './prompts.js';
 import { setupResources } from './resources.js';
 import { setupTools } from './tools/index.js';
+import { SetLevelRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 
 dotenv.config({ path: '.env' });
 
@@ -211,6 +212,11 @@ setupResources(server);
 setupTools(server, enableWrite);
 setupPrompts(server);
 
+server.setRequestHandler(SetLevelRequestSchema, (request) => {
+  console.log(`--- Logging level: ${request.params.level}`);
+  return {};
+});
+
 process.on('SIGINT', () => {
   console.error('SIGINT received, shutting down server');
   server.close();
@@ -220,6 +226,7 @@ process.on('SIGINT', () => {
 main()
   .then(() => {
     if (!useSse) {
+      // TODO: Setup proper logging level change. Messages are available in the notification of MCP Inspector
       console.log = (message: string) =>
         server.sendLoggingMessage({
           level: 'info',

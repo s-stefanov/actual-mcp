@@ -70,7 +70,7 @@ The Actual Budget MCP Server allows you to interact with your personal financial
 Pull the latest docker image:
 
 ```
-docker pull adomas399/actual-mcp:latest
+docker pull sstefanov/actual-mcp:latest
 ```
 
 ### Local setup
@@ -78,7 +78,7 @@ docker pull adomas399/actual-mcp:latest
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/adomas399/actual-mcp.git
+git clone https://github.com/sstefanov/actual-mcp.git
 cd actual-mcp
 ```
 
@@ -131,6 +131,24 @@ code %APPDATA%\Claude\claude_desktop_config.json
 ```
 
 Add the following to your configuration...
+
+### a. Using Node.js (npx version):
+
+```json
+{
+  "mcpServers": {
+    "actualBudget": {
+      "command": "node",
+      "args": ["-y", "actual-mcp", "--enable-write"],
+      "env": {
+        "ACTUAL_DATA_DIR": "path/to/your/data",
+        "ACTUAL_PASSWORD": "your-password",
+        "ACTUAL_SERVER_URL": "http://your-actual-server.com",
+        "ACTUAL_BUDGET_SYNC_ID": "your-budget-id"
+      }
+    }
+  }
+}
 
 ### a. Using Node.js (local only):
 
@@ -196,7 +214,7 @@ docker run -i --rm \
   -e ACTUAL_SERVER_URL="http://your-actual-server.com" \
   -e ACTUAL_BUDGET_SYNC_ID="your-budget-id" \
   -e BEARER_TOKEN="your-bearer-token" \
-  adomas399/actual-mcp:latest \
+  sstefanov/actual-mcp:latest \
   --sse --enable-write --enable-bearer
 ```
 
