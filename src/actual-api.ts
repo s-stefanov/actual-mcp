@@ -7,8 +7,9 @@ import {
   APIAccountEntity,
   APICategoryEntity,
   APICategoryGroupEntity,
+  APIPayeeEntity,
 } from '@actual-app/api/@types/loot-core/src/server/api-models.js';
-import { TransactionEntity } from '@actual-app/api/@types/loot-core/src/types/models/index.js';
+import { RuleEntity, TransactionEntity } from '@actual-app/api/@types/loot-core/src/types/models/index.js';
 
 const DEFAULT_DATA_DIR: string = path.resolve(os.homedir() || '.', '.actual');
 
@@ -73,6 +74,10 @@ export async function shutdownActualApi(): Promise<void> {
   initialized = false;
 }
 
+// ----------------------------
+// FETCH
+// ----------------------------
+
 /**
  * Get all accounts (ensures API is initialized)
  */
@@ -98,9 +103,125 @@ export async function getCategoryGroups(): Promise<APICategoryGroupEntity[]> {
 }
 
 /**
+ * Get all payees (ensures API is initialized)
+ */
+export async function getPayees(): Promise<APIPayeeEntity[]> {
+  await initActualApi();
+  return api.getPayees();
+}
+
+/**
  * Get transactions for a specific account and date range (ensures API is initialized)
  */
 export async function getTransactions(accountId: string, start: string, end: string): Promise<TransactionEntity[]> {
   await initActualApi();
   return api.getTransactions(accountId, start, end);
+}
+
+/**
+ * Get all rules (ensures API is initialized)
+ */
+export async function getRules(): Promise<RuleEntity[]> {
+  await initActualApi();
+  return api.getRules();
+}
+
+// ----------------------------
+// ACTION
+// ----------------------------
+
+/**
+ * Create a new payee (ensures API is initialized)
+ */
+export async function createPayee(args: Record<string, unknown>): Promise<string> {
+  await initActualApi();
+  return api.createPayee(args);
+}
+
+/**
+ * Update a payee (ensures API is initialized)
+ */
+export async function updatePayee(id: string, args: Record<string, unknown>): Promise<unknown> {
+  await initActualApi();
+  return api.updatePayee(id, args);
+}
+
+/**
+ * Delete a payee (ensures API is initialized)
+ */
+export async function deletePayee(id: string): Promise<unknown> {
+  await initActualApi();
+  return api.deletePayee(id);
+}
+
+/**
+ * Create a new rule (ensures API is initialized)
+ */
+export async function createRule(args: Record<string, unknown>): Promise<RuleEntity> {
+  await initActualApi();
+  return api.createRule(args);
+}
+
+/**
+ * Update a rule (ensures API is initialized)
+ */
+export async function updateRule(args: Record<string, unknown>): Promise<RuleEntity> {
+  await initActualApi();
+  return api.updateRule(args);
+}
+
+/**
+ * Delete a rule (ensures API is initialized)
+ */
+export async function deleteRule(id: string): Promise<boolean> {
+  await initActualApi();
+  return api.deleteRule(id);
+}
+
+/**
+ * Create a new category (ensures API is initialized)
+ */
+export async function createCategory(args: Record<string, unknown>): Promise<string> {
+  await initActualApi();
+  return api.createCategory(args);
+}
+
+/**
+ * Update a category (ensures API is initialized)
+ */
+export async function updateCategory(id: string, args: Record<string, unknown>): Promise<unknown> {
+  await initActualApi();
+  return api.updateCategory(id, args);
+}
+
+/**
+ * Delete a category (ensures API is initialized)
+ */
+export async function deleteCategory(id: string): Promise<{ error?: string }> {
+  await initActualApi();
+  return api.deleteCategory(id);
+}
+
+/**
+ * Create a new category group (ensures API is initialized)
+ */
+export async function createCategoryGroup(args: Record<string, unknown>): Promise<string> {
+  await initActualApi();
+  return api.createCategoryGroup(args);
+}
+
+/**
+ * Update a category group (ensures API is initialized)
+ */
+export async function updateCategoryGroup(id: string, args: Record<string, unknown>): Promise<unknown> {
+  await initActualApi();
+  return api.updateCategoryGroup(id, args);
+}
+
+/**
+ * Delete a category group (ensures API is initialized)
+ */
+export async function deleteCategoryGroup(id: string): Promise<unknown> {
+  await initActualApi();
+  return api.deleteCategoryGroup(id);
 }

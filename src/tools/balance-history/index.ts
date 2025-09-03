@@ -28,18 +28,10 @@ export async function handler(args: BalanceHistoryArgs): Promise<CallToolResult>
     const end = formatDate(endDate);
 
     // Fetch data
-    const {
-      accounts: _accounts,
-      account,
-      transactions,
-      currentBalance,
-    } = await new BalanceHistoryDataFetcher().fetchAll(accountId, start, end);
-    if (!account) {
-      return errorFromCatch(`Account with ID ${accountId} not found`);
-    }
+    const { account, accounts, transactions } = await new BalanceHistoryDataFetcher().fetchAll(accountId, start, end);
 
     // Calculate balance history
-    const sortedMonths = new BalanceHistoryCalculator().calculate(transactions, currentBalance, months, endDate);
+    const sortedMonths = new BalanceHistoryCalculator().calculate(account, accounts, transactions, months, endDate);
 
     // Generate report
     const markdown = new BalanceHistoryReportGenerator().generate(account, { start, end }, sortedMonths);

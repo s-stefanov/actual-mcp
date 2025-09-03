@@ -32,6 +32,7 @@ export interface CategoryGroup {
   id: string;
   name: string;
   is_income?: boolean;
+  categories?: Category[];
 }
 
 export interface CategoryGroupInfo {
@@ -54,4 +55,10 @@ export interface GroupSpending {
   name: string;
   total: number;
   categories: CategorySpending[];
+}
+
+export interface Payee {
+  id: string;
+  name: string;
+  transfer_acct?: string;
 }

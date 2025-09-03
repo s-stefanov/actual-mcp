@@ -1,22 +1,19 @@
 // Parses and validates input arguments for balance-history tool
 
+import { BalanceHistoryArgs } from '../../types.js';
+
 export interface BalanceHistoryInput {
   accountId: string;
+  includeOffBudget: boolean;
   months: number;
 }
 
 export class BalanceHistoryInputParser {
-  parse(args: unknown): BalanceHistoryInput {
-    if (!args || typeof args !== 'object') {
-      throw new Error('Arguments must be an object');
-    }
-    const argsObj = args as Record<string, unknown>;
-    const { accountId, months } = argsObj;
-    if (!accountId || typeof accountId !== 'string') {
-      throw new Error('accountId is required and must be a string');
-    }
+  parse(args: BalanceHistoryArgs): BalanceHistoryInput {
+    const { accountId, includeOffBudget, months } = args;
     return {
       accountId,
+      includeOffBudget: typeof includeOffBudget === 'boolean' ? includeOffBudget : false,
       months: typeof months === 'number' && months > 0 ? months : 12,
     };
   }
