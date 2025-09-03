@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/s-stefanov/actual-mcp/compare/v1.1.0...v1.2.0) (2025-09-03)
+
+
+### Features
+
+* New tools for categories, payees, and rules ([#18](https://github.com/s-stefanov/actual-mcp/issues/18)) ([fa9bbd2](https://github.com/s-stefanov/actual-mcp/commit/fa9bbd2752e2a04ef5cc82e752100f02b0af63f3))
+
 ## [1.1.0](https://github.com/s-stefanov/actual-mcp/compare/v1.0.2...v1.1.0) (2025-07-26)
 
 
