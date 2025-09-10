@@ -37,14 +37,16 @@ export function formatAmount(amount: number | undefined | null): string {
   }).format(dollars);
 }
 
-// Helper to calculate start/end date strings for the N most recent months
+// Helper to calculate start/end date strings for the N most recent complete months
 export function getDateRangeForMonths(months: number): {
   start: string;
   end: string;
 } {
   const now = new Date();
-  const end = new Date(now.getFullYear(), now.getMonth() + 1, 0); // last day of current month
-  const start = new Date(end.getFullYear(), end.getMonth() - months + 1, 1); // first day of N months ago
+  // End with the last day of the previous month (excluding current incomplete month)
+  const end = new Date(now.getFullYear(), now.getMonth(), 0);
+  // Start with the first day of N months before the end month
+  const start = new Date(end.getFullYear(), end.getMonth() - months + 1, 1);
   return {
     start: start.toISOString().slice(0, 10),
     end: end.toISOString().slice(0, 10),

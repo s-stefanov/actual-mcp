@@ -29,6 +29,7 @@ export class MonthlySummaryTransactionAggregator {
         : false;
 
       if (isIncome || transaction.amount > 0) {
+        console.info(`Income transaction detected: ${JSON.stringify(transaction.category)}`);
         monthlyData[yearMonth].income += Math.abs(transaction.amount);
       } else if (isInvestmentOrSavings) {
         monthlyData[yearMonth].investments += Math.abs(transaction.amount);

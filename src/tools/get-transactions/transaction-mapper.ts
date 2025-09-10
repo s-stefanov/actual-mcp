@@ -14,7 +14,7 @@ export class GetTransactionsMapper {
     return transactions.map((t) => ({
       date: formatDate(t.date),
       payee: t.payee || '(No payee)',
-      category: t.category || '(Uncategorized)',
+      category: t.category_name || '(Uncategorized)',
       amount: formatAmount(t.amount),
       notes: t.notes || '',
     }));
