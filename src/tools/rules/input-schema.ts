@@ -51,7 +51,12 @@ export const RuleInputSchema = {
             description: 'Condition operator',
           },
           value: {
-            type: ['string', 'number', 'string[]', 'number[]'],
+            oneOf: [
+              { type: 'string' },
+              { type: 'number' },
+              { type: 'array', items: { type: 'string' } },
+              { type: 'array', items: { type: 'number' } },
+            ],
             description: `Condition value. Format depends on field and operator types:
               account, category, payee: ID in UUID format,
               date: YYYY-MM-DD format,
