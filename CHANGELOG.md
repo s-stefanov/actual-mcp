@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/s-stefanov/actual-mcp/compare/v1.2.0...v1.2.1) (2025-10-06)
+
+
+### Bug Fixes
+
+* use valid JSON Schema 2020-12 for rule value types ([#26](https://github.com/s-stefanov/actual-mcp/issues/26)) ([6ee4c7e](https://github.com/s-stefanov/actual-mcp/commit/6ee4c7e4c72e3b341a0acc261ffe231781acdbdf))
+
 ## [1.2.0](https://github.com/s-stefanov/actual-mcp/compare/v1.1.0...v1.2.0) (2025-09-05)
 
 
