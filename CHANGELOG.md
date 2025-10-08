@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.2](https://github.com/s-stefanov/actual-mcp/compare/v1.2.1...v1.2.2) (2025-10-08)
+
+
+### Bug Fixes
+
+* docker publish to proper username ([#29](https://github.com/s-stefanov/actual-mcp/issues/29)) ([fa15085](https://github.com/s-stefanov/actual-mcp/commit/fa150857d528c730b5f6ad20a33ede230e886635))
+
 ## [1.2.1](https://github.com/s-stefanov/actual-mcp/compare/v1.2.0...v1.2.1) (2025-10-06)
 
 
