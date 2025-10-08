@@ -36,4 +36,4 @@ jobs:
         if: ${{ steps.release.outputs.release_created }}
         with:
           push: true
-          tags: ${{ github.repository }}:${{ steps.release.outputs.tag_name }},${{ github.repository }}:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/actual-mcp:${{ steps.release.outputs.tag_name }},${{ secrets.DOCKER_USERNAME }}/actual-mcp:latest
