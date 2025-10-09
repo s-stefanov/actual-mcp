@@ -4,6 +4,7 @@ import type { Transaction } from '../../types.js';
 
 export class GetTransactionsMapper {
   map(transactions: Transaction[]): Array<{
+    id: string;
     date: string;
     payee: string;
     category: string;
@@ -12,6 +13,7 @@ export class GetTransactionsMapper {
   }> {
     // TODO: Payee and category are not visible in the transaction object
     return transactions.map((t) => ({
+      id: t.id,
       date: formatDate(t.date),
       payee: t.payee || '(No payee)',
       category: t.category || '(Uncategorized)',
