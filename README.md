@@ -114,6 +114,15 @@ export ACTUAL_PASSWORD="your-password"
 export ACTUAL_BUDGET_SYNC_ID="your-budget-id"
 ```
 
+Optional: separate encryption budget password
+
+If your Actual setup requires a different password to unlock the local/encrypted budget data than the server authentication password, you can set `ACTUAL_BUDGET_ENCRYPTION_PASSWORD` in addition to `ACTUAL_PASSWORD`.
+
+```bash
+# If server auth and encryption/unlock use different passwords
+export ACTUAL_BUDGET_ENCRYPTION_PASSWORD="your-encryption-password"
+```
+
 ## Usage with Claude Desktop
 
 To use this server with Claude Desktop, add it to your Claude configuration:
