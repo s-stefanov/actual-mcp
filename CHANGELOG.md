@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.0](https://github.com/s-stefanov/actual-mcp/compare/v1.3.0...v1.4.0) (2025-10-18)
+
+
+### Features
+
+* Enhance transaction handling with enriched data and improved input parsing ([#39](https://github.com/s-stefanov/actual-mcp/issues/39)) ([74f1270](https://github.com/s-stefanov/actual-mcp/commit/74f12709ee9efef7840dec15bd1c1424cb09f5f2))
+* Fix monthly summary with transfers calculations ([#41](https://github.com/s-stefanov/actual-mcp/issues/41)) ([af59c41](https://github.com/s-stefanov/actual-mcp/commit/af59c41d43ea3e85b10e475becc3f62273e8ebd0))
+
 ## [1.3.0](https://github.com/s-stefanov/actual-mcp/compare/v1.2.2...v1.3.0) (2025-10-09)
 
 
