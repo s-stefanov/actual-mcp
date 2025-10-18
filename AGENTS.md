@@ -48,11 +48,6 @@
   - Mock external dependencies (actual-api.js, etc.)
 - **Follow existing test patterns** in `src/core/` for consistency.
 
-### ✅ Task Completion
-
-- **Mark completed tasks in `TASK.md`** immediately after finishing them.
-- Add new sub-tasks or TODOs discovered during development to `TASK.md` under a “Discovered During Work” section.
-
 ### 📎 Style & Conventions
 
 - **Use TypeScript** as the primary language with strict type checking.
