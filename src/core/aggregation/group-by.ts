@@ -25,4 +25,11 @@ export class GroupAggregator {
     });
     return sortedGroups;
   }
+
+  byId<T extends { id: string }>(list: T[]): Record<string, T> {
+    return list.reduce<Record<string, T>>((acc, item) => {
+      acc[item.id] = item;
+      return acc;
+    }, {});
+  }
 }

@@ -11,12 +11,11 @@ export class GetTransactionsMapper {
     amount: string;
     notes: string;
   }> {
-    // TODO: Payee and category are not visible in the transaction object
     return transactions.map((t) => ({
       id: t.id,
       date: formatDate(t.date),
-      payee: t.payee || '(No payee)',
-      category: t.category || '(Uncategorized)',
+      payee: t.payee_name || t.payee || '(No payee)',
+      category: t.category_name || t.category || '(Uncategorized)',
       amount: formatAmount(t.amount),
       notes: t.notes || '',
     }));

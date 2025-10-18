@@ -145,4 +145,14 @@ describe('GroupAggregator', () => {
     expect(result[1].name).toBe('Living'); // 500 absolute value
     expect(result[1].total).toBe(-500);
   });
+
+  it('should build an id lookup map', () => {
+    const lookup = aggregator.byId([
+      { id: '1', name: 'First' },
+      { id: '2', name: 'Second' },
+    ]);
+
+    expect(lookup['1']).toEqual({ id: '1', name: 'First' });
+    expect(lookup['2']).toEqual({ id: '2', name: 'Second' });
+  });
 });
