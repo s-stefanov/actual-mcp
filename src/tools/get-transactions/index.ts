@@ -18,7 +18,7 @@ export const schema = {
 export async function handler(args: GetTransactionsArgs): Promise<CallToolResult> {
   try {
     const input = new GetTransactionsInputParser().parse(args);
-    const { accountId, startDate, endDate, minAmount, maxAmount, category, payee, limit } = input;
+    const { accountId, startDate, endDate, minAmount, maxAmount, categoryName, payeeName, limit } = input;
     const { startDate: start, endDate: end } = getDateRange(startDate, endDate);
 
     // Fetch transactions
@@ -31,12 +31,12 @@ export async function handler(args: GetTransactionsArgs): Promise<CallToolResult
     if (maxAmount !== undefined) {
       filtered = filtered.filter((t) => t.amount <= maxAmount * 100);
     }
-    if (category) {
-      const lowerCategory = category.toLowerCase();
+    if (categoryName) {
+      const lowerCategory = categoryName.toLowerCase();
       filtered = filtered.filter((t) => (t.category_name || '').toLowerCase().includes(lowerCategory));
     }
-    if (payee) {
-      const lowerPayee = payee.toLowerCase();
+    if (payeeName) {
+      const lowerPayee = payeeName.toLowerCase();
       filtered = filtered.filter((t) => (t.payee_name || '').toLowerCase().includes(lowerPayee));
     }
     if (limit && filtered.length > limit) {
@@ -51,8 +51,8 @@ export async function handler(args: GetTransactionsArgs): Promise<CallToolResult
       startDate || endDate ? `Date range: ${startDate} to ${endDate}` : null,
       minAmount !== undefined ? `Min amount: $${minAmount.toFixed(2)}` : null,
       maxAmount !== undefined ? `Max amount: $${maxAmount.toFixed(2)}` : null,
-      category ? `Category: ${category}` : null,
-      payee ? `Payee: ${payee}` : null,
+      categoryName ? `Category: ${categoryName}` : null,
+      payeeName ? `Payee: ${payeeName}` : null,
     ]
       .filter(Boolean)
       .join(', ');

@@ -19,8 +19,8 @@ export const GetTransactionsArgsSchema = z.object({
   endDate: z.string().optional(),
   minAmount: z.number().optional(),
   maxAmount: z.number().optional(),
-  category: z.string().optional(),
-  payee: z.string().optional(),
+  categoryName: z.string().optional(),
+  payeeName: z.string().optional(),
   limit: z.number().optional(),
 });
 
