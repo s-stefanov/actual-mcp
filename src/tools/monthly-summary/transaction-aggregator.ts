@@ -9,6 +9,12 @@ export class MonthlySummaryTransactionAggregator {
     const monthlyData: Record<string, MonthData> = {};
 
     transactions.forEach((transaction) => {
+      if (transaction.transfer_id && !transaction.category) {
+        // # Reason: Transfers move funds between internal accounts and should not affect income, expenses, or counts.
+        // If the transfer moves between on-budget and off-budget accounts, we may handle it differently later.
+        return;
+      }
+
       const date = new Date(transaction.date);
       const yearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 

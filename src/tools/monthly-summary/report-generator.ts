@@ -39,7 +39,7 @@ export class MonthlySummaryReportGenerator {
       const expenses: string = formatAmount(month.expenses);
       const investments: string = formatAmount(month.investments);
 
-      const traditionalSavings: number = month.income - month.expenses;
+      const traditionalSavings: number = month.income - month.expenses - month.investments;
       const totalSavings: number = traditionalSavings + month.investments;
 
       const savingsFormatted: string = formatAmount(traditionalSavings);
@@ -61,7 +61,7 @@ export class MonthlySummaryReportGenerator {
     markdown += `Average Total Savings Rate: ${avgTotalSavingsRate.toFixed(1)}%\n`;
 
     markdown += `\n## Definitions\n\n`;
-    markdown += `* **Traditional Savings**: Income minus regular expenses (excluding investments)\n`;
+    markdown += `* **Traditional Savings**: Income minus regular expenses and investments\n`;
     markdown += `* **Total Savings**: Traditional savings plus investments\n`;
 
     return markdown;

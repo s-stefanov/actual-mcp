@@ -86,6 +86,27 @@ describe('fetchTransactionsForAccount', () => {
     expect(fetchAllCategories).not.toHaveBeenCalled();
   });
 
+  it('should preserve transfer identifiers from the API response', async () => {
+    const mockTransactions = [
+      {
+        id: 'tx-1',
+        account: 'acc1',
+        date: '2023-01-03',
+        amount: -25,
+        transfer_id: 'transfer-link',
+      },
+    ];
+
+    vi.mocked(getTransactions).mockResolvedValue(mockTransactions);
+
+    const result = await fetchTransactionsForAccount('acc1', '2023-01-01', '2023-01-31');
+
+    expect(result).toEqual(mockTransactions);
+    expect(result[0].transfer_id).toBe('transfer-link');
+    expect(fetchAllPayees).not.toHaveBeenCalled();
+    expect(fetchAllCategories).not.toHaveBeenCalled();
+  });
+
   it('should handle empty response without requesting additional lookups', async () => {
     vi.mocked(getTransactions).mockResolvedValue([]);
 

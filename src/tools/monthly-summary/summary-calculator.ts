@@ -19,7 +19,7 @@ export class MonthlySummaryCalculator {
     const avgExpenses = monthCount > 0 ? totalExpenses / monthCount : 0;
     const avgInvestments = monthCount > 0 ? totalInvestments / monthCount : 0;
 
-    const avgTraditionalSavings = avgIncome - avgExpenses;
+    const avgTraditionalSavings = avgIncome - avgExpenses - avgInvestments;
     const avgTotalSavings = avgTraditionalSavings + avgInvestments;
     const avgTraditionalSavingsRate = avgIncome > 0 ? (avgTraditionalSavings / avgIncome) * 100 : 0;
     const avgTotalSavingsRate = avgIncome > 0 ? ((avgTraditionalSavings + avgInvestments) / avgIncome) * 100 : 0;
