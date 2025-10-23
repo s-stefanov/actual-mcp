@@ -78,7 +78,7 @@ docker pull sstefanov/actual-mcp:latest
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/sstefanov/actual-mcp.git
+git clone https://github.com/s-stefanov/actual-mcp.git
 cd actual-mcp
 ```
 
