@@ -147,7 +147,7 @@ Add the following to your configuration...
 {
   "mcpServers": {
     "actualBudget": {
-      "command": "node",
+      "command": "npx",
       "args": ["-y", "actual-mcp", "--enable-write"],
       "env": {
         "ACTUAL_DATA_DIR": "path/to/your/data",
