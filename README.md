@@ -78,7 +78,7 @@ docker pull sstefanov/actual-mcp:latest
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/sstefanov/actual-mcp.git
+git clone https://github.com/s-stefanov/actual-mcp.git
 cd actual-mcp
 ```
 
@@ -147,7 +147,7 @@ Add the following to your configuration...
 {
   "mcpServers": {
     "actualBudget": {
-      "command": "node",
+      "command": "npx",
       "args": ["-y", "actual-mcp", "--enable-write"],
       "env": {
         "ACTUAL_DATA_DIR": "path/to/your/data",
