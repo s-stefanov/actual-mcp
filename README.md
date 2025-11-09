@@ -240,6 +240,18 @@ Once connected, you can ask Claude questions like:
 - "What's my savings rate over the past 3 months?"
 - "Analyze my budget and suggest areas to improve"
 
+## Usage with Codex CLI
+
+Example Codex configuration:
+
+In `~/.codex/config.toml`:
+```toml
+[mcp_servers.actual-budget]
+url = "http://localhost:3000"
+```
+
+Point Codex at the same port you pass to `npm start -- --sse --port <PORT>`.
+
 ## Development
 
 For development with auto-rebuild:
