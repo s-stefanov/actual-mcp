@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.5.0](https://github.com/s-stefanov/actual-mcp/compare/v1.4.0...v1.5.0) (2025-11-10)
+
+
+### Features
+
+* Add streamable HTTP transport for Codex (Trigger Release) ([#54](https://github.com/s-stefanov/actual-mcp/issues/54)) ([ec23551](https://github.com/s-stefanov/actual-mcp/commit/ec235517ad3a1d205fc31e02bbcd0800cb9b92ef))
+
+
+### Bug Fixes
+
+* correct repo url in README.md ([#42](https://github.com/s-stefanov/actual-mcp/issues/42)) ([41b4070](https://github.com/s-stefanov/actual-mcp/commit/41b4070e4c44394a15b15947a3b799de0d7e8ef4))
+
 ## [1.4.0](https://github.com/s-stefanov/actual-mcp/compare/v1.3.0...v1.4.0) (2025-10-18)
 
 
