@@ -12,7 +12,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           release-type: node
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
         if: ${{ steps.release.outputs.release_created }}
       - uses: actions/setup-node@v3
         if: ${{ steps.release.outputs.release_created }}
