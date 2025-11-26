@@ -14,7 +14,7 @@ jobs:
           release-type: node
       - uses: actions/checkout@v2
         if: ${{ steps.release.outputs.release_created }}
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v6
         if: ${{ steps.release.outputs.release_created }}
         with:
           node-version: 22
