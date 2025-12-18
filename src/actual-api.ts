@@ -232,3 +232,11 @@ export async function deleteCategoryGroup(id: string): Promise<unknown> {
   await initActualApi();
   return api.deleteCategoryGroup(id);
 }
+
+/**
+ * Create a transaction (ensures API is initialized)
+ */
+export async function createTransaction(accountId: string, args: Record<string, unknown>): Promise<string> {
+  await initActualApi();
+  return api.addTransactions(accountId, [args]);
+}
