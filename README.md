@@ -229,8 +229,90 @@ docker run -i --rm \
   --sse --enable-write --enable-bearer
 ```
 
-> ⚠️ Important: When using --enable-bearer, the BEARER_TOKEN environment variable must be set.  
+> ⚠️ Important: When using --enable-bearer, the BEARER_TOKEN environment variable must be set.
 > 🔒 This is highly recommended if you're exposing your server via a public URL.
+
+## Authentication
+
+The server supports three authentication modes for HTTP/SSE transport:
+
+### No Authentication (default for stdio)
+
+When running in stdio mode or without auth flags, no authentication is required.
+
+### Bearer Token Authentication
+
+Simple static token authentication. Enable with the `--enable-bearer` flag.
+
+```bash
+# Required environment variable
+export BEARER_TOKEN="your-secret-token"
+# Or use the MCP-prefixed version
+export MCP_BEARER_TOKEN="your-secret-token"
+
+# Start server with bearer auth
+node build/index.js --sse --enable-bearer
+```
+
+Clients must include the token in the `Authorization` header:
+```
+Authorization: Bearer your-secret-token
+```
+
+### OAuth 2.0 Authentication
+
+Full OAuth 2.0 support with token introspection. Enable with the `--enable-oauth` flag.
+
+```bash
+# Required environment variables
+export MCP_OAUTH_ISSUER_URL="https://your-oauth-server.com/realms/your-realm"
+export MCP_OAUTH_CLIENT_ID="your-client-id"
+export MCP_OAUTH_CLIENT_SECRET="your-client-secret"
+
+# Optional environment variables
+export MCP_PUBLIC_URL="https://your-mcp-server.com/mcp"
+export MCP_OAUTH_AUDIENCE="your-audience"
+export MCP_OAUTH_INTROSPECTION_URL="https://your-oauth-server.com/introspect"
+
+# Start server with OAuth
+node build/index.js --sse --enable-oauth
+```
+
+#### OAuth Environment Variables
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `MCP_OAUTH_ISSUER_URL` | OAuth server issuer URL (for discovery) | Yes |
+| `MCP_OAUTH_INTERNAL_ISSUER_URL` | Internal issuer URL (defaults to `MCP_OAUTH_ISSUER_URL`) | No |
+| `MCP_OAUTH_PUBLIC_ISSUER_URL` | Public-facing issuer URL for metadata | No |
+| `MCP_OAUTH_CLIENT_ID` | OAuth client ID for token introspection | Yes |
+| `MCP_OAUTH_CLIENT_SECRET` | OAuth client secret | Yes |
+| `MCP_OAUTH_INTROSPECTION_URL` | Token introspection endpoint (auto-discovered if not set) | No |
+| `MCP_OAUTH_AUDIENCE` | Expected token audience (optional validation) | No |
+| `MCP_PUBLIC_URL` | Public URL of the MCP server | No |
+| `MCP_OAUTH_DISCOVERY_RETRIES` | Number of discovery retry attempts (default: 30) | No |
+| `MCP_OAUTH_DISCOVERY_RETRY_DELAY_MS` | Delay between retries in ms (default: 2000) | No |
+
+#### OAuth with Keycloak Example
+
+```bash
+docker run -i --rm \
+  -p 3000:3000 \
+  -e ACTUAL_SERVER_URL="http://your-actual-server.com" \
+  -e ACTUAL_PASSWORD="your-password" \
+  -e ACTUAL_BUDGET_SYNC_ID="your-budget-id" \
+  -e MCP_OAUTH_ISSUER_URL="http://keycloak:8080/realms/mcp" \
+  -e MCP_OAUTH_CLIENT_ID="mcp-server" \
+  -e MCP_OAUTH_CLIENT_SECRET="your-client-secret" \
+  sstefanov/actual-mcp:latest \
+  --sse --enable-write --enable-oauth
+```
+
+### Authentication Precedence
+
+- If both `--enable-oauth` and `--enable-bearer` are set, OAuth takes precedence
+- CLI flags take precedence over the `MCP_AUTH_MODE` environment variable
+- The `MCP_AUTH_MODE` env var can be set to `none`, `bearer`, or `oauth` as a fallback
 
 ## Example Queries
 

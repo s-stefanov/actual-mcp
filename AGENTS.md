@@ -10,6 +10,10 @@
   - **Main server** (`src/index.ts`): MCP server initialization and transport setup.
   - **MCP Integration**: Uses `@modelcontextprotocol/sdk` for server implementation.
   - **Actual Budget API** (`src/actual-api.ts`): Manages the connection lifecycle to Actual Budget data.
+  - **Authentication** (`src/auth/`): Authentication configuration and middleware:
+    - `config.ts`: Environment variable configuration for auth modes.
+    - `auth.ts`: Auth context builder supporting none, bearer, and OAuth modes.
+    - `index.ts`: Barrel exports.
   - **Tools** (`src/tools/`): Each tool follows a consistent modular pattern:
     - `index.ts`: Schema definition and main handler.
     - `input-parser.ts`: Argument validation and parsing.

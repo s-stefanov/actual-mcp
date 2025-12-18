@@ -14,11 +14,13 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { mcpAuthMetadataRouter } from '@modelcontextprotocol/sdk/server/auth/router.js';
 import dotenv from 'dotenv';
-import express, { NextFunction, Request, Response } from 'express';
+import express, { Request, Response } from 'express';
 import { randomUUID } from 'node:crypto';
 import { parseArgs } from 'node:util';
 import { initActualApi, shutdownActualApi } from './actual-api.js';
+import { buildAuthContext, type AuthContext, MCP_PUBLIC_URL } from './auth/index.js';
 import { fetchAllAccounts } from './core/data/fetch-accounts.js';
 import { setupPrompts } from './prompts.js';
 import { setupResources } from './resources.js';
@@ -49,6 +51,7 @@ const {
     sse: useSse,
     'enable-write': enableWrite,
     'enable-bearer': enableBearer,
+    'enable-oauth': enableOauth,
     port,
     'test-resources': testResources,
     'test-custom': testCustom,
@@ -58,6 +61,7 @@ const {
     sse: { type: 'boolean', default: false },
     'enable-write': { type: 'boolean', default: false },
     'enable-bearer': { type: 'boolean', default: false },
+    'enable-oauth': { type: 'boolean', default: false },
     port: { type: 'string' },
     'test-resources': { type: 'boolean', default: false },
     'test-custom': { type: 'boolean', default: false },
@@ -66,50 +70,6 @@ const {
 });
 
 const resolvedPort = port ? parseInt(port, 10) : 3000;
-
-// Bearer authentication middleware
-const bearerAuth = (req: Request, res: Response, next: NextFunction): void => {
-  if (!enableBearer) {
-    next();
-    return;
-  }
-
-  const authHeader = req.headers.authorization;
-
-  if (!authHeader) {
-    res.status(401).json({
-      error: 'Authorization header required',
-    });
-    return;
-  }
-
-  if (!authHeader.startsWith('Bearer ')) {
-    res.status(401).json({
-      error: "Authorization header must start with 'Bearer '",
-    });
-    return;
-  }
-
-  const token = authHeader.substring(7); // Remove "Bearer " prefix
-  const expectedToken = process.env.BEARER_TOKEN;
-
-  if (!expectedToken) {
-    console.error('BEARER_TOKEN environment variable not set');
-    res.status(500).json({
-      error: 'Server configuration error',
-    });
-    return;
-  }
-
-  if (token !== expectedToken) {
-    res.status(401).json({
-      error: 'Invalid bearer token',
-    });
-    return;
-  }
-
-  next();
-};
 
 /**
  * Safely stringify values for logging without throwing on circular structures.
@@ -176,16 +136,19 @@ async function main(): Promise<void> {
   }
 
   if (useSse) {
+    // Build auth context based on CLI flags and env vars
+    const authContext: AuthContext = await buildAuthContext({
+      enableOauth,
+      enableBearer,
+      port: resolvedPort,
+    });
+
     const app = express();
     app.use(express.json());
     let transport: SSEServerTransport | null = null;
 
-    // Log bearer auth status
-    if (enableBearer) {
-      console.error('Bearer authentication enabled for SSE endpoints');
-    } else {
-      console.error('Bearer authentication disabled - endpoints are public');
-    }
+    // Log auth mode status
+    console.error(`Authentication mode: ${authContext.mode}`);
 
     const streamableHttpTransports = new Map<string, StreamableHTTPServerTransport>();
 
@@ -196,29 +159,53 @@ async function main(): Promise<void> {
       return Array.isArray(value) ? value[0] : value;
     };
 
-    app.get(['/.well-known/oauth-authorization-server', '/.well-known/oauth-authorization-server/sse'], (_req, res) => {
-      res.status(404).json({ error: 'OAuth metadata not configured for this server' });
-    });
-    app.get(['/sse/.well-known/oauth-authorization-server'], (_req, res) => {
-      res.status(404).json({ error: 'OAuth metadata not configured for this server' });
-    });
+    // Set up OAuth metadata router if OAuth is enabled
+    if (authContext.oauthMetadata !== undefined) {
+      const mcpPublicUrl = new URL(MCP_PUBLIC_URL);
+      app.use(
+        mcpAuthMetadataRouter({
+          oauthMetadata: authContext.oauthMetadata,
+          resourceServerUrl: mcpPublicUrl,
+          scopesSupported: ['mcp:tools'],
+          resourceName: 'Actual Budget MCP Server',
+        })
+      );
+    } else {
+      // Return 404 for OAuth metadata endpoints when OAuth is not configured
+      app.get(
+        ['/.well-known/oauth-authorization-server', '/.well-known/oauth-authorization-server/sse'],
+        (_req, res) => {
+          res.status(404).json({ error: 'OAuth metadata not configured for this server' });
+        }
+      );
+      app.get(['/sse/.well-known/oauth-authorization-server'], (_req, res) => {
+        res.status(404).json({ error: 'OAuth metadata not configured for this server' });
+      });
+    }
 
-    const handleLegacySse = (req: Request, res: Response): void => {
+    const handleLegacySse = (_req: Request, res: Response): void => {
       transport = new SSEServerTransport('/messages', res);
       server.connect(transport).then(() => {
-        console.log = (message: string) => server.sendLoggingMessage({ level: 'info', message });
+        console.log = (message: string) => server.sendLoggingMessage({ level: 'info', data: message });
 
-        console.error = (message: string) => server.sendLoggingMessage({ level: 'error', message });
+        console.error = (message: string) => server.sendLoggingMessage({ level: 'error', data: message });
 
         console.error(`Actual Budget MCP Server (SSE) started on port ${resolvedPort}`);
       });
     };
 
-    app.get('/sse', bearerAuth, handleLegacySse);
+    // Register routes with optional auth middleware
+    const authMiddleware = authContext.middleware;
+
+    if (authMiddleware) {
+      app.get('/sse', authMiddleware, handleLegacySse);
+    } else {
+      app.get('/sse', handleLegacySse);
+    }
 
     const streamablePaths = ['/', '/mcp'];
 
-    app.all(streamablePaths, bearerAuth, async (req: Request, res: Response) => {
+    const handleStreamable = async (req: Request, res: Response): Promise<void> => {
       const sessionHeader = parseSessionHeader(req.headers['mcp-session-id']);
       if (req.method === 'GET' && !sessionHeader && req.headers.accept?.includes('text/event-stream')) {
         handleLegacySse(req, res);
@@ -254,9 +241,9 @@ async function main(): Promise<void> {
             try {
               await server.connect(streamableTransport);
 
-              console.log = (message: string) => server.sendLoggingMessage({ level: 'info', message });
+              console.log = (message: string) => server.sendLoggingMessage({ level: 'info', data: message });
 
-              console.error = (message: string) => server.sendLoggingMessage({ level: 'error', message });
+              console.error = (message: string) => server.sendLoggingMessage({ level: 'error', data: message });
 
               console.error(`Actual Budget MCP Server (Streamable HTTP) started on port ${resolvedPort}`);
             } catch (error) {
@@ -311,15 +298,36 @@ async function main(): Promise<void> {
           });
         }
       }
-    });
+    };
 
-    app.post('/messages', bearerAuth, async (req: Request, res: Response) => {
+    // Register streamable paths with optional auth middleware
+    if (authMiddleware) {
+      app.all(streamablePaths, authMiddleware, (req: Request, res: Response) => {
+        void handleStreamable(req, res);
+      });
+    } else {
+      app.all(streamablePaths, (req: Request, res: Response) => {
+        void handleStreamable(req, res);
+      });
+    }
+
+    const handleMessages = async (req: Request, res: Response): Promise<void> => {
       if (transport) {
         await transport.handlePostMessage(req, res, req.body);
       } else {
         res.status(500).json({ error: 'Transport not initialized' });
       }
-    });
+    };
+
+    if (authMiddleware) {
+      app.post('/messages', authMiddleware, (req: Request, res: Response) => {
+        void handleMessages(req, res);
+      });
+    } else {
+      app.post('/messages', (req: Request, res: Response) => {
+        void handleMessages(req, res);
+      });
+    }
 
     app.listen(resolvedPort, (error) => {
       if (error) {
@@ -357,12 +365,12 @@ main()
       console.log = (message: string) =>
         server.sendLoggingMessage({
           level: 'info',
-          message,
+          data: message,
         });
       console.error = (message: string) =>
         server.sendLoggingMessage({
           level: 'error',
-          message,
+          data: message,
         });
     }
   })
