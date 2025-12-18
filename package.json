@@ -41,7 +41,7 @@
     "dotenv": "16.6.1"
   },
   "devDependencies": {
-    "@changesets/cli": "2.29.7",
+    "@changesets/cli": "2.29.8",
     "@types/express": "5.0.5",
     "@types/node": "22.19.3",
     "@vitest/coverage-v8": "3.2.4",
