@@ -10,6 +10,7 @@ export class GetTransactionsMapper {
     category: string;
     amount: string;
     notes: string;
+    cleared: boolean;
   }> {
     return transactions.map((t) => ({
       id: t.id,
@@ -18,6 +19,7 @@ export class GetTransactionsMapper {
       category: t.category_name || t.category || '(Uncategorized)',
       amount: formatAmount(t.amount),
       notes: t.notes || '',
+      cleared: t.cleared ?? false,
     }));
   }
 }
