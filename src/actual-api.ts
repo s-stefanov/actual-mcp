@@ -2,7 +2,7 @@ import api from '@actual-app/api';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
-import { BudgetFile } from './types.js';
+import { BudgetFile, TransactionData } from './types.js';
 import {
   APIAccountEntity,
   APICategoryEntity,
@@ -236,7 +236,7 @@ export async function deleteCategoryGroup(id: string): Promise<unknown> {
 /**
  * Create a transaction (ensures API is initialized)
  */
-export async function createTransaction(accountId: string, args: Record<string, unknown>): Promise<string> {
+export async function createTransaction(accountId: string, data: TransactionData): Promise<string> {
   await initActualApi();
-  return api.addTransactions(accountId, [args]);
+  return api.addTransactions(accountId, [data]);
 }

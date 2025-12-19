@@ -128,6 +128,10 @@ export const CreateTransactionArgsSchema = z.object({
 
 export type CreateTransactionArgs = z.infer<typeof CreateTransactionArgsSchema>;
 
+// Schema for transaction data passed to the API (without account, which is passed separately)
+export const TransactionDataSchema = CreateTransactionArgsSchema.omit({ account: true });
+export type TransactionData = z.infer<typeof TransactionDataSchema>;
+
 // Additional types used in implementation
 export interface CategoryGroupInfo {
   id: string;
