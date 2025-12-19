@@ -11,6 +11,9 @@ const mockConfig = {
   MCP_OAUTH_CLIENT_SECRET: undefined as string | undefined,
   MCP_OAUTH_INTROSPECTION_URL: undefined as string | undefined,
   MCP_OAUTH_AUDIENCE: undefined as string | undefined,
+  MCP_OAUTH_VALIDATION_METHOD: 'auto' as 'introspection' | 'jwt' | 'auto',
+  MCP_OAUTH_JWKS_URL: undefined as string | undefined,
+  MCP_OAUTH_EXPECTED_ISSUER: undefined as string | undefined,
   MCP_OAUTH_DISCOVERY_RETRIES: 1,
   MCP_OAUTH_DISCOVERY_RETRY_DELAY_MS: 100,
 };
@@ -43,6 +46,15 @@ vi.mock('./config.js', () => ({
   get MCP_OAUTH_AUDIENCE() {
     return mockConfig.MCP_OAUTH_AUDIENCE;
   },
+  get MCP_OAUTH_VALIDATION_METHOD() {
+    return mockConfig.MCP_OAUTH_VALIDATION_METHOD;
+  },
+  get MCP_OAUTH_JWKS_URL() {
+    return mockConfig.MCP_OAUTH_JWKS_URL;
+  },
+  get MCP_OAUTH_EXPECTED_ISSUER() {
+    return mockConfig.MCP_OAUTH_EXPECTED_ISSUER;
+  },
   get MCP_OAUTH_DISCOVERY_RETRIES() {
     return mockConfig.MCP_OAUTH_DISCOVERY_RETRIES;
   },
@@ -69,6 +81,12 @@ vi.mock('@modelcontextprotocol/sdk/server/auth/router.js', () => ({
   getOAuthProtectedResourceMetadataUrl: vi.fn(() => 'http://localhost:3000/.well-known/oauth-protected-resource'),
 }));
 
+// Mock jose for JWT validation
+vi.mock('jose', () => ({
+  createRemoteJWKSet: vi.fn(() => vi.fn()),
+  jwtVerify: vi.fn(),
+}));
+
 // Import after mocks are set up
 import { resolveAuthMode, buildAuthContext, type AuthOptions } from './auth.js';
 
@@ -84,6 +102,9 @@ describe('auth module', () => {
     mockConfig.MCP_OAUTH_CLIENT_SECRET = undefined;
     mockConfig.MCP_OAUTH_INTROSPECTION_URL = undefined;
     mockConfig.MCP_OAUTH_AUDIENCE = undefined;
+    mockConfig.MCP_OAUTH_VALIDATION_METHOD = 'auto';
+    mockConfig.MCP_OAUTH_JWKS_URL = undefined;
+    mockConfig.MCP_OAUTH_EXPECTED_ISSUER = undefined;
   });
 
   describe('resolveAuthMode', () => {
@@ -163,23 +184,131 @@ describe('auth module', () => {
         );
       });
 
-      it('should throw error when OAuth client ID is not configured', async () => {
-        mockConfig.MCP_OAUTH_INTERNAL_ISSUER_URL = 'http://localhost:8080/realms/test';
-        mockConfig.MCP_OAUTH_CLIENT_ID = undefined;
+      describe('with mocked OAuth metadata', () => {
+        const mockOAuthMetadata = {
+          issuer: 'http://localhost:8080/realms/test',
+          authorization_endpoint: 'http://localhost:8080/realms/test/protocol/openid-connect/auth',
+          token_endpoint: 'http://localhost:8080/realms/test/protocol/openid-connect/token',
+          introspection_endpoint: 'http://localhost:8080/realms/test/protocol/openid-connect/token/introspect',
+          jwks_uri: 'http://localhost:8080/realms/test/protocol/openid-connect/certs',
+        };
 
-        await expect(buildAuthContext({ enableOauth: true })).rejects.toThrow(
-          'MCP_OAUTH_CLIENT_ID is required when auth mode is oauth'
-        );
+        beforeEach(() => {
+          // Mock successful OAuth metadata discovery
+          global.fetch = vi.fn().mockResolvedValue({
+            ok: true,
+            json: () => Promise.resolve(mockOAuthMetadata),
+          });
+        });
+
+        it('should use introspection when client credentials are provided', async () => {
+          mockConfig.MCP_OAUTH_INTERNAL_ISSUER_URL = 'http://localhost:8080/realms/test';
+          mockConfig.MCP_OAUTH_CLIENT_ID = 'test-client';
+          mockConfig.MCP_OAUTH_CLIENT_SECRET = 'test-secret';
+
+          const context = await buildAuthContext({ enableOauth: true });
+
+          expect(context.mode).toBe('oauth');
+          expect(context.validationMethod).toBe('introspection');
+          expect(context.middleware).toBeDefined();
+          expect(context.oauthMetadata).toBeDefined();
+        });
+
+        it('should use JWT validation when only JWKS is available (no credentials)', async () => {
+          mockConfig.MCP_OAUTH_INTERNAL_ISSUER_URL = 'http://localhost:8080/realms/test';
+          // No client credentials - should fall back to JWT
+          mockConfig.MCP_OAUTH_CLIENT_ID = undefined;
+          mockConfig.MCP_OAUTH_CLIENT_SECRET = undefined;
+
+          const context = await buildAuthContext({ enableOauth: true });
+
+          expect(context.mode).toBe('oauth');
+          expect(context.validationMethod).toBe('jwt');
+          expect(context.middleware).toBeDefined();
+        });
+
+        it('should use JWT validation when MCP_OAUTH_VALIDATION_METHOD is set to jwt', async () => {
+          mockConfig.MCP_OAUTH_INTERNAL_ISSUER_URL = 'http://localhost:8080/realms/test';
+          mockConfig.MCP_OAUTH_VALIDATION_METHOD = 'jwt';
+
+          const context = await buildAuthContext({ enableOauth: true });
+
+          expect(context.mode).toBe('oauth');
+          expect(context.validationMethod).toBe('jwt');
+        });
+
+        it('should use introspection when MCP_OAUTH_VALIDATION_METHOD is set to introspection', async () => {
+          mockConfig.MCP_OAUTH_INTERNAL_ISSUER_URL = 'http://localhost:8080/realms/test';
+          mockConfig.MCP_OAUTH_CLIENT_ID = 'test-client';
+          mockConfig.MCP_OAUTH_CLIENT_SECRET = 'test-secret';
+          mockConfig.MCP_OAUTH_VALIDATION_METHOD = 'introspection';
+
+          const context = await buildAuthContext({ enableOauth: true });
+
+          expect(context.mode).toBe('oauth');
+          expect(context.validationMethod).toBe('introspection');
+        });
+
+        it('should throw error when introspection is forced but no credentials', async () => {
+          mockConfig.MCP_OAUTH_INTERNAL_ISSUER_URL = 'http://localhost:8080/realms/test';
+          mockConfig.MCP_OAUTH_VALIDATION_METHOD = 'introspection';
+          mockConfig.MCP_OAUTH_CLIENT_ID = undefined;
+
+          await expect(buildAuthContext({ enableOauth: true })).rejects.toThrow(
+            'MCP_OAUTH_CLIENT_ID and MCP_OAUTH_CLIENT_SECRET are required for introspection validation'
+          );
+        });
+
+        it('should throw error when JWT is forced but no JWKS URI', async () => {
+          mockConfig.MCP_OAUTH_INTERNAL_ISSUER_URL = 'http://localhost:8080/realms/test';
+          mockConfig.MCP_OAUTH_VALIDATION_METHOD = 'jwt';
+
+          // Mock metadata without jwks_uri
+          global.fetch = vi.fn().mockResolvedValue({
+            ok: true,
+            json: () =>
+              Promise.resolve({
+                issuer: 'http://localhost:8080/realms/test',
+                authorization_endpoint: 'http://localhost:8080/realms/test/protocol/openid-connect/auth',
+                token_endpoint: 'http://localhost:8080/realms/test/protocol/openid-connect/token',
+              }),
+          });
+
+          await expect(buildAuthContext({ enableOauth: true })).rejects.toThrow(
+            'JWKS URI not available. Set MCP_OAUTH_JWKS_URL or ensure issuer metadata includes jwks_uri'
+          );
+        });
+
+        it('should use custom JWKS URL when provided', async () => {
+          mockConfig.MCP_OAUTH_INTERNAL_ISSUER_URL = 'http://localhost:8080/realms/test';
+          mockConfig.MCP_OAUTH_JWKS_URL = 'http://custom-jwks.example.com/certs';
+          mockConfig.MCP_OAUTH_VALIDATION_METHOD = 'jwt';
+
+          const context = await buildAuthContext({ enableOauth: true });
+
+          expect(context.validationMethod).toBe('jwt');
+        });
       });
 
-      it('should throw error when OAuth client secret is not configured', async () => {
-        mockConfig.MCP_OAUTH_INTERNAL_ISSUER_URL = 'http://localhost:8080/realms/test';
-        mockConfig.MCP_OAUTH_CLIENT_ID = 'test-client';
-        mockConfig.MCP_OAUTH_CLIENT_SECRET = undefined;
+      describe('with OAuth metadata discovery failure', () => {
+        beforeEach(() => {
+          // Mock failed OAuth metadata discovery
+          global.fetch = vi.fn().mockResolvedValue({
+            ok: false,
+            status: 404,
+            statusText: 'Not Found',
+          });
+        });
 
-        await expect(buildAuthContext({ enableOauth: true })).rejects.toThrow(
-          'MCP_OAUTH_CLIENT_SECRET is required when auth mode is oauth'
-        );
+        it('should throw error when OAuth metadata cannot be discovered', async () => {
+          mockConfig.MCP_OAUTH_INTERNAL_ISSUER_URL = 'http://localhost:8080/realms/test';
+          mockConfig.MCP_OAUTH_CLIENT_ID = 'test-client';
+          mockConfig.MCP_OAUTH_CLIENT_SECRET = 'test-secret';
+
+          await expect(buildAuthContext({ enableOauth: true })).rejects.toThrow(
+            /Unable to load OAuth metadata from issuer/
+          );
+        });
       });
     });
   });

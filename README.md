@@ -261,52 +261,45 @@ Authorization: Bearer your-secret-token
 
 ### OAuth 2.0 Authentication
 
-Full OAuth 2.0 support with token introspection. Enable with the `--enable-oauth` flag.
+Full OAuth 2.0 support with two validation methods:
 
+- **Token Introspection** - For Keycloak, Auth0, Okta, and providers with introspection endpoints
+- **JWT Validation** - For Google, Azure AD, and OIDC providers using JWKS
+
+Enable OAuth with the `--enable-oauth` flag.
+
+#### Quick Start Examples
+
+**Google OAuth (JWT validation):**
 ```bash
-# Required environment variables
-export MCP_OAUTH_ISSUER_URL="https://your-oauth-server.com/realms/your-realm"
-export MCP_OAUTH_CLIENT_ID="your-client-id"
-export MCP_OAUTH_CLIENT_SECRET="your-client-secret"
+export MCP_OAUTH_ISSUER_URL="https://accounts.google.com"
+export MCP_OAUTH_AUDIENCE="your-client-id.apps.googleusercontent.com"
 
-# Optional environment variables
-export MCP_PUBLIC_URL="https://your-mcp-server.com/mcp"
-export MCP_OAUTH_AUDIENCE="your-audience"
-export MCP_OAUTH_INTROSPECTION_URL="https://your-oauth-server.com/introspect"
-
-# Start server with OAuth
 node build/index.js --sse --enable-oauth
 ```
 
-#### OAuth Environment Variables
-
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `MCP_OAUTH_ISSUER_URL` | OAuth server issuer URL (for discovery) | Yes |
-| `MCP_OAUTH_INTERNAL_ISSUER_URL` | Internal issuer URL (defaults to `MCP_OAUTH_ISSUER_URL`) | No |
-| `MCP_OAUTH_PUBLIC_ISSUER_URL` | Public-facing issuer URL for metadata | No |
-| `MCP_OAUTH_CLIENT_ID` | OAuth client ID for token introspection | Yes |
-| `MCP_OAUTH_CLIENT_SECRET` | OAuth client secret | Yes |
-| `MCP_OAUTH_INTROSPECTION_URL` | Token introspection endpoint (auto-discovered if not set) | No |
-| `MCP_OAUTH_AUDIENCE` | Expected token audience (optional validation) | No |
-| `MCP_PUBLIC_URL` | Public URL of the MCP server | No |
-| `MCP_OAUTH_DISCOVERY_RETRIES` | Number of discovery retry attempts (default: 30) | No |
-| `MCP_OAUTH_DISCOVERY_RETRY_DELAY_MS` | Delay between retries in ms (default: 2000) | No |
-
-#### OAuth with Keycloak Example
-
+**Keycloak (Token introspection):**
 ```bash
-docker run -i --rm \
-  -p 3000:3000 \
-  -e ACTUAL_SERVER_URL="http://your-actual-server.com" \
-  -e ACTUAL_PASSWORD="your-password" \
-  -e ACTUAL_BUDGET_SYNC_ID="your-budget-id" \
-  -e MCP_OAUTH_ISSUER_URL="http://keycloak:8080/realms/mcp" \
-  -e MCP_OAUTH_CLIENT_ID="mcp-server" \
-  -e MCP_OAUTH_CLIENT_SECRET="your-client-secret" \
-  sstefanov/actual-mcp:latest \
-  --sse --enable-write --enable-oauth
+export MCP_OAUTH_ISSUER_URL="https://keycloak.example.com/realms/your-realm"
+export MCP_OAUTH_CLIENT_ID="mcp-server"
+export MCP_OAUTH_CLIENT_SECRET="your-client-secret"
+
+node build/index.js --sse --enable-oauth
 ```
+
+**Azure AD (JWT validation):**
+```bash
+export MCP_OAUTH_ISSUER_URL="https://login.microsoftonline.com/{tenant-id}/v2.0"
+export MCP_OAUTH_AUDIENCE="api://your-app-id"
+
+node build/index.js --sse --enable-oauth
+```
+
+> **See [OAUTH.md](./OAUTH.md) for complete documentation** including:
+> - Detailed provider-specific setup guides
+> - All environment variables reference
+> - Docker/reverse proxy configurations
+> - Troubleshooting tips
 
 ### Authentication Precedence
 

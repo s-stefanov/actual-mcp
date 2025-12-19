@@ -6,6 +6,7 @@
  */
 
 export type AuthMode = 'none' | 'bearer' | 'oauth';
+export type OAuthValidationMethod = 'introspection' | 'jwt' | 'auto';
 
 const parseIntEnv = (value: string | undefined, defaultValue: number): number => {
   if (value === undefined || value === '') {
@@ -48,6 +49,25 @@ export const MCP_OAUTH_CLIENT_ID = parseStringEnv(process.env.MCP_OAUTH_CLIENT_I
 export const MCP_OAUTH_CLIENT_SECRET = parseStringEnv(process.env.MCP_OAUTH_CLIENT_SECRET);
 export const MCP_OAUTH_INTROSPECTION_URL = parseStringEnv(process.env.MCP_OAUTH_INTROSPECTION_URL);
 export const MCP_OAUTH_AUDIENCE = parseStringEnv(process.env.MCP_OAUTH_AUDIENCE);
+
+// OAuth validation method: 'introspection' | 'jwt' | 'auto' (default: 'auto')
+// - 'auto': Use introspection if client credentials provided, otherwise use JWT validation
+// - 'introspection': Force token introspection (requires client ID and secret)
+// - 'jwt': Force JWT validation via JWKS (no client credentials needed)
+const parseValidationMethod = (value: string | undefined): OAuthValidationMethod => {
+  const normalized = (value ?? 'auto').toLowerCase();
+  if (normalized === 'introspection' || normalized === 'jwt' || normalized === 'auto') {
+    return normalized;
+  }
+  return 'auto';
+};
+export const MCP_OAUTH_VALIDATION_METHOD = parseValidationMethod(process.env.MCP_OAUTH_VALIDATION_METHOD);
+
+// JWKS URL for JWT validation (optional, auto-discovered from issuer metadata)
+export const MCP_OAUTH_JWKS_URL = parseStringEnv(process.env.MCP_OAUTH_JWKS_URL);
+
+// Expected issuer for JWT validation (optional, defaults to internal issuer URL)
+export const MCP_OAUTH_EXPECTED_ISSUER = parseStringEnv(process.env.MCP_OAUTH_EXPECTED_ISSUER);
 
 // OAuth discovery retry settings
 export const MCP_OAUTH_DISCOVERY_RETRIES = parseIntEnv(process.env.MCP_OAUTH_DISCOVERY_RETRIES, 30);
