@@ -64,7 +64,10 @@ export const BudgetReviewArgsSchema = z.object({
 export type BudgetReviewArgs = z.infer<typeof BudgetReviewArgsSchema>;
 
 export const UpdateSubtransactionSchema = z.object({
-  id: z.string().optional().describe('The ID of an existing subtransaction to update. Omit to add a new subtransaction.'),
+  id: z
+    .string()
+    .optional()
+    .describe('The ID of an existing subtransaction to update. Omit to add a new subtransaction.'),
   amount: z.number().describe('Required for subtransactions. A currency amount as an integer'),
   category: z.string().optional().describe('The ID of the category for this subtransaction'),
   notes: z.string().optional().describe('Any additional notes for this subtransaction'),

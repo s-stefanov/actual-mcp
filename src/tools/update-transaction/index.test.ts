@@ -113,7 +113,7 @@ describe('update-transaction tool', () => {
         imported_payee: 'AMAZON MKTPLACE PMTS',
       };
 
-      const result = await handler(args);
+      await handler(args);
 
       expect(updateTransaction).toHaveBeenCalledWith('txn-123', {
         imported_payee: 'AMAZON MKTPLACE PMTS',
@@ -128,7 +128,7 @@ describe('update-transaction tool', () => {
         imported_id: 'BANK-TXN-ABC123',
       };
 
-      const result = await handler(args);
+      await handler(args);
 
       expect(updateTransaction).toHaveBeenCalledWith('txn-123', {
         imported_id: 'BANK-TXN-ABC123',
@@ -143,7 +143,7 @@ describe('update-transaction tool', () => {
         cleared: false,
       };
 
-      const result = await handler(args);
+      await handler(args);
 
       expect(updateTransaction).toHaveBeenCalledWith('txn-123', {
         cleared: false,
@@ -158,7 +158,7 @@ describe('update-transaction tool', () => {
         account: 'new-account-456',
       };
 
-      const result = await handler(args);
+      await handler(args);
 
       expect(updateTransaction).toHaveBeenCalledWith('txn-123', {
         account: 'new-account-456',
@@ -237,7 +237,7 @@ describe('update-transaction tool', () => {
         amount: 150000,
       };
 
-      const result = await handler(args);
+      await handler(args);
 
       expect(updateTransaction).toHaveBeenCalledWith('txn-123', {
         amount: 150000,
@@ -252,7 +252,7 @@ describe('update-transaction tool', () => {
         notes: '',
       };
 
-      const result = await handler(args);
+      await handler(args);
 
       expect(updateTransaction).toHaveBeenCalledWith('txn-123', {
         notes: '',
@@ -267,7 +267,7 @@ describe('update-transaction tool', () => {
         subtransactions: [{ amount: -5000 }],
       };
 
-      const result = await handler(args);
+      await handler(args);
 
       expect(updateTransaction).toHaveBeenCalledWith('txn-123', {
         subtransactions: [{ amount: -5000 }],
@@ -282,7 +282,7 @@ describe('update-transaction tool', () => {
         subtransactions: [],
       };
 
-      const result = await handler(args);
+      await handler(args);
 
       expect(updateTransaction).toHaveBeenCalledWith('txn-123', {
         subtransactions: [],
@@ -318,6 +318,7 @@ describe('update-transaction tool', () => {
     it('should return error for missing transaction id', async () => {
       const args = {
         amount: -5000,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any;
 
       const result = await handler(args);
@@ -340,6 +341,7 @@ describe('update-transaction tool', () => {
     it('should return error for subtransaction missing amount', async () => {
       const args = {
         id: 'txn-123',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         subtransactions: [{ category: 'cat-123' }] as any,
       };
 
@@ -402,7 +404,7 @@ describe('update-transaction tool', () => {
         // Other fields are intentionally not provided
       };
 
-      const result = await handler(args);
+      await handler(args);
 
       // Should only have amount in the update call, not other undefined fields
       expect(updateTransaction).toHaveBeenCalledWith('txn-123', {
@@ -428,7 +430,7 @@ describe('update-transaction tool', () => {
         // category: undefined,
       };
 
-      const result = await handler(args);
+      await handler(args);
 
       // All falsy values should be included
       expect(updateTransaction).toHaveBeenCalledWith('txn-123', {

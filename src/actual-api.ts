@@ -248,3 +248,11 @@ export async function updateTransaction(id: string, data: UpdateTransactionData)
   await initActualApi();
   return api.updateTransaction(id, data);
 }
+
+/**
+ * Delete a transaction (ensures API is initialized)
+ */
+export async function deleteTransaction(id: string): Promise<unknown> {
+  await initActualApi();
+  return api.deleteTransaction(id);
+}
