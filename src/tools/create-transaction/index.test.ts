@@ -5,6 +5,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { handler, schema } from './index.js';
 import * as actualApi from '../../actual-api.js';
+import { CreateTransactionArgs } from '../../types.js';
 
 // Mock the actual-api module
 vi.mock('../../actual-api.js', () => ({
@@ -124,12 +125,12 @@ describe('create-transaction tool', () => {
       const args = {
         date: '2025-12-18',
         amount: 12030,
-      };
+      } as unknown as CreateTransactionArgs;
 
       const result = await handler(args);
 
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('account is required');
+      expect(result.content[0].text).toContain('account');
     });
 
     it('should return error when account is not a string', async () => {
@@ -137,24 +138,24 @@ describe('create-transaction tool', () => {
         account: 123,
         date: '2025-12-18',
         amount: 12030,
-      };
+      } as unknown as CreateTransactionArgs;
 
       const result = await handler(args);
 
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('account is required and must be a string');
+      expect(result.content[0].text).toContain('string');
     });
 
     it('should return error when date is missing', async () => {
       const args = {
         account: 'account-456',
         amount: 12030,
-      };
+      } as unknown as CreateTransactionArgs;
 
       const result = await handler(args);
 
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('date is required');
+      expect(result.content[0].text).toContain('date');
     });
 
     it('should return error when date format is invalid', async () => {
@@ -174,12 +175,12 @@ describe('create-transaction tool', () => {
       const args = {
         account: 'account-456',
         date: '2025-12-18',
-      };
+      } as unknown as CreateTransactionArgs;
 
       const result = await handler(args);
 
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('amount is required');
+      expect(result.content[0].text).toContain('amount');
     });
 
     it('should return error when amount is not a number', async () => {
@@ -187,12 +188,12 @@ describe('create-transaction tool', () => {
         account: 'account-456',
         date: '2025-12-18',
         amount: '12030',
-      };
+      } as unknown as CreateTransactionArgs;
 
       const result = await handler(args);
 
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('amount is required and must be a number');
+      expect(result.content[0].text).toContain('number');
     });
 
     it('should return error when category is not a string', async () => {
@@ -201,12 +202,12 @@ describe('create-transaction tool', () => {
         date: '2025-12-18',
         amount: 12030,
         category: 123,
-      };
+      } as unknown as CreateTransactionArgs;
 
       const result = await handler(args);
 
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('category must be a string');
+      expect(result.content[0].text).toContain('string');
     });
 
     it('should return error when subtransactions is not an array', async () => {
@@ -215,12 +216,12 @@ describe('create-transaction tool', () => {
         date: '2025-12-18',
         amount: 12030,
         subtransactions: 'not-an-array',
-      };
+      } as unknown as CreateTransactionArgs;
 
       const result = await handler(args);
 
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('subtransactions must be an array');
+      expect(result.content[0].text).toContain('array');
     });
 
     it('should return error when subtransaction is missing amount', async () => {
@@ -229,12 +230,12 @@ describe('create-transaction tool', () => {
         date: '2025-12-18',
         amount: 20000,
         subtransactions: [{ category: 'cat-1' }],
-      };
+      } as unknown as CreateTransactionArgs;
 
       const result = await handler(args);
 
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('subtransaction at index 0 must have an amount field');
+      expect(result.content[0].text).toContain('amount');
     });
   });
 

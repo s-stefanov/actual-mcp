@@ -73,6 +73,61 @@ export const UpdateTransactionArgsSchema = z.object({
 
 export type UpdateTransactionArgs = z.infer<typeof UpdateTransactionArgsSchema>;
 
+export const SubtransactionSchema = z.object({
+  amount: z.number().describe('Required for subtransactions. A currency amount as an integer'),
+  category: z.string().optional().describe('The ID of the category for this subtransaction'),
+  notes: z.string().optional().describe('Any additional notes for this subtransaction'),
+});
+
+export type Subtransaction = z.infer<typeof SubtransactionSchema>;
+
+export const CreateTransactionArgsSchema = z.object({
+  account: z.string().describe('Required. The ID of the account this transaction belongs to'),
+  date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'date must be in YYYY-MM-DD format')
+    .describe('Required. Transaction date in YYYY-MM-DD format'),
+  amount: z
+    .number()
+    .describe(
+      'Required. A currency amount as an integer representing the value without decimal places. For example, USD amount of $120.30 would be 12030'
+    ),
+  payee: z.string().optional().describe('An existing payee ID. This overrides payee_name if both are provided.'),
+  payee_name: z
+    .string()
+    .optional()
+    .describe(
+      'If given, a payee will be created with this name. If this matches an already existing payee, that payee will be used.'
+    ),
+  imported_payee: z
+    .string()
+    .optional()
+    .describe(
+      'This can be anything. Meant to represent the raw description when importing, allowing the user to see the original value'
+    ),
+  category: z.string().optional().describe('Recommended. The ID of the category to assign to this transaction'),
+  notes: z.string().optional().describe('Any additional notes for the transaction'),
+  imported_id: z
+    .string()
+    .optional()
+    .describe('A unique id usually given by the bank, if importing. Use this to avoid duplicate transactions'),
+  transfer_id: z
+    .string()
+    .optional()
+    .describe(
+      'If a transfer, the id of the corresponding transaction in the other account. Only set this when importing'
+    ),
+  cleared: z.boolean().optional().describe('A flag indicating if the transaction has cleared or not'),
+  subtransactions: z
+    .array(SubtransactionSchema)
+    .optional()
+    .describe(
+      "An array of subtransactions for a split transaction. If amounts don't equal total amount, API call will succeed but error will show in app"
+    ),
+});
+
+export type CreateTransactionArgs = z.infer<typeof CreateTransactionArgsSchema>;
+
 // Additional types used in implementation
 export interface CategoryGroupInfo {
   id: string;
