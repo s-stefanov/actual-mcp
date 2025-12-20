@@ -18,7 +18,7 @@ export async function handler(args: UpdateTransactionArgs): Promise<CallToolResu
     const { transactionId, categoryId, payeeId, notes, amount } = args;
 
     // Build update object with only provided fields
-    const updateData: Record<string, any> = {};
+    const updateData: { category?: string; payee?: string; notes?: string; amount?: number } = {};
 
     if (categoryId !== undefined) {
       updateData.category = categoryId;
