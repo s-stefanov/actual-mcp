@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.6.0](https://github.com/s-stefanov/actual-mcp/compare/v1.5.0...v1.6.0) (2025-12-21)
+
+
+### Features
+
+* add create-transaction tool ([#72](https://github.com/s-stefanov/actual-mcp/issues/72)) ([f8cd573](https://github.com/s-stefanov/actual-mcp/commit/f8cd573be318536d9d3ea9730942d5fb5fb89757))
+
+
+### Bug Fixes
+
+* **deps:** update dependency dotenv to v17 ([#87](https://github.com/s-stefanov/actual-mcp/issues/87)) ([8be16d9](https://github.com/s-stefanov/actual-mcp/commit/8be16d9bf4e2308e4073a150bdab03f5c6a418ba))
+* **deps:** update dependency express to v5.2.1 ([#78](https://github.com/s-stefanov/actual-mcp/issues/78)) ([c1e0093](https://github.com/s-stefanov/actual-mcp/commit/c1e0093ced6814488e3d4b732127cb757d7d550c))
+* **deps:** update dependency zod-to-json-schema to v3.25.0 ([#69](https://github.com/s-stefanov/actual-mcp/issues/69)) ([ecff8ee](https://github.com/s-stefanov/actual-mcp/commit/ecff8eec0d9ce79cb9a769bc559603d3e972b57d))
+
 ## [1.5.0](https://github.com/s-stefanov/actual-mcp/compare/v1.4.0...v1.5.0) (2025-11-10)
 
 
