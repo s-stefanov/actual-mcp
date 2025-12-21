@@ -25,7 +25,6 @@ import {
   MCP_OAUTH_JWKS_URL,
   MCP_OAUTH_PUBLIC_ISSUER_URL,
   MCP_OAUTH_VALIDATION_METHOD,
-  MCP_PUBLIC_URL,
   MCP_AUTH_MODE,
   type AuthMode,
   type OAuthValidationMethod,
@@ -445,7 +444,10 @@ const buildOAuthAuthContext = async (mcpPublicUrl: URL): Promise<AuthContext> =>
   if (validationMethod === 'jwt') {
     // JWT validation via JWKS
     const jwksUrl = new URL(jwksUri as string);
-    const expectedIssuer = MCP_OAUTH_EXPECTED_ISSUER ?? discoveredMetadata.issuer ?? internalIssuerString;
+    // Prefer public issuer URL for JWT validation since tokens are typically signed with the public URL.
+    // Fall back to discovered/internal issuer if no public URL is configured.
+    const expectedIssuer =
+      MCP_OAUTH_EXPECTED_ISSUER ?? MCP_OAUTH_PUBLIC_ISSUER_URL ?? discoveredMetadata.issuer ?? internalIssuerString;
     console.error(`JWT validation: JWKS URL: ${jwksUrl.href}, Expected issuer: ${expectedIssuer}`);
     verifier = buildJwtVerifier(jwksUrl, expectedIssuer, MCP_OAUTH_AUDIENCE);
   } else {
@@ -479,7 +481,9 @@ const buildOAuthAuthContext = async (mcpPublicUrl: URL): Promise<AuthContext> =>
 export const buildAuthContext = async (options: AuthOptions = {}): Promise<AuthContext> => {
   const mode = resolveAuthMode(options);
   const port = options.port ?? 3000;
-  const mcpPublicUrlString = process.env.MCP_PUBLIC_URL ?? MCP_PUBLIC_URL ?? `http://localhost:${port}/mcp`;
+  // Use process.env directly to detect if MCP_PUBLIC_URL was explicitly set.
+  // MCP_PUBLIC_URL from config always has a default value, so we can't use it for the null check.
+  const mcpPublicUrlString = process.env.MCP_PUBLIC_URL ?? `http://localhost:${port}/mcp`;
   const mcpPublicUrl = new URL(mcpPublicUrlString);
 
   switch (mode) {
