@@ -63,15 +63,65 @@ export const BudgetReviewArgsSchema = z.object({
 
 export type BudgetReviewArgs = z.infer<typeof BudgetReviewArgsSchema>;
 
+export const UpdateSubtransactionSchema = z.object({
+  id: z
+    .string()
+    .optional()
+    .describe('The ID of an existing subtransaction to update. Omit to add a new subtransaction.'),
+  amount: z.number().describe('Required for subtransactions. A currency amount as an integer'),
+  category: z.string().optional().describe('The ID of the category for this subtransaction'),
+  notes: z.string().optional().describe('Any additional notes for this subtransaction'),
+});
+
+export type UpdateSubtransaction = z.infer<typeof UpdateSubtransactionSchema>;
+
 export const UpdateTransactionArgsSchema = z.object({
-  transactionId: z.string(),
-  categoryId: z.string().optional(),
-  payeeId: z.string().optional(),
-  notes: z.string().optional(),
-  amount: z.number().optional(),
+  id: z.string().describe('Required. The ID of the transaction to update'),
+  account: z.string().optional().describe('The ID of the account to move this transaction to'),
+  date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'date must be in YYYY-MM-DD format')
+    .optional()
+    .describe('Transaction date in YYYY-MM-DD format'),
+  amount: z
+    .number()
+    .optional()
+    .describe(
+      'A currency amount as an integer representing the value without decimal places. For example, USD amount of $120.30 would be 12030'
+    ),
+  payee: z.string().optional().describe('An existing payee ID'),
+  payee_name: z
+    .string()
+    .optional()
+    .describe(
+      'If given, a payee will be created with this name. If this matches an already existing payee, that payee will be used.'
+    ),
+  imported_payee: z
+    .string()
+    .optional()
+    .describe(
+      'This can be anything. Meant to represent the raw description when importing, allowing the user to see the original value'
+    ),
+  category: z.string().optional().describe('The ID of the category to assign to this transaction'),
+  notes: z.string().optional().describe('Any additional notes for the transaction'),
+  imported_id: z
+    .string()
+    .optional()
+    .describe('A unique id usually given by the bank, if importing. Use this to avoid duplicate transactions'),
+  cleared: z.boolean().optional().describe('A flag indicating if the transaction has cleared or not'),
+  subtransactions: z
+    .array(UpdateSubtransactionSchema)
+    .optional()
+    .describe(
+      "An array of subtransactions for a split transaction. Replaces existing subtransactions. If amounts don't equal total amount, API call will succeed but error will show in app"
+    ),
 });
 
 export type UpdateTransactionArgs = z.infer<typeof UpdateTransactionArgsSchema>;
+
+// Schema for update data passed to the API (without id, which is passed separately)
+export const UpdateTransactionDataSchema = UpdateTransactionArgsSchema.omit({ id: true });
+export type UpdateTransactionData = z.infer<typeof UpdateTransactionDataSchema>;
 
 export const SubtransactionSchema = z.object({
   amount: z.number().describe('Required for subtransactions. A currency amount as an integer'),

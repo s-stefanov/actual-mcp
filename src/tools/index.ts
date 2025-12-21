@@ -27,6 +27,7 @@ import * as deleteRule from './rules/delete-rule/index.js';
 import * as getRules from './rules/get-rules/index.js';
 import * as updateRule from './rules/update-rule/index.js';
 import * as spendingByCategory from './spending-by-category/index.js';
+import * as deleteTransaction from './delete-transaction/index.js';
 import * as updateTransaction from './update-transaction/index.js';
 import * as createTransaction from './create-transaction/index.js';
 
@@ -55,6 +56,7 @@ const writeTools = [
   updateRule,
   deleteRule,
   updateTransaction,
+  deleteTransaction,
   createTransaction,
 ];
 
