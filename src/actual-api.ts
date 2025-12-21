@@ -262,7 +262,8 @@ export async function createTransaction(accountId: string, data: TransactionData
  */
 export async function updateTransaction(id: string, data: UpdateTransactionData): Promise<unknown> {
   await initActualApi();
-  return api.updateTransaction(id, data);
+  // Zod has validated the structure; cast for API compatibility
+  return api.updateTransaction(id, data as Parameters<typeof api.updateTransaction>[1]);
 }
 
 /**

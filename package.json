@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "@actual-app/api": "^25.12.0",
-    "@modelcontextprotocol/sdk": "1.24.3",
+    "@modelcontextprotocol/sdk": "^1.25.1",
     "dotenv": "17.2.3",
     "express": "5.2.1",
     "jose": "^6.1.3",
