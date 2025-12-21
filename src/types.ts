@@ -218,3 +218,97 @@ export interface MonthBalance {
   balance: number;
   transactions: number;
 }
+
+// ----------------------------
+// RULE SCHEMAS
+// ----------------------------
+
+export const RuleConditionSchema = z.object({
+  field: z
+    .enum(['account', 'category', 'date', 'payee', 'amount', 'imported_payee', 'notes'])
+    .describe('Field to apply the condition on'),
+  op: z
+    .enum([
+      'is',
+      'isNot',
+      'oneOf',
+      'notOneOf',
+      'onBudget',
+      'offBudget',
+      'isapprox',
+      'gt',
+      'gte',
+      'lt',
+      'lte',
+      'isbetween',
+      'contains',
+      'doesNotContain',
+      'matches',
+      'hasTags',
+    ])
+    .describe('Condition operator'),
+  value: z
+    .union([
+      z.string(),
+      z.number(),
+      z.array(z.string()),
+      z.array(z.number()),
+      z.object({ num1: z.number(), num2: z.number() }),
+    ])
+    .describe(
+      'Condition value. Format depends on field and operator: account/category/payee use UUID, date uses YYYY-MM-DD, amount uses number, string[] for oneOf/notOneOf, {num1, num2} for isbetween'
+    ),
+  options: z
+    .object({
+      inflow: z.boolean().optional(),
+      outflow: z.boolean().optional(),
+      month: z.boolean().optional(),
+      year: z.boolean().optional(),
+    })
+    .optional()
+    .describe('Additional condition options'),
+});
+
+export type RuleCondition = z.infer<typeof RuleConditionSchema>;
+
+export const RuleActionSchema = z.object({
+  field: z
+    .enum(['account', 'category', 'date', 'payee', 'amount', 'cleared', 'notes'])
+    .nullable()
+    .describe('Field to apply the action on. Use null for split actions'),
+  op: z.enum(['set', 'prepend-notes', 'append-notes', 'set-split-amount']).describe('Action operator'),
+  value: z
+    .union([z.boolean(), z.string(), z.number(), z.null()])
+    .describe(
+      'Action value. For regular actions: account/category/payee use UUID, date uses YYYY-MM-DD, amount uses number (cents), cleared uses boolean, notes uses string. For split actions: null for remainder, number for fixed-amount/fixed-percent'
+    ),
+  options: z
+    .object({
+      splitIndex: z.number().optional().describe('Split index (1-based) to apply action on. 0 for all splits'),
+      method: z
+        .enum(['fixed-amount', 'fixed-percent', 'remainder'])
+        .optional()
+        .describe('Split method. Only for split actions'),
+      template: z.string().optional(),
+      formula: z.string().optional(),
+    })
+    .optional()
+    .describe('Additional options for splits'),
+});
+
+export type RuleAction = z.infer<typeof RuleActionSchema>;
+
+export const NewRuleArgsSchema = z.object({
+  stage: z.enum(['pre', 'post']).nullable().describe('When the rule should be applied (null for default stage)'),
+  conditionsOp: z.enum(['and', 'or']).describe('How to combine conditions'),
+  conditions: z.array(RuleConditionSchema).describe('Conditions for the rule to apply'),
+  actions: z.array(RuleActionSchema).describe('Actions of the applied rule'),
+});
+
+export type NewRuleArgs = z.infer<typeof NewRuleArgsSchema>;
+
+export const UpdateRuleArgsSchema = NewRuleArgsSchema.extend({
+  id: z.string().describe('Rule ID in UUID format (required for updating a rule)'),
+});
+
+export type UpdateRuleArgs = z.infer<typeof UpdateRuleArgsSchema>;
