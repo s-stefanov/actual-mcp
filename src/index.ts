@@ -166,7 +166,7 @@ async function main(): Promise<void> {
         mcpAuthMetadataRouter({
           oauthMetadata: authContext.oauthMetadata,
           resourceServerUrl: mcpPublicUrl,
-          scopesSupported: [],
+          scopesSupported: ['openid', 'email'],
           resourceName: 'Actual Budget MCP Server',
         })
       );
