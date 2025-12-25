@@ -229,8 +229,77 @@ docker run -i --rm \
   --sse --enable-write --enable-bearer
 ```
 
-> ⚠️ Important: When using --enable-bearer, the BEARER_TOKEN environment variable must be set.  
+> ⚠️ Important: When using --enable-bearer, the BEARER_TOKEN environment variable must be set.
 > 🔒 This is highly recommended if you're exposing your server via a public URL.
+
+## Authentication
+
+The server supports three authentication modes for HTTP/SSE transport:
+
+### No Authentication (default for stdio)
+
+When running in stdio mode or without auth flags, no authentication is required.
+
+### Bearer Token Authentication
+
+Simple static token authentication. Enable with the `--enable-bearer` flag.
+
+```bash
+# Required environment variable
+export BEARER_TOKEN="your-secret-token"
+# Or use the MCP-prefixed version
+export MCP_BEARER_TOKEN="your-secret-token"
+
+# Start server with bearer auth
+node build/index.js --sse --enable-bearer
+```
+
+Clients must include the token in the `Authorization` header:
+```
+Authorization: Bearer your-secret-token
+```
+
+### OAuth 2.0 Authentication
+
+Full OAuth 2.0 support with two validation methods:
+
+- **Token Introspection** - For Keycloak, Auth0, Okta, and providers with introspection endpoints
+- **JWT Validation** - For Azure AD and OIDC providers using JWT access tokens with JWKS
+
+> **Note:** Google OAuth is not currently supported. Google uses opaque access tokens that cannot be validated via JWT or standard introspection. See [OAUTH.md](./OAUTH.md) for details.
+
+Enable OAuth with the `--enable-oauth` flag.
+
+#### Quick Start Examples
+
+**Keycloak (Token introspection):**
+```bash
+export MCP_OAUTH_ISSUER_URL="https://keycloak.example.com/realms/your-realm"
+export MCP_OAUTH_CLIENT_ID="mcp-server"
+export MCP_OAUTH_CLIENT_SECRET="your-client-secret"
+
+node build/index.js --sse --enable-oauth
+```
+
+**Azure AD (JWT validation):**
+```bash
+export MCP_OAUTH_ISSUER_URL="https://login.microsoftonline.com/{tenant-id}/v2.0"
+export MCP_OAUTH_AUDIENCE="api://your-app-id"
+
+node build/index.js --sse --enable-oauth
+```
+
+> **See [OAUTH.md](./OAUTH.md) for complete documentation** including:
+> - Detailed provider-specific setup guides
+> - All environment variables reference
+> - Docker/reverse proxy configurations
+> - Troubleshooting tips
+
+### Authentication Precedence
+
+- If both `--enable-oauth` and `--enable-bearer` are set, OAuth takes precedence
+- CLI flags take precedence over the `MCP_AUTH_MODE` environment variable
+- The `MCP_AUTH_MODE` env var can be set to `none`, `bearer`, or `oauth` as a fallback
 
 ## Example Queries
 
