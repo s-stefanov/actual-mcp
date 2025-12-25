@@ -9,7 +9,7 @@ The MCP server supports two OAuth token validation methods:
 | Method | Description | When to Use |
 |--------|-------------|-------------|
 | **Token Introspection** | Server-side validation via OAuth introspection endpoint (RFC 7662) | Keycloak, Auth0, Okta, or any provider with introspection support |
-| **JWT Validation** | Client-side validation using JWKS (JSON Web Key Set) | Google, Azure AD, or providers without introspection endpoints |
+| **JWT Validation** | Client-side validation using JWKS (JSON Web Key Set) | Azure AD or providers that issue JWT access tokens |
 
 ### Automatic Detection
 
@@ -62,32 +62,25 @@ By default (`MCP_OAUTH_VALIDATION_METHOD=auto`), the server automatically select
 
 ## Provider-Specific Configurations
 
-### Google OAuth
+### Google OAuth (Not Supported)
 
-Google uses JWT validation via JWKS. No client secret is needed for token validation.
+> **Google OAuth is not currently supported.** This section explains why and potential future solutions.
 
-**Setup Steps:**
+Google's OAuth implementation is incompatible with this MCP server because:
 
-1. Create a project in [Google Cloud Console](https://console.cloud.google.com/)
-2. Enable the OAuth 2.0 API
-3. Create OAuth 2.0 credentials (Web application type)
-4. Configure authorized redirect URIs for your MCP clients
+1. **Opaque Access Tokens**: Google issues opaque access tokens (e.g., `ya29.a0AfH6SMBx...`) rather than JWTs. These cannot be validated using JWKS because they don't have the standard JWT `header.payload.signature` structure.
 
-**Environment Configuration:**
+2. **No Standard Introspection**: Google does not provide an RFC 7662-compliant token introspection endpoint. Their `tokeninfo` endpoint uses a different format.
 
-```bash
-# Required
-export MCP_OAUTH_ISSUER_URL="https://accounts.google.com"
-export MCP_OAUTH_AUDIENCE="YOUR_CLIENT_ID.apps.googleusercontent.com"
+3. **ID Tokens vs Access Tokens**: While Google does issue JWT ID tokens, these are meant for authentication (proving identity), not authorization (access to resources). Using ID tokens as access tokens is not recommended.
 
-# Optional: Force JWT validation (auto-detected if no credentials)
-export MCP_OAUTH_VALIDATION_METHOD="jwt"
-```
+**Potential Future Solutions:**
 
-**Notes:**
-- Google's JWKS is at `https://www.googleapis.com/oauth2/v3/certs`
-- The audience should match your OAuth client ID
-- Tokens are validated locally using Google's public keys
+- **Userinfo Endpoint Validation**: Validate tokens by calling Google's userinfo endpoint. If the call succeeds, the token is valid.
+- **TokenInfo Endpoint**: Add support for Google's proprietary tokeninfo endpoint format.
+- **ID Token Mode**: Support using ID tokens instead of access tokens (requires different OAuth flow).
+
+If you need Google OAuth support, please open an issue on the repository.
 
 ---
 

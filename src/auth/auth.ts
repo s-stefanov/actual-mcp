@@ -408,10 +408,27 @@ const buildIntrospectionVerifier = (
   };
 };
 
+const isGoogleIssuer = (issuerUrl: string): boolean => {
+  try {
+    const url = new URL(issuerUrl);
+    return url.hostname === 'accounts.google.com' || url.hostname.endsWith('.google.com');
+  } catch {
+    return false;
+  }
+};
+
 const buildOAuthAuthContext = async (mcpPublicUrl: URL): Promise<AuthContext> => {
   const internalIssuerString = MCP_OAUTH_INTERNAL_ISSUER_URL;
   if (internalIssuerString === undefined || internalIssuerString === '') {
     throw new Error('MCP_OAUTH_INTERNAL_ISSUER_URL (or MCP_OAUTH_ISSUER_URL) is required when auth mode is oauth.');
+  }
+
+  // Warn about unsupported Google OAuth
+  if (isGoogleIssuer(internalIssuerString)) {
+    console.error(
+      'WARNING: Google OAuth is not supported. Google uses opaque access tokens that cannot be ' +
+        'validated via JWT or standard introspection. See OAUTH.md for details and alternatives.'
+    );
   }
 
   const issuer = new URL(internalIssuerString);

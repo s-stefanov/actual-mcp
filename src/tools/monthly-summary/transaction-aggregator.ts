@@ -15,13 +15,16 @@ export class MonthlySummaryTransactionAggregator {
         return;
       }
 
-      const date = new Date(transaction.date);
-      const yearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      // Parse date string directly to avoid timezone issues.
+      // new Date('2024-02-01') is interpreted as UTC midnight, which when converted
+      // to local time can shift to the previous month in western timezones.
+      const [year, month] = transaction.date.split('-').map(Number);
+      const yearMonth = `${year}-${String(month).padStart(2, '0')}`;
 
       if (!monthlyData[yearMonth]) {
         monthlyData[yearMonth] = {
-          year: date.getFullYear(),
-          month: date.getMonth() + 1,
+          year,
+          month,
           income: 0,
           expenses: 0,
           investments: 0,

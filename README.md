@@ -264,19 +264,13 @@ Authorization: Bearer your-secret-token
 Full OAuth 2.0 support with two validation methods:
 
 - **Token Introspection** - For Keycloak, Auth0, Okta, and providers with introspection endpoints
-- **JWT Validation** - For Google, Azure AD, and OIDC providers using JWKS
+- **JWT Validation** - For Azure AD and OIDC providers using JWT access tokens with JWKS
+
+> **Note:** Google OAuth is not currently supported. Google uses opaque access tokens that cannot be validated via JWT or standard introspection. See [OAUTH.md](./OAUTH.md) for details.
 
 Enable OAuth with the `--enable-oauth` flag.
 
 #### Quick Start Examples
-
-**Google OAuth (JWT validation):**
-```bash
-export MCP_OAUTH_ISSUER_URL="https://accounts.google.com"
-export MCP_OAUTH_AUDIENCE="your-client-id.apps.googleusercontent.com"
-
-node build/index.js --sse --enable-oauth
-```
 
 **Keycloak (Token introspection):**
 ```bash
