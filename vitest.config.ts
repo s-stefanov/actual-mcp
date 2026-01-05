@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [tsconfigPaths()],
   test: {
     environment: 'node',
-    include: ['src/core/**/*.test.ts', 'src/tools/**/*.test.ts'],
+    include: ['src/core/**/*.test.ts', 'src/tools/**/*.test.ts', 'src/auth/**/*.test.ts'],
     globals: true,
     coverage: {
       provider: 'v8',
