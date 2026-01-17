@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.0](https://github.com/s-stefanov/actual-mcp/compare/v1.6.0...v1.7.0) (2026-01-17)
+
+
+### Features
+
+* add run-bank-sync tool ([#93](https://github.com/s-stefanov/actual-mcp/issues/93)) ([61b67d7](https://github.com/s-stefanov/actual-mcp/commit/61b67d72e3789999cfe4aec78181deffffaabb99))
+
 ## [1.6.0](https://github.com/s-stefanov/actual-mcp/compare/v1.5.0...v1.6.0) (2025-12-21)
 
 
