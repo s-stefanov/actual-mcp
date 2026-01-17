@@ -256,3 +256,17 @@ export async function deleteTransaction(id: string): Promise<unknown> {
   await initActualApi();
   return api.deleteTransaction(id);
 }
+
+/**
+ * Run bank sync for accounts (ensures API is initialized)
+ *
+ * @param accountId - Optional. Specific account ID, or special value:
+ *   - "onbudget": sync all on-budget linked accounts
+ *   - "offbudget": sync all off-budget linked accounts
+ *   - undefined: sync ALL linked accounts
+ */
+export async function runBankSync(accountId?: string): Promise<void> {
+  await initActualApi();
+  // API expects { accountId } object or undefined for all accounts
+  return api.runBankSync(accountId ? { accountId } : undefined);
+}
