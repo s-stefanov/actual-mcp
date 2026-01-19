@@ -25,7 +25,7 @@ import { setupResources } from './resources.js';
 import { setupTools } from './tools/index.js';
 import { SetLevelRequestSchema, isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 
-dotenv.config({ path: '.env' });
+dotenv.config({ path: '.env', quiet: true });
 
 // Initialize the MCP server
 const server = new Server(
