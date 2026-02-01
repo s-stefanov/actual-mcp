@@ -2,22 +2,22 @@
 // CREATE RULE TOOL
 // ----------------------------
 
+import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
+import { zodToJsonSchema } from 'zod-to-json-schema';
 import { successWithJson, errorFromCatch } from '../../../utils/response.js';
 import { createRule } from '../../../actual-api.js';
-import { RuleInputSchema } from '../input-schema.js';
-import { RuleEntity } from '@actual-app/api/@types/loot-core/src/types/models/rule.js';
+import { NewRuleArgsSchema, type NewRuleArgs, type ToolInput } from '../../../types.js';
 
 export const schema = {
   name: 'create-rule',
   description: 'Create a new rule',
-  inputSchema: RuleInputSchema,
+  inputSchema: zodToJsonSchema(NewRuleArgsSchema) as ToolInput,
 };
 
-export async function handler(
-  args: Record<string, unknown>
-): Promise<ReturnType<typeof successWithJson> | ReturnType<typeof errorFromCatch>> {
+export async function handler(args: NewRuleArgs): Promise<CallToolResult> {
   try {
-    const { id }: RuleEntity = await createRule(args);
+    const validatedArgs = NewRuleArgsSchema.parse(args);
+    const { id } = await createRule(validatedArgs);
 
     return successWithJson('Successfully created rule ' + id);
   } catch (err) {

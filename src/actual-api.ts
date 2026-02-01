@@ -2,14 +2,18 @@ import api from '@actual-app/api';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
-import { BudgetFile, TransactionData, UpdateTransactionData } from './types.js';
+import { BudgetFile, TransactionData, UpdateTransactionData, NewRuleArgs, UpdateRuleArgs } from './types.js';
 import {
   APIAccountEntity,
   APICategoryEntity,
   APICategoryGroupEntity,
   APIPayeeEntity,
 } from '@actual-app/api/@types/loot-core/src/server/api-models.js';
-import { RuleEntity, TransactionEntity } from '@actual-app/api/@types/loot-core/src/types/models/index.js';
+import {
+  NewRuleEntity,
+  RuleEntity,
+  TransactionEntity,
+} from '@actual-app/api/@types/loot-core/src/types/models/index.js';
 
 const DEFAULT_DATA_DIR: string = path.resolve(os.homedir() || '.', '.actual');
 
@@ -104,7 +108,9 @@ export async function getAccounts(): Promise<APIAccountEntity[]> {
  */
 export async function getCategories(): Promise<APICategoryEntity[]> {
   await initActualApi();
-  return api.getCategories() as Promise<APICategoryEntity[]>;
+  const results = await api.getCategories();
+  // Filter to only return categories (not category groups)
+  return results.filter((item): item is APICategoryEntity => 'group_id' in item);
 }
 
 /**
@@ -148,7 +154,7 @@ export async function getRules(): Promise<RuleEntity[]> {
  */
 export async function createPayee(args: Record<string, unknown>): Promise<string> {
   await initActualApi();
-  return api.createPayee(args as any);
+  return api.createPayee(args as Omit<APIPayeeEntity, 'id'>);
 }
 
 /**
@@ -169,18 +175,28 @@ export async function deletePayee(id: string): Promise<unknown> {
 
 /**
  * Create a new rule (ensures API is initialized)
+ *
+ * @param args - Validated rule data from Zod schema
  */
-export async function createRule(args: Record<string, unknown>): Promise<RuleEntity> {
+export async function createRule(args: NewRuleArgs): Promise<RuleEntity> {
   await initActualApi();
-  return api.createRule(args as any);
+  // Zod has validated the structure matches the API's expected shape.
+  // The API uses discriminated unions which don't match our Zod schema structurally,
+  // but the runtime values are compatible after Zod validation.
+  return api.createRule(args as unknown as NewRuleEntity);
 }
 
 /**
  * Update a rule (ensures API is initialized)
+ *
+ * @param args - Validated rule data from Zod schema (includes id)
  */
-export async function updateRule(args: Record<string, unknown>): Promise<RuleEntity> {
+export async function updateRule(args: UpdateRuleArgs): Promise<RuleEntity> {
   await initActualApi();
-  return api.updateRule(args as any);
+  // Zod has validated the structure matches the API's expected shape.
+  // The API uses discriminated unions which don't match our Zod schema structurally,
+  // but the runtime values are compatible after Zod validation.
+  return api.updateRule(args as unknown as RuleEntity);
 }
 
 /**
@@ -196,7 +212,7 @@ export async function deleteRule(id: string): Promise<boolean> {
  */
 export async function createCategory(args: Record<string, unknown>): Promise<string> {
   await initActualApi();
-  return api.createCategory(args as any);
+  return api.createCategory(args as Omit<APICategoryEntity, 'id'>);
 }
 
 /**
@@ -220,7 +236,7 @@ export async function deleteCategory(id: string): Promise<{ error?: string }> {
  */
 export async function createCategoryGroup(args: Record<string, unknown>): Promise<string> {
   await initActualApi();
-  return api.createCategoryGroup(args as any);
+  return api.createCategoryGroup(args as Omit<APICategoryGroupEntity, 'id'>);
 }
 
 /**
@@ -252,7 +268,8 @@ export async function createTransaction(accountId: string, data: TransactionData
  */
 export async function updateTransaction(id: string, data: UpdateTransactionData): Promise<unknown> {
   await initActualApi();
-  return api.updateTransaction(id, data as any);
+  // Zod has validated the structure; cast for API compatibility
+  return api.updateTransaction(id, data as Parameters<typeof api.updateTransaction>[1]);
 }
 
 /**
