@@ -258,6 +258,42 @@ export async function deleteTransaction(id: string): Promise<unknown> {
 }
 
 /**
+ * Create a new account (ensures API is initialized)
+ */
+export async function createAccount(args: Record<string, unknown>, initialBalance?: number): Promise<string> {
+  await initActualApi();
+  return api.createAccount(args as any, initialBalance);
+}
+
+/**
+ * Update an existing account (ensures API is initialized)
+ */
+export async function updateAccount(id: string, fields: Record<string, unknown>): Promise<void> {
+  await initActualApi();
+  return api.updateAccount(id, fields as any);
+}
+
+/**
+ * Close an account non-destructively (ensures API is initialized)
+ *
+ * @param id - Account ID to close
+ * @param transferAccountId - Optional account to transfer remaining balance to
+ * @param transferCategoryId - Optional category for the transfer transaction
+ */
+export async function closeAccount(id: string, transferAccountId?: string, transferCategoryId?: string): Promise<void> {
+  await initActualApi();
+  return api.closeAccount(id, transferAccountId, transferCategoryId);
+}
+
+/**
+ * Reopen a previously closed account (ensures API is initialized)
+ */
+export async function reopenAccount(id: string): Promise<void> {
+  await initActualApi();
+  return api.reopenAccount(id);
+}
+
+/**
  * Run bank sync for accounts (ensures API is initialized)
  *
  * @param accountId - Optional. Specific account ID, or special value:

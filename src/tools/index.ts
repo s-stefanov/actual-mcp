@@ -31,6 +31,9 @@ import * as deleteTransaction from './delete-transaction/index.js';
 import * as updateTransaction from './update-transaction/index.js';
 import * as createTransaction from './create-transaction/index.js';
 import * as runBankSync from './run-bank-sync/index.js';
+import * as createAccount from './accounts/create-account/index.js';
+import * as updateAccount from './accounts/update-account/index.js';
+import * as closeAccount from './accounts/close-account/index.js';
 
 const readTools = [
   getTransactions,
@@ -60,6 +63,9 @@ const writeTools = [
   deleteTransaction,
   createTransaction,
   runBankSync,
+  createAccount,
+  updateAccount,
+  closeAccount,
 ];
 
 export const setupTools = (server: Server, enableWrite: boolean): void => {
