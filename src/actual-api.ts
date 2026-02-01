@@ -98,7 +98,7 @@ export async function getAccounts(): Promise<APIAccountEntity[]> {
  */
 export async function getCategories(): Promise<APICategoryEntity[]> {
   await initActualApi();
-  return api.getCategories();
+  return api.getCategories() as Promise<APICategoryEntity[]>;
 }
 
 /**
@@ -142,7 +142,7 @@ export async function getRules(): Promise<RuleEntity[]> {
  */
 export async function createPayee(args: Record<string, unknown>): Promise<string> {
   await initActualApi();
-  return api.createPayee(args);
+  return api.createPayee(args as any);
 }
 
 /**
@@ -166,7 +166,7 @@ export async function deletePayee(id: string): Promise<unknown> {
  */
 export async function createRule(args: Record<string, unknown>): Promise<RuleEntity> {
   await initActualApi();
-  return api.createRule(args);
+  return api.createRule(args as any);
 }
 
 /**
@@ -174,7 +174,7 @@ export async function createRule(args: Record<string, unknown>): Promise<RuleEnt
  */
 export async function updateRule(args: Record<string, unknown>): Promise<RuleEntity> {
   await initActualApi();
-  return api.updateRule(args);
+  return api.updateRule(args as any);
 }
 
 /**
@@ -190,7 +190,7 @@ export async function deleteRule(id: string): Promise<boolean> {
  */
 export async function createCategory(args: Record<string, unknown>): Promise<string> {
   await initActualApi();
-  return api.createCategory(args);
+  return api.createCategory(args as any);
 }
 
 /**
@@ -214,7 +214,7 @@ export async function deleteCategory(id: string): Promise<{ error?: string }> {
  */
 export async function createCategoryGroup(args: Record<string, unknown>): Promise<string> {
   await initActualApi();
-  return api.createCategoryGroup(args);
+  return api.createCategoryGroup(args as any);
 }
 
 /**
@@ -246,7 +246,7 @@ export async function createTransaction(accountId: string, data: TransactionData
  */
 export async function updateTransaction(id: string, data: UpdateTransactionData): Promise<unknown> {
   await initActualApi();
-  return api.updateTransaction(id, data);
+  return api.updateTransaction(id, data as any);
 }
 
 /**
