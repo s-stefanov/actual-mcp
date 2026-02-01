@@ -1,0 +1,13 @@
+# Auto detect text files and normalize line endings
+* text=auto
+
+# Source files - force LF
+*.ts text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Reduce diff noise for lock files
+package-lock.json -diff
