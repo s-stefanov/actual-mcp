@@ -213,6 +213,48 @@ After saving the configuration, restart Claude Desktop.
 
 > 💡 Use `--enable-write` to enable write-access tools.
 
+## Usage with Claude Code CLI
+
+You can add the MCP server to [Claude Code](https://docs.anthropic.com/en/docs/claude-code) using the `claude mcp add` command.
+
+### Using npx (published package):
+
+```bash
+claude mcp add actual-budget \
+  -s user \
+  -e ACTUAL_SERVER_URL=https://your-actual-server.com \
+  -e ACTUAL_PASSWORD=your-password \
+  -e ACTUAL_BUDGET_SYNC_ID=your-budget-id \
+  -- npx -y actual-mcp --enable-write
+```
+
+### Using a local clone:
+
+```bash
+claude mcp add actual-budget \
+  -s user \
+  -e ACTUAL_SERVER_URL=https://your-actual-server.com \
+  -e ACTUAL_PASSWORD=your-password \
+  -e ACTUAL_BUDGET_SYNC_ID=your-budget-id \
+  -- node /path/to/your/clone/build/index.js --enable-write
+```
+
+> 💡 Use `-s user` for global (all projects) or `-s project` for project-only scope.
+
+> 💡 Omit `--enable-write` if you only need read-only access.
+
+To verify the server is connected:
+
+```bash
+claude mcp list
+```
+
+To remove the server:
+
+```bash
+claude mcp remove actual-budget -s user
+```
+
 ## Running an SSE Server
 
 To expose the server over a port using Docker:
