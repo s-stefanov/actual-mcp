@@ -32,6 +32,7 @@ export async function initActualApi(): Promise<void> {
     return;
   }
 
+  initializing = true;
   try {
     console.error('Initializing Actual Budget API...');
     const dataDir = process.env.ACTUAL_DATA_DIR || DEFAULT_DATA_DIR;
@@ -77,8 +78,13 @@ export async function initActualApi(): Promise<void> {
  */
 export async function shutdownActualApi(): Promise<void> {
   if (!initialized) return;
-  await api.shutdown();
-  initialized = false;
+  try {
+    await api.shutdown();
+  } catch (err) {
+    console.error('Error shutting down Actual Budget API:', err);
+  } finally {
+    initialized = false;
+  }
 }
 
 // ----------------------------
