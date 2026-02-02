@@ -96,7 +96,7 @@ export async function getAccounts(): Promise<APIAccountEntity[]> {
 /**
  * Get all categories (ensures API is initialized)
  */
-export async function getCategories(): Promise<APICategoryEntity[]> {
+export async function getCategories(): Promise<(APICategoryEntity | APICategoryGroupEntity)[]> {
   await initActualApi();
   return api.getCategories();
 }
@@ -142,21 +142,21 @@ export async function getRules(): Promise<RuleEntity[]> {
  */
 export async function createPayee(args: Record<string, unknown>): Promise<string> {
   await initActualApi();
-  return api.createPayee(args);
+  return api.createPayee(args as Omit<APIPayeeEntity, 'id'>);
 }
 
 /**
  * Update a payee (ensures API is initialized)
  */
-export async function updatePayee(id: string, args: Record<string, unknown>): Promise<unknown> {
+export async function updatePayee(id: string, args: Record<string, unknown>): Promise<void> {
   await initActualApi();
-  return api.updatePayee(id, args);
+  return api.updatePayee(id, args as Partial<APIPayeeEntity>);
 }
 
 /**
  * Delete a payee (ensures API is initialized)
  */
-export async function deletePayee(id: string): Promise<unknown> {
+export async function deletePayee(id: string): Promise<void> {
   await initActualApi();
   return api.deletePayee(id);
 }
@@ -166,7 +166,7 @@ export async function deletePayee(id: string): Promise<unknown> {
  */
 export async function createRule(args: Record<string, unknown>): Promise<RuleEntity> {
   await initActualApi();
-  return api.createRule(args);
+  return api.createRule(args as Omit<RuleEntity, 'id'>);
 }
 
 /**
@@ -174,7 +174,7 @@ export async function createRule(args: Record<string, unknown>): Promise<RuleEnt
  */
 export async function updateRule(args: Record<string, unknown>): Promise<RuleEntity> {
   await initActualApi();
-  return api.updateRule(args);
+  return api.updateRule(args as RuleEntity);
 }
 
 /**
@@ -190,7 +190,7 @@ export async function deleteRule(id: string): Promise<boolean> {
  */
 export async function createCategory(args: Record<string, unknown>): Promise<string> {
   await initActualApi();
-  return api.createCategory(args);
+  return api.createCategory(args as Omit<APICategoryEntity, 'id'>);
 }
 
 /**
@@ -198,13 +198,13 @@ export async function createCategory(args: Record<string, unknown>): Promise<str
  */
 export async function updateCategory(id: string, args: Record<string, unknown>): Promise<unknown> {
   await initActualApi();
-  return api.updateCategory(id, args);
+  return api.updateCategory(id, args as Partial<APICategoryEntity>);
 }
 
 /**
  * Delete a category (ensures API is initialized)
  */
-export async function deleteCategory(id: string): Promise<{ error?: string }> {
+export async function deleteCategory(id: string): Promise<unknown> {
   await initActualApi();
   return api.deleteCategory(id);
 }
@@ -214,21 +214,21 @@ export async function deleteCategory(id: string): Promise<{ error?: string }> {
  */
 export async function createCategoryGroup(args: Record<string, unknown>): Promise<string> {
   await initActualApi();
-  return api.createCategoryGroup(args);
+  return api.createCategoryGroup(args as Omit<APICategoryGroupEntity, 'id'>);
 }
 
 /**
  * Update a category group (ensures API is initialized)
  */
-export async function updateCategoryGroup(id: string, args: Record<string, unknown>): Promise<unknown> {
+export async function updateCategoryGroup(id: string, args: Record<string, unknown>): Promise<void> {
   await initActualApi();
-  return api.updateCategoryGroup(id, args);
+  return api.updateCategoryGroup(id, args as Partial<APICategoryGroupEntity>);
 }
 
 /**
  * Delete a category group (ensures API is initialized)
  */
-export async function deleteCategoryGroup(id: string): Promise<unknown> {
+export async function deleteCategoryGroup(id: string): Promise<void> {
   await initActualApi();
   return api.deleteCategoryGroup(id);
 }
@@ -246,13 +246,13 @@ export async function createTransaction(accountId: string, data: TransactionData
  */
 export async function updateTransaction(id: string, data: UpdateTransactionData): Promise<unknown> {
   await initActualApi();
-  return api.updateTransaction(id, data);
+  return api.updateTransaction(id, data as Partial<TransactionEntity>);
 }
 
 /**
  * Delete a transaction (ensures API is initialized)
  */
-export async function deleteTransaction(id: string): Promise<unknown> {
+export async function deleteTransaction(id: string): Promise<TransactionEntity[]> {
   await initActualApi();
   return api.deleteTransaction(id);
 }
