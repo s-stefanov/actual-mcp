@@ -89,7 +89,7 @@ export const setupTools = (server: Server, enableWrite: boolean): void => {
       }
 
       // @ts-expect-error: Argument type is handled by Zod schema validation
-      return tool.handler(args);
+      return await tool.handler(args);
     } catch (err) {
       console.error(`Error executing tool ${request.params.name}:`, err);
       return errorFromCatch(err);
