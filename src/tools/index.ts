@@ -30,6 +30,7 @@ import * as spendingByCategory from './spending-by-category/index.js';
 import * as deleteTransaction from './delete-transaction/index.js';
 import * as updateTransaction from './update-transaction/index.js';
 import * as createTransaction from './create-transaction/index.js';
+import * as setBudgetAmount from './set-budget-amount/index.js';
 
 const readTools = [
   getTransactions,
@@ -58,6 +59,7 @@ const writeTools = [
   updateTransaction,
   deleteTransaction,
   createTransaction,
+  setBudgetAmount,
 ];
 
 export const setupTools = (server: Server, enableWrite: boolean): void => {

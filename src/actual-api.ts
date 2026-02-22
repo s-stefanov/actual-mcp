@@ -273,3 +273,15 @@ export async function deleteTransaction(id: string): Promise<unknown> {
   await initActualApi();
   return api.deleteTransaction(id);
 }
+
+// ----------------------------
+// BUDGET
+// ----------------------------
+
+/**
+ * Set budget amount for a category in a specific month (ensures API is initialized)
+ */
+export async function setBudgetAmount(month: string, categoryId: string, amount: number): Promise<void> {
+  await initActualApi();
+  await api.setBudgetAmount(month, categoryId, amount);
+}

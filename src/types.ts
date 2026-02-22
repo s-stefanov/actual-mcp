@@ -312,3 +312,22 @@ export const UpdateRuleArgsSchema = NewRuleArgsSchema.extend({
 });
 
 export type UpdateRuleArgs = z.infer<typeof UpdateRuleArgsSchema>;
+
+// ----------------------------
+// BUDGET SCHEMAS
+// ----------------------------
+
+export const SetBudgetAmountArgsSchema = z.object({
+  month: z
+    .string()
+    .regex(/^\d{4}-\d{2}$/, 'month must be in YYYY-MM format')
+    .describe('The budget month in YYYY-MM format (e.g., 2026-02)'),
+  categoryId: z.string().describe('The ID of the category to set the budget for'),
+  amount: z
+    .number()
+    .describe(
+      'Budget amount as an integer representing the value without decimal places. For example, $500.00 = 50000'
+    ),
+});
+
+export type SetBudgetAmountArgs = z.infer<typeof SetBudgetAmountArgsSchema>;
