@@ -38,11 +38,11 @@ export async function initActualApi(): Promise<void> {
     if (!fs.existsSync(dataDir)) {
       fs.mkdirSync(dataDir, { recursive: true });
     }
-    await api.init({
-      dataDir,
-      serverURL: process.env.ACTUAL_SERVER_URL,
-      password: process.env.ACTUAL_PASSWORD,
-    });
+    const serverURL = process.env.ACTUAL_SERVER_URL;
+    const password = process.env.ACTUAL_PASSWORD;
+    // Reason: InitConfig is a discriminated union in 26.x — NoServerConfig forbids serverURL/password
+    const initConfig = serverURL ? { dataDir, serverURL, password: password ?? '' } : { dataDir };
+    await api.init(initConfig);
 
     const budgets: BudgetFile[] = await api.getBudgets();
     if (!budgets || budgets.length === 0) {
@@ -96,7 +96,7 @@ export async function getAccounts(): Promise<APIAccountEntity[]> {
 /**
  * Get all categories (ensures API is initialized)
  */
-export async function getCategories(): Promise<APICategoryEntity[]> {
+export async function getCategories(): Promise<(APICategoryEntity | APICategoryGroupEntity)[]> {
   await initActualApi();
   return api.getCategories();
 }
@@ -142,7 +142,7 @@ export async function getRules(): Promise<RuleEntity[]> {
  */
 export async function createPayee(args: Record<string, unknown>): Promise<string> {
   await initActualApi();
-  return api.createPayee(args);
+  return api.createPayee(args as unknown as Omit<APIPayeeEntity, 'id'>);
 }
 
 /**
@@ -166,7 +166,7 @@ export async function deletePayee(id: string): Promise<unknown> {
  */
 export async function createRule(args: Record<string, unknown>): Promise<RuleEntity> {
   await initActualApi();
-  return api.createRule(args);
+  return api.createRule(args as unknown as Omit<RuleEntity, 'id'>);
 }
 
 /**
@@ -174,7 +174,7 @@ export async function createRule(args: Record<string, unknown>): Promise<RuleEnt
  */
 export async function updateRule(args: Record<string, unknown>): Promise<RuleEntity> {
   await initActualApi();
-  return api.updateRule(args);
+  return api.updateRule(args as unknown as RuleEntity);
 }
 
 /**
@@ -190,7 +190,7 @@ export async function deleteRule(id: string): Promise<boolean> {
  */
 export async function createCategory(args: Record<string, unknown>): Promise<string> {
   await initActualApi();
-  return api.createCategory(args);
+  return api.createCategory(args as unknown as Omit<APICategoryEntity, 'id'>);
 }
 
 /**
@@ -214,7 +214,7 @@ export async function deleteCategory(id: string): Promise<{ error?: string }> {
  */
 export async function createCategoryGroup(args: Record<string, unknown>): Promise<string> {
   await initActualApi();
-  return api.createCategoryGroup(args);
+  return api.createCategoryGroup(args as unknown as Omit<APICategoryGroupEntity, 'id'>);
 }
 
 /**
@@ -246,7 +246,7 @@ export async function createTransaction(accountId: string, data: TransactionData
  */
 export async function updateTransaction(id: string, data: UpdateTransactionData): Promise<unknown> {
   await initActualApi();
-  return api.updateTransaction(id, data);
+  return api.updateTransaction(id, data as unknown as Partial<TransactionEntity>);
 }
 
 /**

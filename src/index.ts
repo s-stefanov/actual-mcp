@@ -25,7 +25,8 @@ import { setupResources } from './resources.js';
 import { setupTools } from './tools/index.js';
 import { SetLevelRequestSchema, isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 
-dotenv.config({ path: '.env' });
+// Reason: dotenv@17 (dotenvx) prints to stdout by default, which breaks MCP stdio JSON parsing
+dotenv.config({ path: '.env', quiet: true } as Parameters<typeof dotenv.config>[0]);
 
 // Initialize the MCP server
 const server = new Server(
