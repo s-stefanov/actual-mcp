@@ -47,7 +47,7 @@
     "@vitest/ui": "3.2.4",
     "eslint": "9.39.3",
     "eslint-config-prettier": "10.1.8",
-    "eslint-plugin-prettier": "5.5.4",
+    "eslint-plugin-prettier": "5.5.5",
     "globals": "16.5.0",
     "jiti": "2.6.1",
     "prettier": "3.7.4",
