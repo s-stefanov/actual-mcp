@@ -10,6 +10,7 @@ import {
   APIPayeeEntity,
 } from '@actual-app/api/@types/loot-core/src/server/api-models.js';
 import { RuleEntity, TransactionEntity } from '@actual-app/api/@types/loot-core/src/types/models/index.js';
+import { ImportTransactionEntity } from '@actual-app/api/@types/loot-core/src/types/models/import-transaction.js';
 
 const DEFAULT_DATA_DIR: string = path.resolve(os.homedir() || '.', '.actual');
 
@@ -239,6 +240,19 @@ export async function deleteCategoryGroup(id: string): Promise<unknown> {
 export async function createTransaction(accountId: string, data: TransactionData): Promise<string> {
   await initActualApi();
   return api.addTransactions(accountId, [data]);
+}
+
+/**
+ * Import a list of transactions using Actual's reconciliation logic.
+ * Deduplicates via imported_id and optionally supports dry-run validation.
+ */
+export async function importTransactions(
+  accountId: string,
+  transactions: ImportTransactionEntity[],
+  opts?: { defaultCleared?: boolean; dryRun?: boolean }
+): Promise<{ added: string[]; updated: string[]; errors: Array<{ message: string }> }> {
+  await initActualApi();
+  return api.importTransactions(accountId, transactions, opts);
 }
 
 /**
