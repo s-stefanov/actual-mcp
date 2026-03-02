@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.0](https://github.com/s-stefanov/actual-mcp/compare/v1.8.0...v1.9.0) (2026-03-02)
+
+
+### Features
+
+* add import transactions tool ([#117](https://github.com/s-stefanov/actual-mcp/issues/117)) ([ffd7a89](https://github.com/s-stefanov/actual-mcp/commit/ffd7a89ddedd9afaf610b171d2a252858c85d62a))
+
 ## [1.8.0](https://github.com/s-stefanov/actual-mcp/compare/v1.7.0...v1.8.0) (2026-03-01)
 
 
