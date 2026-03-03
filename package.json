@@ -33,7 +33,7 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@actual-app/api": "^26.2.0",
+    "@actual-app/api": "^26.3.0",
     "@modelcontextprotocol/sdk": "1.17.4",
     "dotenv": "17.2.3",
     "express": "5.2.1",
