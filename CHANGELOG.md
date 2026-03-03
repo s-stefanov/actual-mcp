@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.0](https://github.com/s-stefanov/actual-mcp/compare/v1.10.0...v1.11.0) (2026-03-03)
+
+
+### Features
+
+* update mcp to latest and zod to 4 ([#127](https://github.com/s-stefanov/actual-mcp/issues/127)) ([1472ef2](https://github.com/s-stefanov/actual-mcp/commit/1472ef2499599833294d00cd3718ac222a7f5eaa))
+
 ## [1.10.0](https://github.com/s-stefanov/actual-mcp/compare/v1.9.0...v1.10.0) (2026-03-03)
 
 
