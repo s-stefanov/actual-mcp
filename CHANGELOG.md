@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.10.0](https://github.com/s-stefanov/actual-mcp/compare/v1.9.0...v1.10.0) (2026-03-03)
+
+
+### Features
+
+* multibuild for arm and amd ([#126](https://github.com/s-stefanov/actual-mcp/issues/126)) ([63b0941](https://github.com/s-stefanov/actual-mcp/commit/63b0941923b73ddd52581badd8adbdfbd46d3da7))
+* Stabilize API Init/Shutdown and Fix Tool-Call Rejection & Stdio Corruption ([#96](https://github.com/s-stefanov/actual-mcp/issues/96)) ([2e16cfa](https://github.com/s-stefanov/actual-mcp/commit/2e16cfa956b7999e7dc49fac0702eca3343fa1cc))
+* update actual to 26.3 ([#124](https://github.com/s-stefanov/actual-mcp/issues/124)) ([5003cdb](https://github.com/s-stefanov/actual-mcp/commit/5003cdb55d464adb0dcfddbdd4a9178604c2fc74))
+
+
+### Bug Fixes
+
+* **deps:** update dependency dotenv to v17.3.1 ([#121](https://github.com/s-stefanov/actual-mcp/issues/121)) ([5cc4f57](https://github.com/s-stefanov/actual-mcp/commit/5cc4f5743c7005ef1944accfeb371c69fc00df9d))
+* **deps:** update dependency vite-tsconfig-paths to v6 ([#80](https://github.com/s-stefanov/actual-mcp/issues/80)) ([cc4ce34](https://github.com/s-stefanov/actual-mcp/commit/cc4ce340644c18ebde516d9fe83e4c8347d7630a))
+* **deps:** update github artifact actions ([#83](https://github.com/s-stefanov/actual-mcp/issues/83)) ([46fae56](https://github.com/s-stefanov/actual-mcp/commit/46fae56516b90ca1cdb74f8f2c353a60c44b2270))
+* **deps:** update vitest monorepo to v4 ([#84](https://github.com/s-stefanov/actual-mcp/issues/84)) ([426e3e1](https://github.com/s-stefanov/actual-mcp/commit/426e3e147f883f4cb31e5c264e08e393022cc481))
+
 ## [1.9.0](https://github.com/s-stefanov/actual-mcp/compare/v1.8.0...v1.9.0) (2026-03-02)
 
 
