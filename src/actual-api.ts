@@ -205,7 +205,7 @@ export async function updateCategory(id: string, args: Record<string, unknown>):
 /**
  * Delete a category (ensures API is initialized)
  */
-export async function deleteCategory(id: string): Promise<{ error?: string }> {
+export async function deleteCategory(id: string): Promise<void> {
   await initActualApi();
   return api.deleteCategory(id);
 }
