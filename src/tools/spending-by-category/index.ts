@@ -8,13 +8,13 @@ import { GroupAggregator } from '../../core/aggregation/group-by.js';
 import { SpendingByCategoryReportGenerator } from './report-generator.js';
 import { success, errorFromCatch } from '../../utils/response.js';
 import type { SpendingByCategoryInput } from './input-parser.js';
-import { zodToJsonSchema } from 'zod-to-json-schema';
+import { toJSONSchema } from 'zod';
 import { SpendingByCategoryArgsSchema, type SpendingByCategoryArgs, ToolInput, type Account } from '../../types.js';
 
 export const schema = {
   name: 'spending-by-category',
   description: 'Get spending breakdown by category for a specified date range',
-  inputSchema: zodToJsonSchema(SpendingByCategoryArgsSchema) as ToolInput,
+  inputSchema: toJSONSchema(SpendingByCategoryArgsSchema) as ToolInput,
 };
 
 export async function handler(args: SpendingByCategoryArgs): Promise<CallToolResult> {

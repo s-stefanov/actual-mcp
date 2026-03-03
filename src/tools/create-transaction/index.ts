@@ -3,7 +3,7 @@
 // ----------------------------
 
 import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
-import { zodToJsonSchema } from 'zod-to-json-schema';
+import { toJSONSchema } from 'zod';
 import { successWithJson, errorFromCatch } from '../../utils/response.js';
 import { createTransaction } from '../../actual-api.js';
 import { CreateTransactionArgsSchema, type CreateTransactionArgs, ToolInput } from '../../types.js';
@@ -11,7 +11,7 @@ import { CreateTransactionArgsSchema, type CreateTransactionArgs, ToolInput } fr
 export const schema = {
   name: 'create-transaction',
   description: 'Create a new transaction. Use this to add transactions to accounts.',
-  inputSchema: zodToJsonSchema(CreateTransactionArgsSchema) as ToolInput,
+  inputSchema: toJSONSchema(CreateTransactionArgsSchema) as ToolInput,
 };
 
 export async function handler(args: CreateTransactionArgs): Promise<CallToolResult> {

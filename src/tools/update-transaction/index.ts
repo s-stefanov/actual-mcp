@@ -1,5 +1,5 @@
 import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
-import { zodToJsonSchema } from 'zod-to-json-schema';
+import { toJSONSchema } from 'zod';
 import { success, errorFromCatch } from '../../utils/response.js';
 import { updateTransaction } from '../../actual-api.js';
 import { UpdateTransactionArgsSchema, type UpdateTransactionArgs, ToolInput } from '../../types.js';
@@ -8,7 +8,7 @@ export const schema = {
   name: 'update-transaction',
   description:
     'Update an existing transaction. Can modify date, amount, payee, category, notes, cleared status, and subtransactions.',
-  inputSchema: zodToJsonSchema(UpdateTransactionArgsSchema) as ToolInput,
+  inputSchema: toJSONSchema(UpdateTransactionArgsSchema) as ToolInput,
 };
 
 export async function handler(args: UpdateTransactionArgs): Promise<CallToolResult> {

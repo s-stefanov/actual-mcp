@@ -1,5 +1,5 @@
 import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
-import { zodToJsonSchema } from 'zod-to-json-schema';
+import { toJSONSchema } from 'zod';
 import { MonthlySummaryInputParser } from './input-parser.js';
 import { MonthlySummaryDataFetcher } from './data-fetcher.js';
 import { MonthlySummaryCategoryClassifier } from './category-classifier.js';
@@ -14,7 +14,7 @@ import { MonthlySummaryArgsSchema, type MonthlySummaryArgs, ToolInput } from '..
 export const schema = {
   name: 'monthly-summary',
   description: 'Get monthly income, expenses, and savings',
-  inputSchema: zodToJsonSchema(MonthlySummaryArgsSchema) as ToolInput,
+  inputSchema: toJSONSchema(MonthlySummaryArgsSchema) as ToolInput,
 };
 
 export async function handler(args: MonthlySummaryArgs): Promise<CallToolResult> {

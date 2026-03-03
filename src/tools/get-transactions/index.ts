@@ -7,12 +7,12 @@ import { GetTransactionsReportGenerator } from './report-generator.js';
 import { success, errorFromCatch } from '../../utils/response.js';
 import { getDateRange } from '../../utils.js';
 import { GetTransactionsArgsSchema, type GetTransactionsArgs, type ToolInput } from '../../types.js';
-import { zodToJsonSchema } from 'zod-to-json-schema';
+import { toJSONSchema } from 'zod';
 
 export const schema = {
   name: 'get-transactions',
   description: 'Get transactions for an account with optional filtering',
-  inputSchema: zodToJsonSchema(GetTransactionsArgsSchema) as ToolInput,
+  inputSchema: toJSONSchema(GetTransactionsArgsSchema) as ToolInput,
 };
 
 export async function handler(args: GetTransactionsArgs): Promise<CallToolResult> {

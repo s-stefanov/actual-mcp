@@ -207,9 +207,9 @@ async function main(): Promise<void> {
     const handleLegacySse = (req: Request, res: Response): void => {
       transport = new SSEServerTransport('/messages', res);
       server.connect(transport).then(() => {
-        console.log = (message: string) => server.sendLoggingMessage({ level: 'info', message });
+        console.log = (message: string) => server.sendLoggingMessage({ level: 'info', data: message });
 
-        console.error = (message: string) => server.sendLoggingMessage({ level: 'error', message });
+        console.error = (message: string) => server.sendLoggingMessage({ level: 'error', data: message });
 
         console.error(`Actual Budget MCP Server (SSE) started on port ${resolvedPort}`);
       });
@@ -255,9 +255,9 @@ async function main(): Promise<void> {
             try {
               await server.connect(streamableTransport);
 
-              console.log = (message: string) => server.sendLoggingMessage({ level: 'info', message });
+              console.log = (message: string) => server.sendLoggingMessage({ level: 'info', data: message });
 
-              console.error = (message: string) => server.sendLoggingMessage({ level: 'error', message });
+              console.error = (message: string) => server.sendLoggingMessage({ level: 'error', data: message });
 
               console.error(`Actual Budget MCP Server (Streamable HTTP) started on port ${resolvedPort}`);
             } catch (error) {
@@ -358,12 +358,12 @@ main()
       console.log = (message: string) =>
         server.sendLoggingMessage({
           level: 'info',
-          message,
+          data: message,
         });
       console.error = (message: string) =>
         server.sendLoggingMessage({
           level: 'error',
-          message,
+          data: message,
         });
     }
   })

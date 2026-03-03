@@ -2,8 +2,7 @@
 // RUN BANK SYNC TOOL
 // ----------------------------
 
-import { z } from 'zod';
-import { zodToJsonSchema } from 'zod-to-json-schema';
+import { z, toJSONSchema } from 'zod';
 import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { success, errorFromCatch } from '../../utils/response.js';
 import { runBankSync } from '../../actual-api.js';
@@ -27,7 +26,7 @@ export const schema = {
     'Run bank synchronization (GoCardless/SimpleFIN) to download latest transactions. ' +
     'Provide accountId for a specific account, use "onbudget"/"offbudget" for groups, ' +
     'or omit to sync all linked accounts.',
-  inputSchema: zodToJsonSchema(RunBankSyncArgsSchema) as ToolInput,
+  inputSchema: toJSONSchema(RunBankSyncArgsSchema) as ToolInput,
 };
 
 export async function handler(args: RunBankSyncArgs): Promise<CallToolResult> {

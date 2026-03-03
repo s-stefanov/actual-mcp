@@ -4,7 +4,7 @@
 
 import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { utils } from '@actual-app/api';
-import { zodToJsonSchema } from 'zod-to-json-schema';
+import { toJSONSchema } from 'zod';
 import { success, errorFromCatch } from '../../utils/response.js';
 import { importTransactions } from '../../actual-api.js';
 import { ImportTransactionsArgsSchema, type ImportTransactionsArgs, ToolInput } from '../../types.js';
@@ -15,7 +15,7 @@ export const schema = {
     'Import a list of transactions into an account using reconciliation logic. ' +
     'Deduplicates via imported_id to prevent duplicates on repeated imports. ' +
     'Supports dry-run mode to preview changes without persisting them.',
-  inputSchema: zodToJsonSchema(ImportTransactionsArgsSchema) as ToolInput,
+  inputSchema: toJSONSchema(ImportTransactionsArgsSchema) as ToolInput,
 };
 
 export async function handler(args: ImportTransactionsArgs): Promise<CallToolResult> {

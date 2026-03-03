@@ -7,8 +7,7 @@ import { fetchAllAccounts } from '../../core/data/fetch-accounts.js';
 import type { Account } from '../../core/types/domain.js';
 import { getAccountBalance } from '@actual-app/api';
 import { formatAmount } from '../../utils.js';
-import { z } from 'zod';
-import { zodToJsonSchema } from 'zod-to-json-schema';
+import { z, toJSONSchema } from 'zod';
 import { type ToolInput } from '../../types.js';
 
 // Define an empty schema with zod
@@ -17,7 +16,7 @@ const GetAccountsArgsSchema = z.object({});
 export const schema = {
   name: 'get-accounts',
   description: 'Retrieve a list of all accounts with their current balance and ID.',
-  inputSchema: zodToJsonSchema(GetAccountsArgsSchema) as ToolInput,
+  inputSchema: toJSONSchema(GetAccountsArgsSchema) as ToolInput,
 };
 
 export async function handler(): Promise<ReturnType<typeof successWithJson> | ReturnType<typeof errorFromCatch>> {
