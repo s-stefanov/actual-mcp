@@ -30,6 +30,9 @@ jobs:
         if: ${{ steps.release.outputs.release_created }}
       - run: npm publish
         if: ${{ steps.release.outputs.release_created }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        if: ${{ steps.release.outputs.release_created }}
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         if: ${{ steps.release.outputs.release_created }}
@@ -40,5 +43,6 @@ jobs:
         uses: docker/build-push-action@v6
         if: ${{ steps.release.outputs.release_created }}
         with:
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/actual-mcp:${{ steps.release.outputs.tag_name }},${{ secrets.DOCKER_USERNAME }}/actual-mcp:latest
