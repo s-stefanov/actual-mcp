@@ -6,6 +6,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { handler, schema } from './index.js';
 import * as actualApi from '../../actual-api.js';
 import { ImportTransactionsArgs } from '../../types.js';
+import { textContent } from '../../utils/response.js';
 
 // Mock the actual-api module
 vi.mock('../../actual-api.js', () => ({
@@ -71,9 +72,9 @@ describe('import-transactions tool', () => {
         { defaultCleared: undefined, dryRun: undefined }
       );
       expect(result.isError).toBeUndefined();
-      expect(result.content[0].text).toContain('Added: 2 transaction(s)');
-      expect(result.content[0].text).toContain('Updated: 0 transaction(s)');
-      expect(result.content[0].text).toContain('Errors: none');
+      expect(textContent(result.content[0])).toContain('Added: 2 transaction(s)');
+      expect(textContent(result.content[0])).toContain('Updated: 0 transaction(s)');
+      expect(textContent(result.content[0])).toContain('Errors: none');
     });
 
     it('should include [DRY RUN] prefix when dryRun is true', async () => {
@@ -96,7 +97,7 @@ describe('import-transactions tool', () => {
         dryRun: true,
       });
       expect(result.isError).toBeUndefined();
-      expect(result.content[0].text).toContain('[DRY RUN]');
+      expect(textContent(result.content[0])).toContain('[DRY RUN]');
     });
 
     it('should pass defaultCleared option to the API', async () => {
@@ -136,7 +137,7 @@ describe('import-transactions tool', () => {
       const result = await handler(args);
 
       expect(result.isError).toBeUndefined();
-      expect(result.content[0].text).toContain('Invalid date on row 1');
+      expect(textContent(result.content[0])).toContain('Invalid date on row 1');
     });
   });
 
@@ -156,7 +157,7 @@ describe('import-transactions tool', () => {
       const result = await handler(args);
 
       expect(result.isError).toBeUndefined();
-      expect(result.content[0].text).toContain('Added: 1 transaction(s)');
+      expect(textContent(result.content[0])).toContain('Added: 1 transaction(s)');
     });
 
     it('should handle both added and updated in same import', async () => {
@@ -177,8 +178,8 @@ describe('import-transactions tool', () => {
       const result = await handler(args);
 
       expect(result.isError).toBeUndefined();
-      expect(result.content[0].text).toContain('Added: 1 transaction(s)');
-      expect(result.content[0].text).toContain('Updated: 1 transaction(s)');
+      expect(textContent(result.content[0])).toContain('Added: 1 transaction(s)');
+      expect(textContent(result.content[0])).toContain('Updated: 1 transaction(s)');
     });
   });
 
@@ -191,7 +192,7 @@ describe('import-transactions tool', () => {
       const result = await handler(args);
 
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('accountId');
+      expect(textContent(result.content[0])).toContain('accountId');
     });
 
     it('should return error when transactions array is empty', async () => {
@@ -214,7 +215,7 @@ describe('import-transactions tool', () => {
       const result = await handler(args);
 
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('date');
+      expect(textContent(result.content[0])).toContain('date');
     });
 
     it('should return error when a transaction is missing amount', async () => {
@@ -226,7 +227,7 @@ describe('import-transactions tool', () => {
       const result = await handler(args);
 
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('amount');
+      expect(textContent(result.content[0])).toContain('amount');
     });
 
     it('should return error when date format is invalid', async () => {
@@ -238,7 +239,7 @@ describe('import-transactions tool', () => {
       const result = await handler(args);
 
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('date must be in YYYY-MM-DD format');
+      expect(textContent(result.content[0])).toContain('date must be in YYYY-MM-DD format');
     });
   });
 
@@ -254,7 +255,7 @@ describe('import-transactions tool', () => {
       const result = await handler(args);
 
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('Connection refused');
+      expect(textContent(result.content[0])).toContain('Connection refused');
     });
   });
 });

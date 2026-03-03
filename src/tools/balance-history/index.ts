@@ -7,12 +7,12 @@ import { BalanceHistoryReportGenerator } from './report-generator.js';
 import { success, errorFromCatch } from '../../utils/response.js';
 import { formatDate } from '../../utils.js';
 import { BalanceHistoryArgsSchema, type BalanceHistoryArgs, ToolInput } from '../../types.js';
-import { zodToJsonSchema } from 'zod-to-json-schema';
+import { toJSONSchema } from 'zod';
 
 export const schema = {
   name: 'balance-history',
   description: 'Get account balance history over time',
-  inputSchema: zodToJsonSchema(BalanceHistoryArgsSchema) as ToolInput,
+  inputSchema: toJSONSchema(BalanceHistoryArgsSchema) as ToolInput,
 };
 
 export async function handler(args: BalanceHistoryArgs): Promise<CallToolResult> {

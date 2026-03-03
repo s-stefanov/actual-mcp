@@ -1,6 +1,5 @@
 import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
-import { z } from 'zod';
-import { zodToJsonSchema } from 'zod-to-json-schema';
+import { z, toJSONSchema } from 'zod';
 import { success, errorFromCatch } from '../../utils/response.js';
 import { deleteTransaction } from '../../actual-api.js';
 import { ToolInput } from '../../types.js';
@@ -14,7 +13,7 @@ type DeleteTransactionArgs = z.infer<typeof DeleteTransactionArgsSchema>;
 export const schema = {
   name: 'delete-transaction',
   description: 'Delete a transaction by its ID. This action is permanent and cannot be undone.',
-  inputSchema: zodToJsonSchema(DeleteTransactionArgsSchema) as ToolInput,
+  inputSchema: toJSONSchema(DeleteTransactionArgsSchema) as ToolInput,
 };
 
 export async function handler(args: DeleteTransactionArgs): Promise<CallToolResult> {

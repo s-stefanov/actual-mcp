@@ -2,12 +2,12 @@
 // RESPONSE UTILITIES
 // ----------------------------
 
-import { CallToolResult, TextContent, ImageContent, AudioContent } from '@modelcontextprotocol/sdk/types.js';
+import { CallToolResult, TextContent } from '@modelcontextprotocol/sdk/types.js';
 
 /**
- * Standard MCP content item types (union of all supported content types)
+ * Standard MCP content item types (derived from CallToolResult to stay in sync with SDK)
  */
-export type ContentItem = TextContent | ImageContent | AudioContent;
+export type ContentItem = CallToolResult['content'][number];
 
 /**
  * Text content item (most common type)
@@ -77,4 +77,18 @@ export function error(message: string): CallToolResult {
 export function errorFromCatch(err: unknown): CallToolResult {
   const message = err instanceof Error ? err.message : String(err);
   return error(message);
+}
+
+/**
+ * Extract text from a content item, narrowing the union type.
+ * Throws if the item is not a text content item.
+ *
+ * @param item - A content item from a CallToolResult
+ * @returns The text string from the content item
+ */
+export function textContent(item: ContentItem): string {
+  if (item.type !== 'text') {
+    throw new Error(`Expected text content, got ${item.type}`);
+  }
+  return item.text;
 }
