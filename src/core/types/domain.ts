@@ -14,7 +14,7 @@ export interface Transaction {
   account: string;
   date: string;
   amount: number;
-  payee?: string;
+  payee?: string | null;
   payee_name?: string;
   category?: string;
   category_name?: string;
