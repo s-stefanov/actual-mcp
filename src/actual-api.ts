@@ -333,6 +333,14 @@ export async function setBudgetAmount(month: string, categoryId: string, amount:
 }
 
 /**
+ * Set the carryover flag for a category in a given month (ensures API is initialized)
+ */
+export async function setBudgetCarryover(month: string, categoryId: string, carryover: boolean): Promise<void> {
+  await initActualApi();
+  return api.setBudgetCarryover(month, categoryId, carryover);
+}
+
+/**
  * Get a list of months that have budget data (ensures API is initialized)
  */
 export async function getBudgetMonths(): Promise<string[]> {
