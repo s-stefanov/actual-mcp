@@ -126,6 +126,25 @@ const safeStringify = (value: unknown): string => {
 const toErrorMessage = (value: unknown): string =>
   value instanceof Error ? `${value.name}: ${value.message}` : safeStringify(value);
 
+// Keep references to the original console methods so we can fall back
+// when the MCP transport is disconnected.
+const originalConsoleLog = console.log.bind(console);
+const originalConsoleError = console.error.bind(console);
+
+/**
+ * Create a safe console override that forwards to `server.sendLoggingMessage`
+ * but falls back to the original console method if the server is not connected.
+ */
+const safeSendLog = (level: 'info' | 'error', fallback: (...args: unknown[]) => void) => {
+  return (message: string) => {
+    try {
+      server.sendLoggingMessage({ level, data: message });
+    } catch {
+      fallback(message);
+    }
+  };
+};
+
 // ----------------------------
 // SERVER STARTUP
 // ----------------------------
@@ -207,10 +226,8 @@ async function main(): Promise<void> {
     const handleLegacySse = (req: Request, res: Response): void => {
       transport = new SSEServerTransport('/messages', res);
       server.connect(transport).then(() => {
-        console.log = (message: string) => server.sendLoggingMessage({ level: 'info', data: message });
-
-        console.error = (message: string) => server.sendLoggingMessage({ level: 'error', data: message });
-
+        console.log = safeSendLog('info', originalConsoleLog);
+        console.error = safeSendLog('error', originalConsoleError);
         console.error(`Actual Budget MCP Server (SSE) started on port ${resolvedPort}`);
       });
     };
@@ -255,10 +272,8 @@ async function main(): Promise<void> {
             try {
               await server.connect(streamableTransport);
 
-              console.log = (message: string) => server.sendLoggingMessage({ level: 'info', data: message });
-
-              console.error = (message: string) => server.sendLoggingMessage({ level: 'error', data: message });
-
+              console.log = safeSendLog('info', originalConsoleLog);
+              console.error = safeSendLog('error', originalConsoleError);
               console.error(`Actual Budget MCP Server (Streamable HTTP) started on port ${resolvedPort}`);
             } catch (error) {
               console.error(`Failed to connect streamable HTTP transport: ${toErrorMessage(error)}`);
@@ -355,16 +370,8 @@ main()
   .then(() => {
     if (!useSse) {
       // TODO: Setup proper logging level change. Messages are available in the notification of MCP Inspector
-      console.log = (message: string) =>
-        server.sendLoggingMessage({
-          level: 'info',
-          data: message,
-        });
-      console.error = (message: string) =>
-        server.sendLoggingMessage({
-          level: 'error',
-          data: message,
-        });
+      console.log = safeSendLog('info', originalConsoleLog);
+      console.error = safeSendLog('error', originalConsoleError);
     }
   })
   .catch((error: unknown) => {

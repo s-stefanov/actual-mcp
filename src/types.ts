@@ -292,3 +292,27 @@ export interface MonthBalance {
   balance: number;
   transactions: number;
 }
+
+export const BulkUpdateTransactionsArgsSchema = z.object({
+  transactions: z
+    .array(UpdateTransactionArgsSchema)
+    .min(1)
+    .describe('Required. Array of transactions to update. Each must include an id and at least one field to update.'),
+});
+
+export type BulkUpdateTransactionsArgs = z.infer<typeof BulkUpdateTransactionsArgsSchema>;
+
+export const GetUncategorizedTransactionsArgsSchema = z.object({
+  startDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'date must be in YYYY-MM-DD format')
+    .optional()
+    .describe('Start date for filtering transactions (YYYY-MM-DD). Defaults to 3 months ago.'),
+  endDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'date must be in YYYY-MM-DD format')
+    .optional()
+    .describe('End date for filtering transactions (YYYY-MM-DD). Defaults to today.'),
+});
+
+export type GetUncategorizedTransactionsArgs = z.infer<typeof GetUncategorizedTransactionsArgsSchema>;
