@@ -36,6 +36,10 @@ import * as bulkUpdateTransactions from './bulk-update-transactions/index.js';
 import * as bulkCreateRules from './bulk-create-rules/index.js';
 import * as getUncategorizedTransactions from './get-uncategorized-transactions/index.js';
 import * as queryTransactions from './query-transactions/index.js';
+import * as getTags from './tags/get-tags/index.js';
+import * as createTag from './tags/create-tag/index.js';
+import * as updateTag from './tags/update-tag/index.js';
+import * as deleteTag from './tags/delete-tag/index.js';
 
 const readTools = [
   getTransactions,
@@ -48,6 +52,7 @@ const readTools = [
   getRules,
   getUncategorizedTransactions,
   queryTransactions,
+  getTags,
 ];
 
 const writeTools = [
@@ -70,6 +75,9 @@ const writeTools = [
   runBankSync,
   bulkUpdateTransactions,
   bulkCreateRules,
+  createTag,
+  updateTag,
+  deleteTag,
 ];
 
 export const setupTools = (server: Server, enableWrite: boolean): void => {

@@ -8,6 +8,7 @@ import {
   APICategoryEntity,
   APICategoryGroupEntity,
   APIPayeeEntity,
+  type APITagEntity,
 } from '@actual-app/api/@types/loot-core/src/server/api-models.js';
 import { RuleEntity, TransactionEntity } from '@actual-app/api/@types/loot-core/src/types/models/index.js';
 import { ImportTransactionEntity } from '@actual-app/api/@types/loot-core/src/types/models/import-transaction.js';
@@ -138,6 +139,14 @@ export async function getTransactions(accountId: string, start: string, end: str
 export async function getRules(): Promise<RuleEntity[]> {
   await initActualApi();
   return api.getRules();
+}
+
+/**
+ * Get all tags (ensures API is initialized)
+ */
+export async function getTags(): Promise<APITagEntity[]> {
+  await initActualApi();
+  return api.getTags();
 }
 
 // ----------------------------
@@ -289,4 +298,28 @@ export async function runBankSync(accountId?: string): Promise<void> {
   await initActualApi();
   // API expects { accountId } object or undefined for all accounts
   return api.runBankSync(accountId ? { accountId } : undefined);
+}
+
+/**
+ * Create a new tag (ensures API is initialized)
+ */
+export async function createTag(args: Omit<APITagEntity, 'id'>): Promise<string> {
+  await initActualApi();
+  return api.createTag(args);
+}
+
+/**
+ * Update a tag (ensures API is initialized)
+ */
+export async function updateTag(id: string, fields: Partial<Omit<APITagEntity, 'id'>>): Promise<void> {
+  await initActualApi();
+  return api.updateTag(id, fields);
+}
+
+/**
+ * Delete a tag (ensures API is initialized)
+ */
+export async function deleteTag(id: string): Promise<void> {
+  await initActualApi();
+  return api.deleteTag(id);
 }
