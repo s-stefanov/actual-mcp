@@ -323,3 +323,19 @@ export async function deleteTag(id: string): Promise<void> {
   await initActualApi();
   return api.deleteTag(id);
 }
+
+/**
+ * Set the budgeted amount for a category in a given month (ensures API is initialized)
+ */
+export async function setBudgetAmount(month: string, categoryId: string, amount: number): Promise<void> {
+  await initActualApi();
+  return api.setBudgetAmount(month, categoryId, amount);
+}
+
+/**
+ * Get a list of months that have budget data (ensures API is initialized)
+ */
+export async function getBudgetMonths(): Promise<string[]> {
+  await initActualApi();
+  return api.getBudgetMonths();
+}

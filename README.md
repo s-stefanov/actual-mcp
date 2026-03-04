@@ -30,10 +30,11 @@ The Actual Budget MCP Server allows you to interact with your personal financial
 - **`get-accounts`** - Retrieve all accounts with balances
 - **`balance-history`** - View account balance changes over time
 
-#### Reporting & Analytics (2 read)
+#### Reporting & Analytics (3 read)
 
 - **`spending-by-category`** - Generate spending breakdowns categorized by type
 - **`monthly-summary`** - Get monthly income, expenses, and savings metrics
+- **`get-budget-months`** - Get a list of months that have budget data
 
 #### Categories (7 read + write)
 
@@ -66,6 +67,10 @@ The Actual Budget MCP Server allows you to interact with your personal financial
 - **`create-tag`** - Create a new tag
 - **`update-tag`** - Update an existing tag's name, color, or description
 - **`delete-tag`** - Delete a tag
+
+#### Budget (1 write)
+
+- **`set-budget-amount`** - Set the budgeted amount for a category in a specific month
 
 #### Bank Sync (1 write)
 
