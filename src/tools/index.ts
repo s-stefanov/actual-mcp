@@ -33,6 +33,7 @@ import * as createTransaction from './create-transaction/index.js';
 import * as importTransactions from './import-transactions/index.js';
 import * as runBankSync from './run-bank-sync/index.js';
 import * as bulkUpdateTransactions from './bulk-update-transactions/index.js';
+import * as bulkCreateRules from './bulk-create-rules/index.js';
 import * as getUncategorizedTransactions from './get-uncategorized-transactions/index.js';
 
 const readTools = [
@@ -66,6 +67,7 @@ const writeTools = [
   importTransactions,
   runBankSync,
   bulkUpdateTransactions,
+  bulkCreateRules,
 ];
 
 export const setupTools = (server: Server, enableWrite: boolean): void => {

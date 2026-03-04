@@ -316,3 +316,68 @@ export const GetUncategorizedTransactionsArgsSchema = z.object({
 });
 
 export type GetUncategorizedTransactionsArgs = z.infer<typeof GetUncategorizedTransactionsArgsSchema>;
+
+export const BulkCreateRulesArgsSchema = z.object({
+  rules: z
+    .array(
+      z.object({
+        stage: z.enum(['pre', 'post']).nullable().describe('When the rule should be applied (null for default stage)'),
+        conditionsOp: z.enum(['and', 'or']).describe('How to combine conditions'),
+        conditions: z
+          .array(
+            z.object({
+              field: z
+                .enum(['account', 'category', 'date', 'payee', 'amount', 'imported_payee'])
+                .describe('Field to apply the condition on'),
+              op: z
+                .enum([
+                  'is',
+                  'isNot',
+                  'oneOf',
+                  'notOneOf',
+                  'onBudget',
+                  'offBudget',
+                  'isapprox',
+                  'gt',
+                  'gte',
+                  'lt',
+                  'lte',
+                  'isbetween',
+                  'contains',
+                  'doesNotContain',
+                  'matches',
+                  'hasTags',
+                ])
+                .describe('Condition operator'),
+              value: z
+                .union([z.string(), z.number(), z.array(z.string()), z.array(z.number())])
+                .describe('Condition value'),
+            })
+          )
+          .describe('Conditions for the rule to apply'),
+        actions: z
+          .array(
+            z.object({
+              field: z
+                .enum(['account', 'category', 'date', 'payee', 'amount', 'cleared', 'notes'])
+                .nullable()
+                .describe('Field to apply the action on. Use null for split actions.'),
+              op: z.enum(['set', 'prepend-notes', 'append-notes', 'set-split-amount']).describe('Action operator'),
+              value: z.union([z.boolean(), z.string(), z.number(), z.null()]).describe('Action value'),
+              options: z
+                .object({
+                  splitIndex: z.number().optional().describe('Split index (counting from 1)'),
+                  method: z.enum(['fixed-amount', 'fixed-percent', 'remainder']).optional().describe('Split method'),
+                })
+                .optional()
+                .describe('Additional properties for split rules'),
+            })
+          )
+          .describe('Actions of the applied rule'),
+      })
+    )
+    .min(1)
+    .describe('Required. Array of rule definitions to create.'),
+});
+
+export type BulkCreateRulesArgs = z.infer<typeof BulkCreateRulesArgsSchema>;
