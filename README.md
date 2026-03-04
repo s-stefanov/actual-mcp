@@ -16,22 +16,28 @@ The Actual Budget MCP Server allows you to interact with your personal financial
 
 ### Tools
 
-#### Transaction & Account Management
+#### Transaction & Account Management (11 read + write)
 
 - **`get-transactions`** - Retrieve and filter transactions by account, date, amount, category, or payee
-- **`create-transaction`** - Create a new transaction in an account with optional category, payee, and notes
-- **`update-transaction`** - Update an existing transaction with new category, payee, notes, or amount
-- **`get-accounts`** - Retrieve a list of all accounts with their current balance and ID
+- **`query-transactions`** - Query transactions with flexible filtering and field selection
+- **`get-uncategorized-transactions`** - Retrieve transactions that haven't been categorized
+- **`create-transaction`** - Create a new transaction in an account
+- **`update-transaction`** - Update an existing transaction's fields
+- **`delete-transaction`** - Delete a transaction
+- **`import-transactions`** - Bulk import transactions into an account
+- **`bulk-update-transactions`** - Update multiple transactions at once
+- **`link-transfer`** - Link two transactions as a transfer between accounts
+- **`get-accounts`** - Retrieve all accounts with balances
 - **`balance-history`** - View account balance changes over time
 
-#### Reporting & Analytics
+#### Reporting & Analytics (2 read)
 
 - **`spending-by-category`** - Generate spending breakdowns categorized by type
 - **`monthly-summary`** - Get monthly income, expenses, and savings metrics
 
-#### Categories
+#### Categories (7 read + write)
 
-- **`get-grouped-categories`** - Retrieve a list of all category groups with their categories
+- **`get-grouped-categories`** - Retrieve all category groups with their categories
 - **`create-category`** - Create a new category within a category group
 - **`update-category`** - Update an existing category's name or group
 - **`delete-category`** - Delete a category
@@ -39,19 +45,31 @@ The Actual Budget MCP Server allows you to interact with your personal financial
 - **`update-category-group`** - Update a category group's name
 - **`delete-category-group`** - Delete a category group
 
-#### Payees
+#### Payees (4 read + write)
 
-- **`get-payees`** - Retrieve a list of all payees with their details
+- **`get-payees`** - Retrieve all payees with their details
 - **`create-payee`** - Create a new payee
 - **`update-payee`** - Update an existing payee's details
 - **`delete-payee`** - Delete a payee
 
-#### Rules
+#### Rules (5 read + write)
 
-- **`get-rules`** - Retrieve a list of all transaction rules
+- **`get-rules`** - Retrieve all transaction rules
 - **`create-rule`** - Create a new transaction rule with conditions and actions
 - **`update-rule`** - Update an existing transaction rule
 - **`delete-rule`** - Delete a transaction rule
+- **`bulk-create-rules`** - Create multiple transaction rules at once
+
+#### Tags (4 read + write)
+
+- **`get-tags`** - Retrieve all tags
+- **`create-tag`** - Create a new tag
+- **`update-tag`** - Update an existing tag's name, color, or description
+- **`delete-tag`** - Delete a tag
+
+#### Bank Sync (1 write)
+
+- **`run-bank-sync`** - Trigger a bank sync to pull latest transactions
 
 ### Prompts
 
