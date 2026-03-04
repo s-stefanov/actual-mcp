@@ -35,6 +35,7 @@ import * as runBankSync from './run-bank-sync/index.js';
 import * as bulkUpdateTransactions from './bulk-update-transactions/index.js';
 import * as bulkCreateRules from './bulk-create-rules/index.js';
 import * as getUncategorizedTransactions from './get-uncategorized-transactions/index.js';
+import * as queryTransactions from './query-transactions/index.js';
 
 const readTools = [
   getTransactions,
@@ -46,6 +47,7 @@ const readTools = [
   getPayees,
   getRules,
   getUncategorizedTransactions,
+  queryTransactions,
 ];
 
 const writeTools = [

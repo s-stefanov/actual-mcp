@@ -381,3 +381,21 @@ export const BulkCreateRulesArgsSchema = z.object({
 });
 
 export type BulkCreateRulesArgs = z.infer<typeof BulkCreateRulesArgsSchema>;
+
+export const QueryTransactionsArgsSchema = z.object({
+  category: z.string().optional().describe('Filter by category name (exact match, case-insensitive)'),
+  payee: z.string().optional().describe('Filter by payee name (exact match, case-insensitive)'),
+  startDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'date must be in YYYY-MM-DD format')
+    .optional()
+    .describe('Start date for filtering transactions (YYYY-MM-DD). Defaults to 3 months ago.'),
+  endDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'date must be in YYYY-MM-DD format')
+    .optional()
+    .describe('End date for filtering transactions (YYYY-MM-DD). Defaults to today.'),
+  accountId: z.string().optional().describe('Filter by account ID. Defaults to all on-budget accounts.'),
+});
+
+export type QueryTransactionsArgs = z.infer<typeof QueryTransactionsArgsSchema>;
