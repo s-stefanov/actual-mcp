@@ -107,6 +107,10 @@ export const UpdateTransactionArgsSchema = z.object({
     .string()
     .optional()
     .describe('A unique id usually given by the bank, if importing. Use this to avoid duplicate transactions'),
+  transfer_id: z
+    .string()
+    .optional()
+    .describe('If a transfer, the ID of the corresponding transaction in the other account'),
   cleared: z.boolean().optional().describe('A flag indicating if the transaction has cleared or not'),
   subtransactions: z
     .array(UpdateSubtransactionSchema)

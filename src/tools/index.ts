@@ -40,6 +40,7 @@ import * as getTags from './tags/get-tags/index.js';
 import * as createTag from './tags/create-tag/index.js';
 import * as updateTag from './tags/update-tag/index.js';
 import * as deleteTag from './tags/delete-tag/index.js';
+import * as linkTransfer from './transfer/link-transfer/index.js';
 
 const readTools = [
   getTransactions,
@@ -78,6 +79,7 @@ const writeTools = [
   createTag,
   updateTag,
   deleteTag,
+  linkTransfer,
 ];
 
 export const setupTools = (server: Server, enableWrite: boolean): void => {
