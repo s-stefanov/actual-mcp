@@ -386,6 +386,12 @@ export const BulkCreateRulesArgsSchema = z.object({
 
 export type BulkCreateRulesArgs = z.infer<typeof BulkCreateRulesArgsSchema>;
 
+export const GetAccountBalanceArgsSchema = z.object({
+  accountId: z.string().describe('Required. The ID of the account to get the balance for'),
+});
+
+export type GetAccountBalanceArgs = z.infer<typeof GetAccountBalanceArgsSchema>;
+
 export const QueryTransactionsArgsSchema = z.object({
   category: z.string().optional().describe('Filter by category name (exact match, case-insensitive)'),
   payee: z.string().optional().describe('Filter by payee name (exact match, case-insensitive)'),
