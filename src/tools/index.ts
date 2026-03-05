@@ -10,6 +10,8 @@ import { error, errorFromCatch } from '../utils/response.js';
 import * as balanceHistory from './balance-history/index.js';
 import * as getBudgetMonths from './budget/get-budget-months/index.js';
 import * as setBudgetAmount from './budget/set-budget-amount/index.js';
+import * as setBudgetMonth from './budget/set-budget-month/index.js';
+import * as copyBudgetMonth from './budget/copy-budget-month/index.js';
 import * as setBudgetCarryover from './budget/set-budget-carryover/index.js';
 import * as createCategoryGroup from './categories/create-category-group/index.js';
 import * as createCategory from './categories/create-category/index.js';
@@ -99,6 +101,8 @@ const writeTools = [
   deleteSchedule,
   linkTransfer,
   setBudgetAmount,
+  setBudgetMonth,
+  copyBudgetMonth,
   setBudgetCarryover,
 ];
 

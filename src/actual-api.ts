@@ -394,6 +394,14 @@ export async function setBudgetCarryover(month: string, categoryId: string, carr
 }
 
 /**
+ * Get budget data for a specific month (ensures API is initialized)
+ */
+export async function getBudgetMonth(month: string): Promise<Record<string, unknown>> {
+  await initActualApi();
+  return api.getBudgetMonth(month);
+}
+
+/**
  * Get a list of months that have budget data (ensures API is initialized)
  */
 export async function getBudgetMonths(): Promise<string[]> {
