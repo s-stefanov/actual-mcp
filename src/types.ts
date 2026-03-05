@@ -392,20 +392,39 @@ export const GetAccountBalanceArgsSchema = z.object({
 
 export type GetAccountBalanceArgs = z.infer<typeof GetAccountBalanceArgsSchema>;
 
+// Recursive filter value: plain value, operator object, or logical combinator
+const FilterValue = z.union([
+  z.string(),
+  z.number(),
+  z.boolean(),
+  z.null(),
+  z.record(z.string(), z.unknown()), // operator objects like { "$gte": "2026-01-01" }
+]);
+
 export const QueryTransactionsArgsSchema = z.object({
-  category: z.string().optional().describe('Filter by category name (exact match, case-insensitive)'),
-  payee: z.string().optional().describe('Filter by payee name (exact match, case-insensitive)'),
-  startDate: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'date must be in YYYY-MM-DD format')
+  filters: z
+    .record(z.string(), z.union([FilterValue, z.array(FilterValue)]))
     .optional()
-    .describe('Start date for filtering transactions (YYYY-MM-DD). Defaults to 3 months ago.'),
-  endDate: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'date must be in YYYY-MM-DD format')
+    .describe(
+      'Filter object. Keys are field names (date, amount, category, payee, account, notes, tag, cleared). Values can be plain (exact match) or operator objects like { "$gte": "2026-01-01", "$lt": 0 }. Supported operators: $eq, $ne, $gt, $gte, $lt, $lte, $like, $notlike, $regexp, $oneof. Special "tag" filter accepts a tag name or array of names — matches #hashtags in notes.'
+    ),
+  select: z
+    .array(z.string())
     .optional()
-    .describe('End date for filtering transactions (YYYY-MM-DD). Defaults to today.'),
-  accountId: z.string().optional().describe('Filter by account ID. Defaults to all on-budget accounts.'),
+    .describe(
+      'Fields to include in results. Default: ["date", "payee", "amount", "category", "notes"]. Available: id, date, payee, account, category, amount, notes, cleared.'
+    ),
+  orderBy: z
+    .record(z.string(), z.enum(['asc', 'desc']))
+    .optional()
+    .describe('Sort order. Example: { "date": "desc" } or { "amount": "asc" }. Default: { "date": "desc" }.'),
+  limit: z.number().optional().describe('Max transactions to return. Default: 100, max: 500.'),
+  offset: z.number().optional().describe('Skip this many transactions (for pagination).'),
+  includeSummary: z.boolean().optional().describe('Include summary stats (count, total, average). Default: false.'),
+  groupBy: z
+    .string()
+    .optional()
+    .describe('Group summary stats by field (e.g., "category", "payee"). Only applies when includeSummary is true.'),
 });
 
 export type QueryTransactionsArgs = z.infer<typeof QueryTransactionsArgsSchema>;
