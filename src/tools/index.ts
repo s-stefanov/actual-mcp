@@ -22,7 +22,6 @@ import * as updateCategoryGroup from './categories/update-category-group/index.j
 import * as updateCategory from './categories/update-category/index.js';
 import * as getAccountBalance from './get-account-balance/index.js';
 import * as getAccounts from './get-accounts/index.js';
-import * as getTransactions from './get-transactions/index.js';
 import * as monthlySummary from './monthly-summary/index.js';
 import * as createPayee from './payees/create-payee/index.js';
 import * as deletePayee from './payees/delete-payee/index.js';
@@ -55,7 +54,6 @@ import * as deleteSchedule from './schedules/delete-schedule/index.js';
 import * as linkTransfer from './transfer/link-transfer/index.js';
 
 const readTools = [
-  getTransactions,
   spendingByCategory,
   monthlySummary,
   balanceHistory,

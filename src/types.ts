@@ -12,19 +12,6 @@ export interface BudgetFile {
 }
 
 // Type definitions for tool arguments
-export const GetTransactionsArgsSchema = z.object({
-  accountId: z.string(),
-  startDate: z.string().optional(),
-  endDate: z.string().optional(),
-  minAmount: z.number().optional(),
-  maxAmount: z.number().optional(),
-  categoryName: z.string().optional(),
-  payeeName: z.string().optional(),
-  limit: z.number().optional(),
-});
-
-export type GetTransactionsArgs = z.infer<typeof GetTransactionsArgsSchema>;
-
 export const SpendingByCategoryArgsSchema = z.object({
   startDate: z.string().optional(),
   endDate: z.string().optional(),

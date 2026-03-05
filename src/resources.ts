@@ -102,7 +102,7 @@ Balance: ${formattedBalance}
 On Budget: ${!account.offbudget}
 Status: ${account.closed ? 'Closed' : 'Open'}
 
-To view transactions for this account, use the get-transactions tool.`;
+To view transactions for this account, use the query-transactions tool.`;
 
         return {
           contents: [
