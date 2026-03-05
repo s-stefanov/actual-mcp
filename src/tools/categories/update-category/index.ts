@@ -3,7 +3,7 @@
 // ----------------------------
 
 import { successWithJson, errorFromCatch } from '../../../utils/response.js';
-import { updateCategory } from '../../../actual-api.js';
+import { updateCategory, saveNote } from '../../../actual-api.js';
 
 export const schema = {
   name: 'update-category',
@@ -22,6 +22,10 @@ export const schema = {
       groupId: {
         type: 'string',
         description: 'New ID for the category group. Should be in UUID format.',
+      },
+      note: {
+        type: 'string',
+        description: 'Note for the category. Used for budget template directives (e.g. "#template 250").',
       },
     },
     required: ['id', 'name'],
@@ -45,6 +49,10 @@ export async function handler(
     }
 
     await updateCategory(args.id, data);
+
+    if (typeof args.note === 'string') {
+      await saveNote(args.id, args.note);
+    }
 
     return successWithJson('Successfully updated category ' + args.id);
   } catch (err) {

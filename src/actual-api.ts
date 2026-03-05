@@ -1,4 +1,4 @@
-import api from '@actual-app/api';
+import api, { internal } from '@actual-app/api';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
@@ -232,6 +232,14 @@ export async function createCategory(args: Record<string, unknown>): Promise<str
 export async function updateCategory(id: string, args: Record<string, unknown>): Promise<unknown> {
   await initActualApi();
   return api.updateCategory(id, args);
+}
+
+/**
+ * Save a note for any entity (categories, accounts, etc.) by ID (ensures API is initialized)
+ */
+export async function saveNote(id: string, note: string): Promise<void> {
+  await initActualApi();
+  await internal.send('notes-save', { id, note });
 }
 
 /**
