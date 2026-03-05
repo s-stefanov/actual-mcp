@@ -126,6 +126,14 @@ export async function getPayees(): Promise<APIPayeeEntity[]> {
 }
 
 /**
+ * Get commonly used payees (ensures API is initialized)
+ */
+export async function getCommonPayees(): Promise<APIPayeeEntity[]> {
+  await initActualApi();
+  return api.getCommonPayees();
+}
+
+/**
  * Get transactions for a specific account and date range (ensures API is initialized)
  */
 export async function getTransactions(accountId: string, start: string, end: string): Promise<TransactionEntity[]> {
@@ -139,6 +147,14 @@ export async function getTransactions(accountId: string, start: string, end: str
 export async function getRules(): Promise<RuleEntity[]> {
   await initActualApi();
   return api.getRules();
+}
+
+/**
+ * Get rules associated with a specific payee (ensures API is initialized)
+ */
+export async function getPayeeRules(payeeId: string): Promise<RuleEntity[]> {
+  await initActualApi();
+  return api.getPayeeRules(payeeId);
 }
 
 /**

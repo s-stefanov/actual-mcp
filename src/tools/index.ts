@@ -24,6 +24,8 @@ import * as getTransactions from './get-transactions/index.js';
 import * as monthlySummary from './monthly-summary/index.js';
 import * as createPayee from './payees/create-payee/index.js';
 import * as deletePayee from './payees/delete-payee/index.js';
+import * as getCommonPayees from './payees/get-common-payees/index.js';
+import * as getPayeeRules from './payees/get-payee-rules/index.js';
 import * as getPayees from './payees/get-payees/index.js';
 import * as updatePayee from './payees/update-payee/index.js';
 import * as createRule from './rules/create-rule/index.js';
@@ -54,6 +56,8 @@ const readTools = [
   getAccountBalance,
   getAccounts,
   getGroupedCategories,
+  getCommonPayees,
+  getPayeeRules,
   getPayees,
   getRules,
   getUncategorizedTransactions,
