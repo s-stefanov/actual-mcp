@@ -9,6 +9,7 @@ import {
   APICategoryGroupEntity,
   APIPayeeEntity,
   type APITagEntity,
+  type APIScheduleEntity,
 } from '@actual-app/api/@types/loot-core/src/server/api-models.js';
 import { RuleEntity, TransactionEntity } from '@actual-app/api/@types/loot-core/src/types/models/index.js';
 import { ImportTransactionEntity } from '@actual-app/api/@types/loot-core/src/types/models/import-transaction.js';
@@ -338,6 +339,42 @@ export async function updateTag(id: string, fields: Partial<Omit<APITagEntity, '
 export async function deleteTag(id: string): Promise<void> {
   await initActualApi();
   return api.deleteTag(id);
+}
+
+/**
+ * Get all schedules (ensures API is initialized)
+ */
+export async function getSchedules(): Promise<APIScheduleEntity[]> {
+  await initActualApi();
+  return api.getSchedules();
+}
+
+/**
+ * Create a new schedule (ensures API is initialized)
+ */
+export async function createSchedule(schedule: Omit<APIScheduleEntity, 'id'>): Promise<string> {
+  await initActualApi();
+  return api.createSchedule(schedule);
+}
+
+/**
+ * Update a schedule (ensures API is initialized)
+ */
+export async function updateSchedule(
+  id: string,
+  fields: Partial<APIScheduleEntity>,
+  resetNextDate?: boolean
+): Promise<string> {
+  await initActualApi();
+  return api.updateSchedule(id, fields, resetNextDate);
+}
+
+/**
+ * Delete a schedule (ensures API is initialized)
+ */
+export async function deleteSchedule(id: string): Promise<void> {
+  await initActualApi();
+  return api.deleteSchedule(id);
 }
 
 /**

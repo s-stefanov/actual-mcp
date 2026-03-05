@@ -46,6 +46,10 @@ import * as getTags from './tags/get-tags/index.js';
 import * as createTag from './tags/create-tag/index.js';
 import * as updateTag from './tags/update-tag/index.js';
 import * as deleteTag from './tags/delete-tag/index.js';
+import * as getSchedules from './schedules/get-schedules/index.js';
+import * as createSchedule from './schedules/create-schedule/index.js';
+import * as updateSchedule from './schedules/update-schedule/index.js';
+import * as deleteSchedule from './schedules/delete-schedule/index.js';
 import * as linkTransfer from './transfer/link-transfer/index.js';
 
 const readTools = [
@@ -63,6 +67,7 @@ const readTools = [
   getUncategorizedTransactions,
   queryTransactions,
   getTags,
+  getSchedules,
   getBudgetMonths,
 ];
 
@@ -89,6 +94,9 @@ const writeTools = [
   createTag,
   updateTag,
   deleteTag,
+  createSchedule,
+  updateSchedule,
+  deleteSchedule,
   linkTransfer,
   setBudgetAmount,
   setBudgetCarryover,
