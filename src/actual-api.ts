@@ -241,11 +241,12 @@ export async function deleteCategoryGroup(id: string): Promise<unknown> {
 }
 
 /**
- * Create a transaction (ensures API is initialized)
+ * Create a transaction (ensures API is initialized).
+ * Passes runTransfers so that transfer payees automatically create the counterpart transaction.
  */
 export async function createTransaction(accountId: string, data: TransactionData): Promise<string> {
   await initActualApi();
-  return api.addTransactions(accountId, [data]);
+  return api.addTransactions(accountId, [data], { runTransfers: true });
 }
 
 /**

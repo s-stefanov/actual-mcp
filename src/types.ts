@@ -166,6 +166,12 @@ export const CreateTransactionArgsSchema = z.object({
     .describe(
       'If a transfer, the id of the corresponding transaction in the other account. Only set this when importing'
     ),
+  transfer_account_id: z
+    .string()
+    .optional()
+    .describe(
+      'The ID of the destination account for a transfer. When provided, the transfer payee is automatically resolved and the counterpart transaction is created in the destination account. The amount should be negative (money leaving the source account).'
+    ),
   cleared: z.boolean().optional().describe('A flag indicating if the transaction has cleared or not'),
   subtransactions: z
     .array(SubtransactionSchema)
@@ -177,8 +183,8 @@ export const CreateTransactionArgsSchema = z.object({
 
 export type CreateTransactionArgs = z.infer<typeof CreateTransactionArgsSchema>;
 
-// Schema for transaction data passed to the API (without account, which is passed separately)
-export const TransactionDataSchema = CreateTransactionArgsSchema.omit({ account: true });
+// Schema for transaction data passed to the API (without account and transfer_account_id, which are handled separately)
+export const TransactionDataSchema = CreateTransactionArgsSchema.omit({ account: true, transfer_account_id: true });
 export type TransactionData = z.infer<typeof TransactionDataSchema>;
 
 // Subtransaction schema for imports — amount is a decimal (e.g. 3.24), converted to integer by the API wrapper
