@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.1](https://github.com/s-stefanov/actual-mcp/compare/v1.11.0...v1.11.1) (2026-03-09)
+
+
+### Bug Fixes
+
+* create counterpart transaction for transfers by enabling runTransfers ([#139](https://github.com/s-stefanov/actual-mcp/issues/139)) ([8a1661b](https://github.com/s-stefanov/actual-mcp/commit/8a1661b31dc146bc21a24ebc5740e9b44fa496d2))
+
 ## [1.11.0](https://github.com/s-stefanov/actual-mcp/compare/v1.10.0...v1.11.0) (2026-03-03)
 
 
