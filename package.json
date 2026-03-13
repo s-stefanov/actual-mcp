@@ -45,7 +45,7 @@
     "@types/node": "24.11.0",
     "@vitest/coverage-v8": "4.0.18",
     "@vitest/ui": "4.0.18",
-    "eslint": "9.39.3",
+    "eslint": "10.0.3",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.5",
     "globals": "17.4.0",
