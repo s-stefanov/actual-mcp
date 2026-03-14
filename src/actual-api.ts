@@ -1,4 +1,4 @@
-import api from '@actual-app/api';
+import api, { internal } from '@actual-app/api';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
@@ -8,6 +8,8 @@ import {
   APICategoryEntity,
   APICategoryGroupEntity,
   APIPayeeEntity,
+  type APITagEntity,
+  type APIScheduleEntity,
 } from '@actual-app/api/@types/loot-core/src/server/api-models.js';
 import { RuleEntity, TransactionEntity } from '@actual-app/api/@types/loot-core/src/types/models/index.js';
 import { ImportTransactionEntity } from '@actual-app/api/@types/loot-core/src/types/models/import-transaction.js';
@@ -125,6 +127,14 @@ export async function getPayees(): Promise<APIPayeeEntity[]> {
 }
 
 /**
+ * Get commonly used payees (ensures API is initialized)
+ */
+export async function getCommonPayees(): Promise<APIPayeeEntity[]> {
+  await initActualApi();
+  return api.getCommonPayees();
+}
+
+/**
  * Get transactions for a specific account and date range (ensures API is initialized)
  */
 export async function getTransactions(accountId: string, start: string, end: string): Promise<TransactionEntity[]> {
@@ -138,6 +148,22 @@ export async function getTransactions(accountId: string, start: string, end: str
 export async function getRules(): Promise<RuleEntity[]> {
   await initActualApi();
   return api.getRules();
+}
+
+/**
+ * Get rules associated with a specific payee (ensures API is initialized)
+ */
+export async function getPayeeRules(payeeId: string): Promise<RuleEntity[]> {
+  await initActualApi();
+  return api.getPayeeRules(payeeId);
+}
+
+/**
+ * Get all tags (ensures API is initialized)
+ */
+export async function getTags(): Promise<APITagEntity[]> {
+  await initActualApi();
+  return api.getTags();
 }
 
 // ----------------------------
@@ -206,6 +232,14 @@ export async function createCategory(args: Record<string, unknown>): Promise<str
 export async function updateCategory(id: string, args: Record<string, unknown>): Promise<unknown> {
   await initActualApi();
   return api.updateCategory(id, args);
+}
+
+/**
+ * Save a note for any entity (categories, accounts, etc.) by ID (ensures API is initialized)
+ */
+export async function saveNote(id: string, note: string): Promise<void> {
+  await initActualApi();
+  await internal.send('notes-save', { id, note });
 }
 
 /**
@@ -290,4 +324,96 @@ export async function runBankSync(accountId?: string): Promise<void> {
   await initActualApi();
   // API expects { accountId } object or undefined for all accounts
   return api.runBankSync(accountId ? { accountId } : undefined);
+}
+
+/**
+ * Create a new tag (ensures API is initialized)
+ */
+export async function createTag(args: Omit<APITagEntity, 'id'>): Promise<string> {
+  await initActualApi();
+  return api.createTag(args);
+}
+
+/**
+ * Update a tag (ensures API is initialized)
+ */
+export async function updateTag(id: string, fields: Partial<Omit<APITagEntity, 'id'>>): Promise<void> {
+  await initActualApi();
+  return api.updateTag(id, fields);
+}
+
+/**
+ * Delete a tag (ensures API is initialized)
+ */
+export async function deleteTag(id: string): Promise<void> {
+  await initActualApi();
+  return api.deleteTag(id);
+}
+
+/**
+ * Get all schedules (ensures API is initialized)
+ */
+export async function getSchedules(): Promise<APIScheduleEntity[]> {
+  await initActualApi();
+  return api.getSchedules();
+}
+
+/**
+ * Create a new schedule (ensures API is initialized)
+ */
+export async function createSchedule(schedule: Omit<APIScheduleEntity, 'id'>): Promise<string> {
+  await initActualApi();
+  return api.createSchedule(schedule);
+}
+
+/**
+ * Update a schedule (ensures API is initialized)
+ */
+export async function updateSchedule(
+  id: string,
+  fields: Partial<APIScheduleEntity>,
+  resetNextDate?: boolean
+): Promise<string> {
+  await initActualApi();
+  return api.updateSchedule(id, fields, resetNextDate);
+}
+
+/**
+ * Delete a schedule (ensures API is initialized)
+ */
+export async function deleteSchedule(id: string): Promise<void> {
+  await initActualApi();
+  return api.deleteSchedule(id);
+}
+
+/**
+ * Set the budgeted amount for a category in a given month (ensures API is initialized)
+ */
+export async function setBudgetAmount(month: string, categoryId: string, amount: number): Promise<void> {
+  await initActualApi();
+  return api.setBudgetAmount(month, categoryId, amount);
+}
+
+/**
+ * Set the carryover flag for a category in a given month (ensures API is initialized)
+ */
+export async function setBudgetCarryover(month: string, categoryId: string, carryover: boolean): Promise<void> {
+  await initActualApi();
+  return api.setBudgetCarryover(month, categoryId, carryover);
+}
+
+/**
+ * Get budget data for a specific month (ensures API is initialized)
+ */
+export async function getBudgetMonth(month: string): Promise<Record<string, unknown>> {
+  await initActualApi();
+  return api.getBudgetMonth(month);
+}
+
+/**
+ * Get a list of months that have budget data (ensures API is initialized)
+ */
+export async function getBudgetMonths(): Promise<string[]> {
+  await initActualApi();
+  return api.getBudgetMonths();
 }

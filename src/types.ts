@@ -1,5 +1,5 @@
 // Type definitions for Actual Budget API
-export type { Account, Transaction, Category, CategoryGroup, Payee } from './core/types/domain.js';
+export type { Account, Transaction, Category, CategoryGroup, Payee, Tag } from './core/types/domain.js';
 import { z } from 'zod';
 import { Tool } from '@modelcontextprotocol/sdk/types.js';
 
@@ -12,19 +12,6 @@ export interface BudgetFile {
 }
 
 // Type definitions for tool arguments
-export const GetTransactionsArgsSchema = z.object({
-  accountId: z.string(),
-  startDate: z.string().optional(),
-  endDate: z.string().optional(),
-  minAmount: z.number().optional(),
-  maxAmount: z.number().optional(),
-  categoryName: z.string().optional(),
-  payeeName: z.string().optional(),
-  limit: z.number().optional(),
-});
-
-export type GetTransactionsArgs = z.infer<typeof GetTransactionsArgsSchema>;
-
 export const SpendingByCategoryArgsSchema = z.object({
   startDate: z.string().optional(),
   endDate: z.string().optional(),
@@ -107,6 +94,10 @@ export const UpdateTransactionArgsSchema = z.object({
     .string()
     .optional()
     .describe('A unique id usually given by the bank, if importing. Use this to avoid duplicate transactions'),
+  transfer_id: z
+    .string()
+    .optional()
+    .describe('If a transfer, the ID of the corresponding transaction in the other account'),
   cleared: z.boolean().optional().describe('A flag indicating if the transaction has cleared or not'),
   subtransactions: z
     .array(UpdateSubtransactionSchema)
@@ -298,3 +289,135 @@ export interface MonthBalance {
   balance: number;
   transactions: number;
 }
+
+export const BulkUpdateTransactionsArgsSchema = z.object({
+  transactions: z
+    .array(UpdateTransactionArgsSchema)
+    .min(1)
+    .describe('Required. Array of transactions to update. Each must include an id and at least one field to update.'),
+});
+
+export type BulkUpdateTransactionsArgs = z.infer<typeof BulkUpdateTransactionsArgsSchema>;
+
+export const GetUncategorizedTransactionsArgsSchema = z.object({
+  startDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'date must be in YYYY-MM-DD format')
+    .optional()
+    .describe('Start date for filtering transactions (YYYY-MM-DD). Defaults to 3 months ago.'),
+  endDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'date must be in YYYY-MM-DD format')
+    .optional()
+    .describe('End date for filtering transactions (YYYY-MM-DD). Defaults to today.'),
+});
+
+export type GetUncategorizedTransactionsArgs = z.infer<typeof GetUncategorizedTransactionsArgsSchema>;
+
+export const BulkCreateRulesArgsSchema = z.object({
+  rules: z
+    .array(
+      z.object({
+        stage: z.enum(['pre', 'post']).nullable().describe('When the rule should be applied (null for default stage)'),
+        conditionsOp: z.enum(['and', 'or']).describe('How to combine conditions'),
+        conditions: z
+          .array(
+            z.object({
+              field: z
+                .enum(['account', 'category', 'date', 'payee', 'amount', 'imported_payee'])
+                .describe('Field to apply the condition on'),
+              op: z
+                .enum([
+                  'is',
+                  'isNot',
+                  'oneOf',
+                  'notOneOf',
+                  'onBudget',
+                  'offBudget',
+                  'isapprox',
+                  'gt',
+                  'gte',
+                  'lt',
+                  'lte',
+                  'isbetween',
+                  'contains',
+                  'doesNotContain',
+                  'matches',
+                  'hasTags',
+                ])
+                .describe('Condition operator'),
+              value: z
+                .union([z.string(), z.number(), z.array(z.string()), z.array(z.number())])
+                .describe('Condition value'),
+            })
+          )
+          .describe('Conditions for the rule to apply'),
+        actions: z
+          .array(
+            z.object({
+              field: z
+                .enum(['account', 'category', 'date', 'payee', 'amount', 'cleared', 'notes'])
+                .nullable()
+                .describe('Field to apply the action on. Use null for split actions.'),
+              op: z.enum(['set', 'prepend-notes', 'append-notes', 'set-split-amount']).describe('Action operator'),
+              value: z.union([z.boolean(), z.string(), z.number(), z.null()]).describe('Action value'),
+              options: z
+                .object({
+                  splitIndex: z.number().optional().describe('Split index (counting from 1)'),
+                  method: z.enum(['fixed-amount', 'fixed-percent', 'remainder']).optional().describe('Split method'),
+                })
+                .optional()
+                .describe('Additional properties for split rules'),
+            })
+          )
+          .describe('Actions of the applied rule'),
+      })
+    )
+    .min(1)
+    .describe('Required. Array of rule definitions to create.'),
+});
+
+export type BulkCreateRulesArgs = z.infer<typeof BulkCreateRulesArgsSchema>;
+
+export const GetAccountBalanceArgsSchema = z.object({
+  accountId: z.string().describe('Required. The ID of the account to get the balance for'),
+});
+
+export type GetAccountBalanceArgs = z.infer<typeof GetAccountBalanceArgsSchema>;
+
+// Recursive filter value: plain value, operator object, or logical combinator
+const FilterValue = z.union([
+  z.string(),
+  z.number(),
+  z.boolean(),
+  z.null(),
+  z.record(z.string(), z.unknown()), // operator objects like { "$gte": "2026-01-01" }
+]);
+
+export const QueryTransactionsArgsSchema = z.object({
+  filters: z
+    .record(z.string(), z.union([FilterValue, z.array(FilterValue)]))
+    .optional()
+    .describe(
+      'Filter object. Keys are field names (date, amount, category, payee, account, notes, tag, cleared). Values can be plain (exact match) or operator objects like { "$gte": "2026-01-01", "$lt": 0 }. Supported operators: $eq, $ne, $gt, $gte, $lt, $lte, $like, $notlike, $regexp, $oneof. Special "tag" filter accepts a tag name or array of names — matches #hashtags in notes.'
+    ),
+  select: z
+    .array(z.string())
+    .optional()
+    .describe(
+      'Fields to include in results. Default: ["date", "payee", "amount", "category", "notes"]. Available: id, date, payee, account, category, amount, notes, cleared.'
+    ),
+  orderBy: z
+    .record(z.string(), z.enum(['asc', 'desc']))
+    .optional()
+    .describe('Sort order. Example: { "date": "desc" } or { "amount": "asc" }. Default: { "date": "desc" }.'),
+  limit: z.number().optional().describe('Max transactions to return. Default: 100, max: 500.'),
+  offset: z.number().optional().describe('Skip this many transactions (for pagination).'),
+  includeSummary: z.boolean().optional().describe('Include summary stats (count, total, average). Default: false.'),
+  groupBy: z
+    .string()
+    .optional()
+    .describe('Group summary stats by field (e.g., "category", "payee"). Only applies when includeSummary is true.'),
+});
+
+export type QueryTransactionsArgs = z.infer<typeof QueryTransactionsArgsSchema>;

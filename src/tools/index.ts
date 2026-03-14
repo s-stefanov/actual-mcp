@@ -8,6 +8,11 @@ import { initActualApi, shutdownActualApi } from '../actual-api.js';
 import { error, errorFromCatch } from '../utils/response.js';
 
 import * as balanceHistory from './balance-history/index.js';
+import * as getBudgetMonths from './budget/get-budget-months/index.js';
+import * as setBudgetAmount from './budget/set-budget-amount/index.js';
+import * as setBudgetMonth from './budget/set-budget-month/index.js';
+import * as copyBudgetMonth from './budget/copy-budget-month/index.js';
+import * as setBudgetCarryover from './budget/set-budget-carryover/index.js';
 import * as createCategoryGroup from './categories/create-category-group/index.js';
 import * as createCategory from './categories/create-category/index.js';
 import * as deleteCategoryGroup from './categories/delete-category-group/index.js';
@@ -15,11 +20,13 @@ import * as deleteCategory from './categories/delete-category/index.js';
 import * as getGroupedCategories from './categories/get-grouped-categories/index.js';
 import * as updateCategoryGroup from './categories/update-category-group/index.js';
 import * as updateCategory from './categories/update-category/index.js';
+import * as getAccountBalance from './get-account-balance/index.js';
 import * as getAccounts from './get-accounts/index.js';
-import * as getTransactions from './get-transactions/index.js';
 import * as monthlySummary from './monthly-summary/index.js';
 import * as createPayee from './payees/create-payee/index.js';
 import * as deletePayee from './payees/delete-payee/index.js';
+import * as getCommonPayees from './payees/get-common-payees/index.js';
+import * as getPayeeRules from './payees/get-payee-rules/index.js';
 import * as getPayees from './payees/get-payees/index.js';
 import * as updatePayee from './payees/update-payee/index.js';
 import * as createRule from './rules/create-rule/index.js';
@@ -32,16 +39,36 @@ import * as updateTransaction from './update-transaction/index.js';
 import * as createTransaction from './create-transaction/index.js';
 import * as importTransactions from './import-transactions/index.js';
 import * as runBankSync from './run-bank-sync/index.js';
+import * as bulkUpdateTransactions from './bulk-update-transactions/index.js';
+import * as bulkCreateRules from './bulk-create-rules/index.js';
+import * as getUncategorizedTransactions from './get-uncategorized-transactions/index.js';
+import * as queryTransactions from './query-transactions/index.js';
+import * as getTags from './tags/get-tags/index.js';
+import * as createTag from './tags/create-tag/index.js';
+import * as updateTag from './tags/update-tag/index.js';
+import * as deleteTag from './tags/delete-tag/index.js';
+import * as getSchedules from './schedules/get-schedules/index.js';
+import * as createSchedule from './schedules/create-schedule/index.js';
+import * as updateSchedule from './schedules/update-schedule/index.js';
+import * as deleteSchedule from './schedules/delete-schedule/index.js';
+import * as linkTransfer from './transfer/link-transfer/index.js';
 
 const readTools = [
-  getTransactions,
   spendingByCategory,
   monthlySummary,
   balanceHistory,
+  getAccountBalance,
   getAccounts,
   getGroupedCategories,
+  getCommonPayees,
+  getPayeeRules,
   getPayees,
   getRules,
+  getUncategorizedTransactions,
+  queryTransactions,
+  getTags,
+  getSchedules,
+  getBudgetMonths,
 ];
 
 const writeTools = [
@@ -62,6 +89,19 @@ const writeTools = [
   createTransaction,
   importTransactions,
   runBankSync,
+  bulkUpdateTransactions,
+  bulkCreateRules,
+  createTag,
+  updateTag,
+  deleteTag,
+  createSchedule,
+  updateSchedule,
+  deleteSchedule,
+  linkTransfer,
+  setBudgetAmount,
+  setBudgetMonth,
+  copyBudgetMonth,
+  setBudgetCarryover,
 ];
 
 export const setupTools = (server: Server, enableWrite: boolean): void => {

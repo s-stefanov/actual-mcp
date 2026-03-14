@@ -64,3 +64,10 @@ export interface Payee {
   name: string;
   transfer_acct?: string;
 }
+
+export interface Tag {
+  id: string;
+  tag: string;
+  color?: string;
+  description?: string;
+}

@@ -55,7 +55,7 @@ IMPORTANT: Any transactions in the "Investment & Savings" category group should 
 You can use these tools to gather the data you need:
 1. Use the spending-by-category tool to analyze my spending breakdown
 2. Use the monthly-summary tool to get my income, expenses, and savings rate
-3. Use the get-transactions tool to examine specific transactions if needed
+3. Use the query-transactions tool to examine specific transactions if needed
 
 When you examine the spending-by-category results:
 - Look for any category group called "Investment & Savings" or similar
@@ -93,7 +93,7 @@ IMPORTANT: Any transactions in the "Investment & Savings" category group should 
 To gather this data:
 1. Use the spending-by-category tool to see my spending breakdown
 2. Use the monthly-summary tool to get my overall income and expenses
-3. Use the get-transactions tool if you need to look at specific transactions
+3. Use the query-transactions tool if you need to look at specific transactions
 
 When analyzing the data:
 - Categories in the "Investment & Savings" group are positive financial actions, not expenses
@@ -141,7 +141,7 @@ You can use these tools to gather the necessary data:
 - \`get-payees\`
 - \`get-rules\`
 - \`get-grouped-categories\`
-- \`get-transactions\` (for checking recent activity)
+- \`query-transactions\` (for checking recent activity)
 - \`get-accounts\` (optional, for inactive accounts)
 
 Please provide:
