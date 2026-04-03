@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.11.2](https://github.com/s-stefanov/actual-mcp/compare/v1.11.1...v1.11.2) (2026-04-03)
+
+
+### Bug Fixes
+
+* **deps:** update dependency zod-to-json-schema to v3.25.2 ([#144](https://github.com/s-stefanov/actual-mcp/issues/144)) ([fb62f91](https://github.com/s-stefanov/actual-mcp/commit/fb62f91857a3ab42fc488f4ddf4198389b61788d))
+* Handling concurrent SSE connections ([#137](https://github.com/s-stefanov/actual-mcp/issues/137)) ([8e9927a](https://github.com/s-stefanov/actual-mcp/commit/8e9927ae702d7b5d8c95035382d27f3ee2d35c29))
+
 ## [1.11.1](https://github.com/s-stefanov/actual-mcp/compare/v1.11.0...v1.11.1) (2026-03-09)
 
 
