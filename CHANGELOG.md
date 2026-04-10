@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.3](https://github.com/s-stefanov/actual-mcp/compare/v1.11.2...v1.11.3) (2026-04-10)
+
+
+### Bug Fixes
+
+* **deps:** update dependency zod-to-json-schema to v3.25.2 ([#155](https://github.com/s-stefanov/actual-mcp/issues/155)) ([f4a3e90](https://github.com/s-stefanov/actual-mcp/commit/f4a3e90666605ce95fef3c392e8f459e695c0ab4))
+
 ## [1.11.2](https://github.com/s-stefanov/actual-mcp/compare/v1.11.1...v1.11.2) (2026-04-03)
 
 
