@@ -8,9 +8,8 @@ import {
   APICategoryEntity,
   APICategoryGroupEntity,
   APIPayeeEntity,
-} from '@actual-app/api/@types/loot-core/src/server/api-models.js';
-import { RuleEntity, TransactionEntity } from '@actual-app/api/@types/loot-core/src/types/models/index.js';
-import { ImportTransactionEntity } from '@actual-app/api/@types/loot-core/src/types/models/import-transaction.js';
+} from '@actual-app/core/server/api-models';
+import { RuleEntity, TransactionEntity, ImportTransactionEntity } from '@actual-app/core/types/models';
 
 const DEFAULT_DATA_DIR: string = path.resolve(os.homedir() || '.', '.actual');
 
