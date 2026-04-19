@@ -279,6 +279,53 @@ export async function deleteTransaction(id: string): Promise<unknown> {
 }
 
 /**
+ * Fetch a single transaction by id using the internal DB accessor.
+ *
+ * Reason: the public API only exposes account-scoped range fetching, but
+ * linking two existing transactions as a transfer requires loading each
+ * transaction by id directly.
+ */
+export async function getTransactionById(id: string): Promise<TransactionEntity | null> {
+  await initActualApi();
+  const row = (await api.internal.db.getTransaction(id)) as TransactionEntity | null;
+  return row ?? null;
+}
+
+/**
+ * Link two existing transactions as a transfer pair.
+ *
+ * Mirrors the desktop client's "Make Transfer" batch action: updates both
+ * transactions' payee and transfer_id fields in a single batch with
+ * runTransfers: false to prevent the transfer subsystem from creating
+ * duplicate counterparts.
+ */
+export async function makeTransfer(
+  fromTransaction: TransactionEntity,
+  toTransaction: TransactionEntity,
+  fromTransferPayeeId: string,
+  toTransferPayeeId: string
+): Promise<unknown> {
+  await initActualApi();
+  return api.internal.send('transactions-batch-update', {
+    updated: [
+      {
+        ...fromTransaction,
+        category: null,
+        payee: toTransferPayeeId,
+        transfer_id: toTransaction.id,
+      },
+      {
+        ...toTransaction,
+        category: null,
+        payee: fromTransferPayeeId,
+        transfer_id: fromTransaction.id,
+      },
+    ],
+    runTransfers: false,
+  });
+}
+
+/**
  * Run bank sync for accounts (ensures API is initialized)
  *
  * @param accountId - Optional. Specific account ID, or special value:
