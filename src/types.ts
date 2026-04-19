@@ -246,6 +246,13 @@ export const ImportTransactionItemSchema = z.object({
 
 export type ImportTransactionItem = z.infer<typeof ImportTransactionItemSchema>;
 
+export const MakeTransferArgsSchema = z.object({
+  fromId: z.string().describe('Required. The ID of the first transaction in the transfer pair (usually the outflow).'),
+  toId: z.string().describe('Required. The ID of the second transaction in the transfer pair (usually the inflow).'),
+});
+
+export type MakeTransferArgs = z.infer<typeof MakeTransferArgsSchema>;
+
 export const ImportTransactionsArgsSchema = z.object({
   accountId: z.string().describe('Required. The ID of the account to import transactions into'),
   transactions: z
