@@ -78,7 +78,12 @@ export function errorFromCatch(err: unknown): CallToolResult {
   let message: string;
   if (err instanceof Error) {
     message = err.message;
-  } else if (typeof err === 'object' && err !== null && 'message' in err && typeof (err as Record<string, unknown>).message === 'string') {
+  } else if (
+    typeof err === 'object' &&
+    err !== null &&
+    'message' in err &&
+    typeof (err as Record<string, unknown>).message === 'string'
+  ) {
     // Reason: @actual-app/api throws structured objects like { type: 'APIError', message: '...' }
     // rather than Error instances. Extract the message field so errors are human-readable.
     message = (err as Record<string, unknown>).message as string;
