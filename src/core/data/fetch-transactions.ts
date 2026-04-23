@@ -80,7 +80,7 @@ export async function fetchAllOnBudgetTransactions(
   start: string,
   end: string
 ): Promise<Transaction[]> {
-  let transactions: Transaction[] = [];
+  let transactions: TransactionEntity[] = [];
   const onBudgetAccounts = accounts.filter((a) => !a.offbudget && !a.closed);
   for (const account of onBudgetAccounts) {
     const tx = await getTransactions(account.id, start, end);
@@ -90,7 +90,7 @@ export async function fetchAllOnBudgetTransactions(
 }
 
 export async function fetchAllTransactions(accounts: Account[], start: string, end: string): Promise<Transaction[]> {
-  let transactions: Transaction[] = [];
+  let transactions: TransactionEntity[] = [];
   for (const account of accounts) {
     const tx = await getTransactions(account.id, start, end);
     transactions = [...transactions, ...tx];

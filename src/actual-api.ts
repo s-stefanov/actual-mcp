@@ -211,7 +211,7 @@ export async function updateCategory(id: string, args: Record<string, unknown>):
 /**
  * Delete a category (ensures API is initialized)
  */
-export async function deleteCategory(id: string): Promise<void> {
+export async function deleteCategory(id: string): Promise<unknown> {
   await initActualApi();
   return api.deleteCategory(id);
 }
@@ -290,4 +290,71 @@ export async function runBankSync(accountId?: string): Promise<void> {
   await initActualApi();
   // API expects { accountId } object or undefined for all accounts
   return api.runBankSync(accountId ? { accountId } : undefined);
+}
+
+// ----------------------------
+// BUDGETS
+// ----------------------------
+
+/**
+ * Get all budget months (ensures API is initialized)
+ */
+export async function getBudgetMonths(): Promise<string[]> {
+  await initActualApi();
+  return api.getBudgetMonths();
+}
+
+/**
+ * Get budget data for a specific month (ensures API is initialized)
+ *
+ * @param month - Month in YYYY-MM format
+ */
+export async function getBudgetMonth(month: string): Promise<unknown> {
+  await initActualApi();
+  return api.getBudgetMonth(month);
+}
+
+/**
+ * Set the budgeted amount for a category in a given month (ensures API is initialized)
+ *
+ * @param month - Month in YYYY-MM format
+ * @param categoryId - ID of the category
+ * @param value - Amount in integer cents (e.g. 12030 = $120.30)
+ */
+export async function setBudgetAmount(month: string, categoryId: string, value: number): Promise<void> {
+  await initActualApi();
+  return api.setBudgetAmount(month, categoryId, value);
+}
+
+/**
+ * Enable or disable carryover for a category in a given month (ensures API is initialized)
+ *
+ * @param month - Month in YYYY-MM format
+ * @param categoryId - ID of the category
+ * @param flag - true to enable carryover, false to disable
+ */
+export async function setBudgetCarryover(month: string, categoryId: string, flag: boolean): Promise<void> {
+  await initActualApi();
+  return api.setBudgetCarryover(month, categoryId, flag);
+}
+
+/**
+ * Hold budget funds for the next month (ensures API is initialized)
+ *
+ * @param month - Month in YYYY-MM format
+ * @param value - Amount in integer cents to hold
+ */
+export async function holdBudgetForNextMonth(month: string, value: number): Promise<boolean> {
+  await initActualApi();
+  return api.holdBudgetForNextMonth(month, value);
+}
+
+/**
+ * Reset any held budget amounts for a month (ensures API is initialized)
+ *
+ * @param month - Month in YYYY-MM format
+ */
+export async function resetBudgetHold(month: string): Promise<void> {
+  await initActualApi();
+  return api.resetBudgetHold(month);
 }

@@ -26,6 +26,13 @@ import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 // Reason: dotenv@17 (dotenvx) prints to stdout by default, which breaks MCP stdio JSON parsing
 dotenv.config({ path: '.env', quiet: true } as Parameters<typeof dotenv.config>[0]);
 
+// Reason: @actual-app/api fires background async tasks (e.g. updateVersion) that can reject
+// without being caught. Node ≥15 crashes on unhandled rejections by default, which kills the
+// MCP server process. We catch them here so the server stays alive and logs the issue instead.
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled promise rejection (non-fatal):', reason);
+});
+
 // Argument parsing
 const {
   values: {
