@@ -1,16 +1,11 @@
-import api from '@actual-app/api';
-import fs from 'fs';
-import path from 'path';
-import os from 'os';
+import * as api from '@actual-app/api';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as os from 'os';
 import { BudgetFile, TransactionData, UpdateTransactionData } from './types.js';
-import {
-  APIAccountEntity,
-  APICategoryEntity,
-  APICategoryGroupEntity,
-  APIPayeeEntity,
-} from '@actual-app/api/@types/loot-core/src/server/api-models.js';
-import { RuleEntity, TransactionEntity } from '@actual-app/api/@types/loot-core/src/types/models/index.js';
-import { ImportTransactionEntity } from '@actual-app/api/@types/loot-core/src/types/models/import-transaction.js';
+import { APIAccountEntity, APICategoryEntity, APICategoryGroupEntity, APIPayeeEntity } from '@actual-app/api/models';
+import { RuleEntity, TransactionEntity } from '@actual-app/core/types/models';
+import { ImportTransactionEntity } from '@actual-app/core/types/models/import-transaction';
 
 const DEFAULT_DATA_DIR: string = path.resolve(os.homedir() || '.', '.actual');
 
