@@ -117,8 +117,8 @@ export class BalanceHistoryCalculator {
 
       // Process transactions and update balances/transaction counts
       sortedTransactions.forEach((transaction) => {
-        const date = new Date(transaction.date);
-        const yearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        const [year, month] = transaction.date.split('-').map(Number);
+        const yearMonth = `${year}-${String(month).padStart(2, '0')}`;
 
         runningBalance -= transaction.amount;
 
@@ -170,8 +170,8 @@ export class BalanceHistoryCalculator {
         const accIndex = accountIndexMap.get(transaction.account);
         if (accIndex === undefined) return;
 
-        const date = new Date(transaction.date);
-        const yearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        const [year, month] = transaction.date.split('-').map(Number);
+        const yearMonth = `${year}-${String(month).padStart(2, '0')}`;
 
         runningBalances[accIndex] -= transaction.amount;
 
