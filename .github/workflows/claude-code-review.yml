@@ -1,17 +1,8 @@
 name: Claude Code Review
 
-# Auto-review on PR events is disabled — use `@claude` mentions (handled by claude.yml)
-# or trigger this workflow manually via the Actions tab.
 on:
-  workflow_dispatch:
-  # pull_request:
-  #   types: [opened, synchronize, ready_for_review, reopened]
-  #   # Optional: Only run on specific file changes
-  #   # paths:
-  #   #   - "src/**/*.ts"
-  #   #   - "src/**/*.tsx"
-  #   #   - "src/**/*.js"
-  #   #   - "src/**/*.jsx"
+  pull_request:
+    types: [opened, synchronize, ready_for_review, reopened]
 
 jobs:
   claude-review:
@@ -37,5 +28,3 @@ jobs:
           plugin_marketplaces: 'https://github.com/anthropics/claude-code.git'
           plugins: 'code-review@claude-code-plugins'
           prompt: '/code-review:code-review ${{ github.repository }}/pull/${{ github.event.pull_request.number }}'
-          # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
-          # or https://code.claude.com/docs/en/cli-reference for available options
