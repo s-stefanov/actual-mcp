@@ -20,11 +20,11 @@ export class BalanceHistoryDataFetcher {
     let transactions: Transaction[] = [];
     if (accountId && account) {
       transactions = await fetchTransactionsForAccount(accountId, start, end);
-      account.balance = await api.getAccountBalance(accountId, new Date('2099-01-01'));
+      account.balance = await api.getAccountBalance(accountId, new Date('2999-01-01'));
     } else {
       transactions = await fetchAllTransactions(accounts, start, end);
       for (const a of accounts) {
-        a.balance = await api.getAccountBalance(a.id, new Date('2099-01-01'));
+        a.balance = await api.getAccountBalance(a.id, new Date('2999-01-01'));
       }
     }
 

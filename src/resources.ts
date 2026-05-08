@@ -91,7 +91,7 @@ export const setupResources = (server: Server): void => {
           };
         }
 
-        const balance: number = await api.getAccountBalance(accountId, new Date('2099-01-01'));
+        const balance: number = await api.getAccountBalance(accountId, new Date('2999-01-01'));
         const formattedBalance: string = formatAmount(balance);
 
         const details = `# Account: ${account.name}
