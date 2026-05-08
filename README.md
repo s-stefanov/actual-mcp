@@ -285,6 +285,14 @@ npx @modelcontextprotocol/inspector node build/index.js
 - `prompts.ts` - Prompt templates for LLM interactions
 - `utils.ts` - Helper functions for date formatting and more
 
+## Fork Modifications
+
+This fork includes the following changes from the upstream [s-stefanov/actual-mcp](https://github.com/s-stefanov/actual-mcp):
+
+- **`@actual-app/api` bumped from `^26.3.0` to `^26.5.0`** — updates the Actual Budget API client to the latest version for compatibility with newer Actual server releases.
+- **Balance cutoff fix** — `getAccountBalance` calls now pass a far-future cutoff date (`2999-01-01`) so that future-dated pending transactions are included in balance calculations. Without this fix, banks that pre-date pending transactions (showing them in the future) would cause reported balances to be lower than the actual cleared balance.
+- **Timezone fix** — Replaced `new Date().getMonth()` logic with direct string parsing of `YYYY-MM-DD` strings. This prevents transactions on the first/last day of a month from shifting into the wrong month bucket when running on machines in non-UTC timezones (like PST).
+
 ## License
 
 MIT

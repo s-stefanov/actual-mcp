@@ -24,7 +24,7 @@ export async function handler(): Promise<ReturnType<typeof successWithJson> | Re
     const accounts: Account[] = await fetchAllAccounts();
 
     for (const account of accounts) {
-      account.balance = await getAccountBalance(account.id);
+      account.balance = await getAccountBalance(account.id, new Date('2999-01-01'));
     }
 
     const structured = accounts.map((account) => ({
