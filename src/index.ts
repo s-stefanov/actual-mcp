@@ -238,7 +238,6 @@ async function main(): Promise<void> {
               const activeSessionId = streamableTransport.sessionId;
               if (activeSessionId) {
                 streamableSessions.delete(activeSessionId);
-                sessionServer.close();
                 console.info(`Streamable HTTP transport closed (session ${activeSessionId})`);
               }
             };
