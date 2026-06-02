@@ -11,6 +11,7 @@ export class GetTransactionsMapper {
     amount: string;
     notes: string;
     cleared: boolean;
+    transferId: string;
   }> {
     return transactions.map((t) => ({
       id: t.id,
@@ -20,6 +21,7 @@ export class GetTransactionsMapper {
       amount: formatAmount(t.amount),
       notes: t.notes || '',
       cleared: t.cleared ?? false,
+      transferId: t.transfer_id || '',
     }));
   }
 }
