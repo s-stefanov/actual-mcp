@@ -3,7 +3,7 @@ import { fetchAllPayees } from './fetch-payees.js';
 import { fetchAllCategories } from './fetch-categories.js';
 import { GroupAggregator } from '../aggregation/group-by.js';
 import type { Account, Transaction, Payee, Category } from '../types/domain.js';
-import { TransactionEntity } from '@actual-app/api/@types/loot-core/src/types/models/transaction.js';
+import { TransactionEntity } from '@actual-app/core/types/models';
 
 const groupAggregator = new GroupAggregator();
 
@@ -80,7 +80,7 @@ export async function fetchAllOnBudgetTransactions(
   start: string,
   end: string
 ): Promise<Transaction[]> {
-  let transactions: Transaction[] = [];
+  let transactions: TransactionEntity[] = [];
   const onBudgetAccounts = accounts.filter((a) => !a.offbudget && !a.closed);
   for (const account of onBudgetAccounts) {
     const tx = await getTransactions(account.id, start, end);
@@ -90,7 +90,7 @@ export async function fetchAllOnBudgetTransactions(
 }
 
 export async function fetchAllTransactions(accounts: Account[], start: string, end: string): Promise<Transaction[]> {
-  let transactions: Transaction[] = [];
+  let transactions: TransactionEntity[] = [];
   for (const account of accounts) {
     const tx = await getTransactions(account.id, start, end);
     transactions = [...transactions, ...tx];
