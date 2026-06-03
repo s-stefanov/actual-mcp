@@ -18,7 +18,9 @@
     "paths": {
       "@actual-app/api/models": ["node_modules/@actual-app/api/@types/models.d.ts"],
       "@actual-app/core/types/models": ["node_modules/@actual-app/core/@types/src/types/models/index.d.ts"],
-      "@actual-app/core/types/models/import-transaction": ["node_modules/@actual-app/core/@types/src/types/models/import-transaction.d.ts"]
+      "@actual-app/core/types/models/import-transaction": [
+        "node_modules/@actual-app/core/@types/src/types/models/import-transaction.d.ts"
+      ]
     }
   },
   "include": ["src/**/*"],
