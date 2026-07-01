@@ -4,13 +4,17 @@ import { handler, schema } from './index.js';
 // CRITICAL: Mock before imports
 vi.mock('../../actual-api.js', () => ({
   updateTransaction: vi.fn(),
+  getTransactionById: vi.fn(),
 }));
 
-import { updateTransaction } from '../../actual-api.js';
+import { updateTransaction, getTransactionById } from '../../actual-api.js';
 
 describe('update-transaction tool', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Default: transaction lookup returns null so subtransaction payloads pass
+    // through untouched. Conversion tests override this per case.
+    vi.mocked(getTransactionById).mockResolvedValue(null);
   });
 
   describe('schema', () => {
@@ -209,6 +213,207 @@ describe('update-transaction tool', () => {
         cleared: true,
       });
       expect((result.content[0] as { text: string }).text).toContain('Updated fields:');
+    });
+  });
+
+  describe('handler - split conversion', () => {
+    it('should convert a plain transaction into a split', async () => {
+      vi.mocked(updateTransaction).mockResolvedValue(undefined);
+      vi.mocked(getTransactionById).mockResolvedValue({
+        id: 'txn-123',
+        account: 'acc-parent',
+        date: '2024-05-01',
+        amount: -5000,
+        is_parent: false,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
+
+      const args = {
+        id: 'txn-123',
+        subtransactions: [
+          { amount: -3000, category: 'cat-groceries' },
+          { amount: -2000, category: 'cat-household', notes: 'Soap' },
+        ],
+      };
+
+      const result = await handler(args);
+
+      expect(getTransactionById).toHaveBeenCalledWith('txn-123');
+      expect(updateTransaction).toHaveBeenCalledWith('txn-123', {
+        is_parent: true,
+        category: null,
+        subtransactions: [
+          {
+            id: expect.any(String),
+            account: 'acc-parent',
+            date: '2024-05-01',
+            amount: -3000,
+            parent_id: 'txn-123',
+            is_child: true,
+            sort_order: 0,
+            category: 'cat-groceries',
+          },
+          {
+            id: expect.any(String),
+            account: 'acc-parent',
+            date: '2024-05-01',
+            amount: -2000,
+            parent_id: 'txn-123',
+            is_child: true,
+            sort_order: -1,
+            category: 'cat-household',
+            notes: 'Soap',
+          },
+        ],
+      });
+      expect(result.isError).toBeUndefined();
+      // Confirmation reflects the caller-facing field, not the rewritten internals.
+      expect((result.content[0] as { text: string }).text).toContain('Updated fields: subtransactions');
+    });
+
+    it('should give children a moved account and new date when provided on the update', async () => {
+      vi.mocked(updateTransaction).mockResolvedValue(undefined);
+      vi.mocked(getTransactionById).mockResolvedValue({
+        id: 'txn-123',
+        account: 'acc-old',
+        date: '2024-05-01',
+        amount: -5000,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
+
+      await handler({
+        id: 'txn-123',
+        account: 'acc-new',
+        date: '2024-06-15',
+        subtransactions: [{ amount: -5000, category: 'cat-x' }],
+      });
+
+      const [, payload] = vi.mocked(updateTransaction).mock.calls[0];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const children = (payload as any).subtransactions;
+      expect(children[0]).toMatchObject({
+        account: 'acc-new',
+        date: '2024-06-15',
+        parent_id: 'txn-123',
+        is_child: true,
+      });
+    });
+
+    it('should propagate the parent payee to converted children', async () => {
+      vi.mocked(updateTransaction).mockResolvedValue(undefined);
+      vi.mocked(getTransactionById).mockResolvedValue({
+        id: 'txn-123',
+        account: 'acc-parent',
+        date: '2024-05-01',
+        amount: -5000,
+        payee: 'payee-parent',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
+
+      await handler({
+        id: 'txn-123',
+        subtransactions: [
+          { amount: -3000, category: 'cat-a' },
+          { amount: -2000, category: 'cat-b' },
+        ],
+      });
+
+      const [, payload] = vi.mocked(updateTransaction).mock.calls[0];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const children = (payload as any).subtransactions;
+      expect(children.map((c: { payee?: string }) => c.payee)).toEqual(['payee-parent', 'payee-parent']);
+    });
+
+    it('should propagate a payee newly set on the update to children', async () => {
+      vi.mocked(updateTransaction).mockResolvedValue(undefined);
+      vi.mocked(getTransactionById).mockResolvedValue({
+        id: 'txn-123',
+        account: 'acc-parent',
+        date: '2024-05-01',
+        amount: -5000,
+        payee: 'payee-old',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
+
+      await handler({
+        id: 'txn-123',
+        payee: 'payee-new',
+        subtransactions: [{ amount: -5000, category: 'cat-a' }],
+      });
+
+      const [, payload] = vi.mocked(updateTransaction).mock.calls[0];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect((payload as any).subtransactions[0].payee).toBe('payee-new');
+    });
+
+    it('should preserve caller-provided subtransaction ids when converting', async () => {
+      vi.mocked(updateTransaction).mockResolvedValue(undefined);
+      vi.mocked(getTransactionById).mockResolvedValue({
+        id: 'txn-123',
+        account: 'acc-parent',
+        date: '2024-05-01',
+        amount: -1000,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
+
+      await handler({
+        id: 'txn-123',
+        subtransactions: [{ id: 'keep-me', amount: -1000, category: 'cat-a' }],
+      });
+
+      const [, payload] = vi.mocked(updateTransaction).mock.calls[0];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect((payload as any).subtransactions[0].id).toBe('keep-me');
+    });
+
+    it('should pass subtransactions through unchanged for an already-split transaction', async () => {
+      vi.mocked(updateTransaction).mockResolvedValue(undefined);
+      vi.mocked(getTransactionById).mockResolvedValue({
+        id: 'txn-123',
+        account: 'acc-parent',
+        date: '2024-05-01',
+        amount: -5000,
+        is_parent: true,
+        subtransactions: [{ id: 'child-1', amount: -5000 }],
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
+
+      await handler({
+        id: 'txn-123',
+        subtransactions: [
+          { id: 'child-1', amount: -3000, category: 'cat-a' },
+          { amount: -2000, category: 'cat-b' },
+        ],
+      });
+
+      expect(updateTransaction).toHaveBeenCalledWith('txn-123', {
+        subtransactions: [
+          { id: 'child-1', amount: -3000, category: 'cat-a' },
+          { amount: -2000, category: 'cat-b' },
+        ],
+      });
+    });
+
+    it('should not look up the transaction when no subtransactions are provided', async () => {
+      vi.mocked(updateTransaction).mockResolvedValue(undefined);
+
+      await handler({ id: 'txn-123', amount: -1000 });
+
+      expect(getTransactionById).not.toHaveBeenCalled();
+    });
+
+    it('should leave the payload untouched when the transaction cannot be loaded', async () => {
+      vi.mocked(updateTransaction).mockResolvedValue(undefined);
+      vi.mocked(getTransactionById).mockResolvedValue(null);
+
+      await handler({
+        id: 'txn-missing',
+        subtransactions: [{ amount: -1000, category: 'cat-a' }],
+      });
+
+      expect(updateTransaction).toHaveBeenCalledWith('txn-missing', {
+        subtransactions: [{ amount: -1000, category: 'cat-a' }],
+      });
     });
   });
 

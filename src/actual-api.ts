@@ -128,6 +128,24 @@ export async function getTransactions(accountId: string, start: string, end: str
 }
 
 /**
+ * Fetch a single transaction by ID with its subtransactions grouped.
+ *
+ * Uses Actual's AQL query builder so we can look one transaction up directly
+ * (the public getTransactions requires an account id and date range). Returns
+ * null when no transaction matches the id.
+ *
+ * @param id - The transaction id to look up
+ * @returns The grouped transaction (with a subtransactions array) or null
+ */
+export async function getTransactionById(id: string): Promise<TransactionEntity | null> {
+  await initActualApi();
+  const result = (await api.aqlQuery(
+    api.q('transactions').filter({ id }).select(['*']).options({ splits: 'grouped' })
+  )) as { data: TransactionEntity[] };
+  return result?.data?.[0] ?? null;
+}
+
+/**
  * Get all rules (ensures API is initialized)
  */
 export async function getRules(): Promise<RuleEntity[]> {
