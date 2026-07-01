@@ -23,6 +23,19 @@ export function isSplitTransaction(txn: ExistingSplitState | null): boolean {
 }
 
 /**
+ * Sum the amounts of a set of subtransactions.
+ *
+ * Amounts are integer minor units, so this is exact integer arithmetic with no
+ * floating-point rounding concerns.
+ *
+ * @param subtransactions - The subtransactions to total
+ * @returns The combined amount
+ */
+export function sumSubtransactions(subtransactions: UpdateSubtransaction[]): number {
+  return subtransactions.reduce((total, sub) => total + sub.amount, 0);
+}
+
+/**
  * Build the update payload fields required to convert a plain (non-split)
  * transaction into a split.
  *

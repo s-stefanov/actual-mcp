@@ -1,5 +1,19 @@
 import { describe, it, expect } from 'vitest';
-import { isSplitTransaction, buildSplitConversion } from './build-split.js';
+import { isSplitTransaction, buildSplitConversion, sumSubtransactions } from './build-split.js';
+
+describe('sumSubtransactions', () => {
+  it('should sum the child amounts', () => {
+    expect(sumSubtransactions([{ amount: -3000 }, { amount: -2000 }])).toBe(-5000);
+  });
+
+  it('should return 0 for an empty array', () => {
+    expect(sumSubtransactions([])).toBe(0);
+  });
+
+  it('should handle a mix of positive and negative amounts', () => {
+    expect(sumSubtransactions([{ amount: -3000 }, { amount: 500 }])).toBe(-2500);
+  });
+});
 
 describe('isSplitTransaction', () => {
   it('should return true when is_parent is set', () => {

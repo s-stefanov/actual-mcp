@@ -394,6 +394,92 @@ describe('update-transaction tool', () => {
       });
     });
 
+    it('should reject a split whose amounts do not sum to the existing total', async () => {
+      vi.mocked(getTransactionById).mockResolvedValue({
+        id: 'txn-123',
+        account: 'acc-parent',
+        date: '2024-05-01',
+        amount: -5000,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
+
+      const result = await handler({
+        id: 'txn-123',
+        subtransactions: [
+          { amount: -3000, category: 'cat-a' },
+          { amount: -1000, category: 'cat-b' },
+        ],
+      });
+
+      expect(result.isError).toBe(true);
+      const text = (result.content[0] as { text: string }).text;
+      expect(text).toContain('must sum to the transaction total');
+      expect(text).toContain('-4000');
+      expect(text).toContain('-5000');
+      expect(updateTransaction).not.toHaveBeenCalled();
+    });
+
+    it('should validate against a new amount set on the same update', async () => {
+      vi.mocked(getTransactionById).mockResolvedValue({
+        id: 'txn-123',
+        account: 'acc-parent',
+        date: '2024-05-01',
+        amount: -5000,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
+
+      const result = await handler({
+        id: 'txn-123',
+        amount: -4000,
+        subtransactions: [
+          { amount: -3000, category: 'cat-a' },
+          { amount: -1000, category: 'cat-b' },
+        ],
+      });
+
+      // Children sum to -4000, which matches the new amount even though it
+      // differs from the old total, so the update should proceed.
+      expect(result.isError).toBeUndefined();
+      expect(updateTransaction).toHaveBeenCalled();
+    });
+
+    it('should reject a mismatched split on an already-split transaction', async () => {
+      vi.mocked(getTransactionById).mockResolvedValue({
+        id: 'txn-123',
+        account: 'acc-parent',
+        date: '2024-05-01',
+        amount: -5000,
+        is_parent: true,
+        subtransactions: [{ id: 'child-1', amount: -5000 }],
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
+
+      const result = await handler({
+        id: 'txn-123',
+        subtransactions: [
+          { id: 'child-1', amount: -3000, category: 'cat-a' },
+          { amount: -1000, category: 'cat-b' },
+        ],
+      });
+
+      expect(result.isError).toBe(true);
+      expect(updateTransaction).not.toHaveBeenCalled();
+    });
+
+    it('should not validate when the total cannot be determined', async () => {
+      vi.mocked(updateTransaction).mockResolvedValue(undefined);
+      // Transaction can't be loaded and no amount supplied → total unknown.
+      vi.mocked(getTransactionById).mockResolvedValue(null);
+
+      const result = await handler({
+        id: 'txn-123',
+        subtransactions: [{ amount: -3000, category: 'cat-a' }],
+      });
+
+      expect(result.isError).toBeUndefined();
+      expect(updateTransaction).toHaveBeenCalled();
+    });
+
     it('should not look up the transaction when no subtransactions are provided', async () => {
       vi.mocked(updateTransaction).mockResolvedValue(undefined);
 

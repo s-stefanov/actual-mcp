@@ -112,7 +112,7 @@ export const UpdateTransactionArgsSchema = z.object({
     .array(UpdateSubtransactionSchema)
     .optional()
     .describe(
-      "An array of subtransactions for a split transaction. If the transaction is not already a split, providing these converts it into one (children inherit the parent's account and date). Replaces existing subtransactions. Do not set an account on subtransactions. If amounts don't equal total amount, API call will succeed but error will show in app"
+      "An array of subtransactions for a split transaction. If the transaction is not already a split, providing these converts it into one (children inherit the parent's account and date). Replaces existing subtransactions. Do not set an account on subtransactions. The amounts must sum to the transaction total (a new amount on this update if provided, otherwise the existing total) or the update is rejected."
     ),
 });
 
