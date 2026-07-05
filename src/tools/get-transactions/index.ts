@@ -34,7 +34,9 @@ export async function handler(args: GetTransactionsArgs): Promise<CallToolResult
     }
     if (uncategorized) {
       // # Reason: Uncategorized transactions have neither a resolved category name nor a raw category id.
-      filtered = filtered.filter((t) => !t.category_name && !t.category);
+      // Split parents carry no category themselves (their child splits do), and transfers are never
+      // categorized by design, so neither should be treated as uncategorized.
+      filtered = filtered.filter((t) => !t.category_name && !t.category && !t.is_parent && !t.transfer_id);
     }
     if (categoryName) {
       const lowerCategory = categoryName.toLowerCase();
