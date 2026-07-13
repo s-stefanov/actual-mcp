@@ -254,9 +254,29 @@ export const RuleConditionSchema = z.object({
       z.array(z.string()),
       z.array(z.number()),
       z.object({ num1: z.number(), num2: z.number() }),
+      z
+        .object({
+          start: z.string().describe('Start date in YYYY-MM-DD format'),
+          frequency: z.enum(['daily', 'weekly', 'monthly', 'yearly']),
+          interval: z.number().optional(),
+          patterns: z
+            .array(
+              z.object({
+                value: z.number(),
+                type: z.enum(['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'day']),
+              })
+            )
+            .optional(),
+          skipWeekend: z.boolean().optional(),
+          weekendSolveMode: z.enum(['before', 'after']).optional(),
+          endMode: z.enum(['never', 'after_n_occurrences', 'on_date']).optional(),
+          endOccurrences: z.number().optional(),
+          endDate: z.string().optional(),
+        })
+        .describe('Recurring date config, for date conditions that repeat (e.g. is/isapprox a monthly date)'),
     ])
     .describe(
-      'Condition value. Format depends on field and operator: account/category/payee use UUID, date uses YYYY-MM-DD, amount uses number, string[] for oneOf/notOneOf, {num1, num2} for isbetween'
+      'Condition value. Format depends on field and operator: account/category/payee use UUID, date uses YYYY-MM-DD or a recurring config object, amount uses number, string[] for oneOf/notOneOf, {num1, num2} for isbetween'
     ),
   options: z
     .object({
