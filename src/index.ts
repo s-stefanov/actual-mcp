@@ -356,6 +356,11 @@ server.setRequestHandler(SetLevelRequestSchema, (request) => {
 
 const gracefulExit = (signal: string): void => {
   console.error(`${signal} received, shutting down server`);
+  // Never let a hung API shutdown stall the process (systemd would SIGKILL after 90s)
+  setTimeout(() => {
+    console.error('Shutdown timed out; forcing exit');
+    process.exit(1);
+  }, 5000).unref();
   server.close();
   shutdownActualApi()
     .catch((err) => console.error('Error during API shutdown:', err))
