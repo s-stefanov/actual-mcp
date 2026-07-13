@@ -191,6 +191,8 @@ async function main(): Promise<void> {
         console.error = (message: string) => server.sendLoggingMessage({ level: 'error', data: message });
 
         console.error(`Actual Budget MCP Server (SSE) started on port ${resolvedPort}`);
+      }).catch((err) => {
+        console.error('Failed to connect SSE transport:', err);
       });
     };
 
@@ -352,10 +354,19 @@ server.setRequestHandler(SetLevelRequestSchema, (request) => {
   return {};
 });
 
-process.on('SIGINT', () => {
-  console.error('SIGINT received, shutting down server');
+const gracefulExit = (signal: string): void => {
+  console.error(`${signal} received, shutting down server`);
   server.close();
-  process.exit(0);
+  shutdownActualApi()
+    .catch((err) => console.error('Error during API shutdown:', err))
+    .finally(() => process.exit(0));
+};
+process.on('SIGINT', () => gracefulExit('SIGINT'));
+process.on('SIGTERM', () => gracefulExit('SIGTERM'));
+
+// A rejected promise must not take down the whole server (Node 22 crashes by default).
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled promise rejection (continuing):', reason);
 });
 
 main()

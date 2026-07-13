@@ -4,7 +4,7 @@
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
-import { initActualApi, shutdownActualApi } from '../actual-api.js';
+import { initActualApi } from '../actual-api.js';
 import { error, errorFromCatch } from '../utils/response.js';
 
 import * as balanceHistory from './balance-history/index.js';
@@ -89,12 +89,10 @@ export const setupTools = (server: Server, enableWrite: boolean): void => {
       }
 
       // @ts-expect-error: Argument type is handled by Zod schema validation
-      return tool.handler(args);
+      return await tool.handler(args);
     } catch (err) {
       console.error(`Error executing tool ${request.params.name}:`, err);
       return errorFromCatch(err);
-    } finally {
-      await shutdownActualApi();
     }
   });
 };
