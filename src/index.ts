@@ -186,11 +186,17 @@ async function main(): Promise<void> {
     const handleLegacySse = (_req: Request, res: Response): void => {
       transport = new SSEServerTransport('/messages', res);
       server.connect(transport).then(() => {
-        console.log = (message: string) => server.sendLoggingMessage({ level: 'info', data: message });
+        console.log = (message: string) => {
+          void server.sendLoggingMessage({ level: 'info', data: message }).catch(() => {});
+        };
 
-        console.error = (message: string) => server.sendLoggingMessage({ level: 'error', data: message });
+        console.error = (message: string) => {
+          void server.sendLoggingMessage({ level: 'error', data: message }).catch(() => {});
+        };
 
         console.error(`Actual Budget MCP Server (SSE) started on port ${resolvedPort}`);
+      }).catch((err) => {
+        console.error('Failed to connect SSE transport:', err);
       });
     };
 
@@ -352,26 +358,41 @@ server.setRequestHandler(SetLevelRequestSchema, (request) => {
   return {};
 });
 
-process.on('SIGINT', () => {
-  console.error('SIGINT received, shutting down server');
+const gracefulExit = (signal: string): void => {
+  // Never let a hung shutdown stall the process (systemd would SIGKILL after 90s).
+  // Registered before anything else; stderr is used directly because console.error
+  // may be rebound to an MCP transport that is going away.
+  setTimeout(() => {
+    process.stderr.write('Shutdown timed out; forcing exit\n');
+    process.exit(1);
+  }, 5000).unref();
+  process.stderr.write(`${signal} received, shutting down server\n`);
   server.close();
-  process.exit(0);
+  shutdownActualApi()
+    .catch((err) => process.stderr.write(`Error during API shutdown: ${String(err)}\n`))
+    .finally(() => process.exit(0));
+};
+process.on('SIGINT', () => gracefulExit('SIGINT'));
+process.on('SIGTERM', () => gracefulExit('SIGTERM'));
+
+// A rejected promise must not take down the whole server (Node 22 crashes by default).
+// Writes to stderr directly: console.error may be rebound to an MCP transport whose
+// own failures reject, which would recurse through this handler forever.
+process.on('unhandledRejection', (reason) => {
+  const message = reason instanceof Error ? (reason.stack ?? reason.message) : JSON.stringify(reason);
+  process.stderr.write(`Unhandled promise rejection (continuing): ${message}\n`);
 });
 
 main()
   .then(() => {
     if (!useSse) {
       // TODO: Setup proper logging level change. Messages are available in the notification of MCP Inspector
-      console.log = (message: string) =>
-        server.sendLoggingMessage({
-          level: 'info',
-          data: message,
-        });
-      console.error = (message: string) =>
-        server.sendLoggingMessage({
-          level: 'error',
-          data: message,
-        });
+      console.log = (message: string) => {
+        void server.sendLoggingMessage({ level: 'info', data: message }).catch(() => {});
+      };
+      console.error = (message: string) => {
+        void server.sendLoggingMessage({ level: 'error', data: message }).catch(() => {});
+      };
     }
   })
   .catch((error: unknown) => {

@@ -8,6 +8,7 @@ import {
   APICategoryEntity,
   APICategoryGroupEntity,
   APIPayeeEntity,
+  APIScheduleEntity,
 } from '@actual-app/api/@types/loot-core/src/server/api-models.js';
 import {
   NewRuleEntity,
@@ -36,6 +37,8 @@ export async function initActualApi(): Promise<void> {
     return;
   }
 
+  initializing = true;
+  initializationError = null;
   try {
     console.error('Initializing Actual Budget API...');
     const dataDir = process.env.ACTUAL_DATA_DIR || DEFAULT_DATA_DIR;
@@ -74,6 +77,15 @@ export async function initActualApi(): Promise<void> {
   } finally {
     initializing = false;
   }
+}
+
+/**
+ * Sync the local budget cache with the Actual server.
+ * Pulls changes made by other clients (e.g. the desktop app) and pushes local ones.
+ */
+export async function syncBudget(): Promise<void> {
+  await initActualApi();
+  await api.sync();
 }
 
 /**
@@ -284,4 +296,47 @@ export async function deleteTransaction(id: string): Promise<unknown> {
 export async function setBudgetAmount(month: string, categoryId: string, amount: number): Promise<void> {
   await initActualApi();
   await api.setBudgetAmount(month, categoryId, amount);
+}
+
+// ----------------------------
+// SCHEDULES
+// ----------------------------
+
+/**
+ * Get all schedules (ensures API is initialized)
+ */
+export async function getSchedules(): Promise<APIScheduleEntity[]> {
+  await initActualApi();
+  return api.getSchedules();
+}
+
+/**
+ * Create a schedule (ensures API is initialized)
+ *
+ * Zod has validated the structure; cast for API compatibility (the API's
+ * discriminated unions don't match our Zod schema structurally).
+ */
+export async function createSchedule(args: Record<string, unknown>): Promise<string> {
+  await initActualApi();
+  return api.createSchedule(args as unknown as Omit<APIScheduleEntity, 'id'>);
+}
+
+/**
+ * Update a schedule (ensures API is initialized)
+ */
+export async function updateSchedule(
+  id: string,
+  fields: Record<string, unknown>,
+  resetNextDate?: boolean
+): Promise<string> {
+  await initActualApi();
+  return api.updateSchedule(id, fields as unknown as Partial<APIScheduleEntity>, resetNextDate);
+}
+
+/**
+ * Delete a schedule (ensures API is initialized)
+ */
+export async function deleteSchedule(id: string): Promise<void> {
+  await initActualApi();
+  return api.deleteSchedule(id);
 }

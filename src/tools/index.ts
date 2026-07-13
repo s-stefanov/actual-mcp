@@ -4,7 +4,7 @@
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
-import { initActualApi, shutdownActualApi } from '../actual-api.js';
+import { initActualApi, syncBudget } from '../actual-api.js';
 import { error, errorFromCatch } from '../utils/response.js';
 
 import * as balanceHistory from './balance-history/index.js';
@@ -31,6 +31,10 @@ import * as deleteTransaction from './delete-transaction/index.js';
 import * as updateTransaction from './update-transaction/index.js';
 import * as createTransaction from './create-transaction/index.js';
 import * as setBudgetAmount from './set-budget-amount/index.js';
+import * as getSchedules from './schedules/get-schedules/index.js';
+import * as createSchedule from './schedules/create-schedule/index.js';
+import * as updateSchedule from './schedules/update-schedule/index.js';
+import * as deleteSchedule from './schedules/delete-schedule/index.js';
 
 const readTools = [
   getTransactions,
@@ -41,6 +45,7 @@ const readTools = [
   getGroupedCategories,
   getPayees,
   getRules,
+  getSchedules,
 ];
 
 const writeTools = [
@@ -60,6 +65,9 @@ const writeTools = [
   deleteTransaction,
   createTransaction,
   setBudgetAmount,
+  createSchedule,
+  updateSchedule,
+  deleteSchedule,
 ];
 
 export const setupTools = (server: Server, enableWrite: boolean): void => {
@@ -78,9 +86,23 @@ export const setupTools = (server: Server, enableWrite: boolean): void => {
   /**
    * Handler for calling tools
    */
+  const writeToolNames = new Set(writeTools.map((tool) => tool.schema.name));
+
+  // Sync failures must not fail the tool call itself: without a reachable sync
+  // server the API still operates on the local budget copy.
+  const trySync = async (phase: 'pull' | 'push'): Promise<void> => {
+    try {
+      await syncBudget();
+    } catch (err) {
+      console.error(`Budget sync (${phase}) failed:`, err);
+    }
+  };
+
   server.setRequestHandler(CallToolRequestSchema, async (request) => {
     try {
       await initActualApi();
+      // Pull changes made by other clients (e.g. the desktop app) before acting
+      await trySync('pull');
       const { name, arguments: args } = request.params;
 
       const tool = allTools.find((t) => t.schema.name === name);
@@ -89,12 +111,15 @@ export const setupTools = (server: Server, enableWrite: boolean): void => {
       }
 
       // @ts-expect-error: Argument type is handled by Zod schema validation
-      return tool.handler(args);
+      const result = await tool.handler(args);
+      // Push our changes so other clients see them promptly
+      if (writeToolNames.has(name)) {
+        await trySync('push');
+      }
+      return result;
     } catch (err) {
       console.error(`Error executing tool ${request.params.name}:`, err);
       return errorFromCatch(err);
-    } finally {
-      await shutdownActualApi();
     }
   });
 };
