@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.12.0](https://github.com/s-stefanov/actual-mcp/compare/v1.11.3...v1.12.0) (2026-07-27)
+
+
+### Features
+
+* Fix balance cutoff, timezone bugs, and update documentation, upgrade actual budget's api library ([#167](https://github.com/s-stefanov/actual-mcp/issues/167)) ([54bc75a](https://github.com/s-stefanov/actual-mcp/commit/54bc75a4780ecfeaa0faefed06affb7fbdb5e407))
+* **get-transactions:** expose transfer_id in markdown output ([#169](https://github.com/s-stefanov/actual-mcp/issues/169)) ([ff1b276](https://github.com/s-stefanov/actual-mcp/commit/ff1b2765b9f5614c236af55454bc201292d58645)), closes [#168](https://github.com/s-stefanov/actual-mcp/issues/168)
+
+
+### Bug Fixes
+
+* bump @actual-app/api and @actual-app/core to 26.7.0 ([#191](https://github.com/s-stefanov/actual-mcp/issues/191)) ([0728637](https://github.com/s-stefanov/actual-mcp/commit/0728637bdcd13bc6315adf34b10917a70bd4d8b4))
+* **deps:** update dependency dotenv to v17.4.2 ([#147](https://github.com/s-stefanov/actual-mcp/issues/147)) ([f3932fb](https://github.com/s-stefanov/actual-mcp/commit/f3932fb30bd9ff45d22da271e595d03c5cec2319))
+
 ## [1.11.3](https://github.com/s-stefanov/actual-mcp/compare/v1.11.2...v1.11.3) (2026-06-02)
 
 
