@@ -19,11 +19,6 @@ COPY --from=builder /app/package-lock.json ./
 COPY --from=builder /app/build ./build
 
 ENV NODE_ENV=production
-RUN TMPDIR=$(mktemp -d)
-ENV TMPDIR=$TMPDIR
-
-RUN npm ci --omit=dev
-
 RUN --mount=type=cache,target=/root/.npm npm ci --omit=dev
 
 EXPOSE 3000
