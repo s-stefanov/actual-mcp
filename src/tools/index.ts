@@ -32,6 +32,10 @@ import * as updateTransaction from './update-transaction/index.js';
 import * as createTransaction from './create-transaction/index.js';
 import * as importTransactions from './import-transactions/index.js';
 import * as runBankSync from './run-bank-sync/index.js';
+import * as getBudgetMonths from './get-budget-months/index.js';
+import * as getBudgetMonth from './get-budget-month/index.js';
+import * as setBudgetAmount from './set-budget-amount/index.js';
+import * as setBudgetCarryover from './set-budget-carryover/index.js';
 
 const readTools = [
   getTransactions,
@@ -42,6 +46,8 @@ const readTools = [
   getGroupedCategories,
   getPayees,
   getRules,
+  getBudgetMonths,
+  getBudgetMonth,
 ];
 
 const writeTools = [
@@ -62,11 +68,46 @@ const writeTools = [
   createTransaction,
   importTransactions,
   runBankSync,
+  setBudgetAmount,
+  setBudgetCarryover,
 ];
 
-export const setupTools = (server: Server, enableWrite: boolean): void => {
-  // Selecting available tools based on permissions
-  const allTools = enableWrite ? [...readTools, ...writeTools] : readTools;
+const registeredTools = [...readTools, ...writeTools];
+const registeredToolNames = new Set(registeredTools.map((tool) => tool.schema.name));
+const writeToolNames = new Set(writeTools.map((tool) => tool.schema.name));
+
+/** Fail fast when an allowlist is invalid for this image or permission mode. */
+export const validateAllowedTools = (allowedTools: readonly string[] | undefined, enableWrite = true): void => {
+  if (allowedTools === undefined) {
+    return;
+  }
+
+  const unknownNames = allowedTools.filter((name) => !registeredToolNames.has(name));
+  if (unknownNames.length > 0) {
+    throw new Error(`Unknown tool name(s) in allowlist: ${unknownNames.join(', ')}`);
+  }
+
+  if (!enableWrite) {
+    const requestedWriteTools = allowedTools.filter((name) => writeToolNames.has(name));
+    if (requestedWriteTools.length > 0) {
+      throw new Error(`Write tool(s) require --enable-write: ${requestedWriteTools.join(', ')}`);
+    }
+  }
+};
+
+export const setupTools = (server: Server, enableWrite: boolean, allowedTools?: readonly string[]): void => {
+  validateAllowedTools(allowedTools, enableWrite);
+
+  // Apply write permissions before the allowlist so allowlisting cannot grant access.
+  const permissionTools = enableWrite ? registeredTools : readTools;
+  const toolsByName = new Map(permissionTools.map((tool) => [tool.schema.name, tool]));
+  const allTools =
+    allowedTools === undefined
+      ? permissionTools
+      : allowedTools.flatMap((name) => {
+          const tool = toolsByName.get(name);
+          return tool ? [tool] : [];
+        });
 
   /**
    * Handler for listing available tools
@@ -81,14 +122,14 @@ export const setupTools = (server: Server, enableWrite: boolean): void => {
    * Handler for calling tools
    */
   server.setRequestHandler(CallToolRequestSchema, async (request) => {
+    const { name, arguments: args } = request.params;
+    const tool = allTools.find((candidate) => candidate.schema.name === name);
+    if (!tool) {
+      return error(`Unknown tool ${name}`);
+    }
+
     try {
       await initActualApi();
-      const { name, arguments: args } = request.params;
-
-      const tool = allTools.find((t) => t.schema.name === name);
-      if (!tool) {
-        return error(`Unknown tool ${name}`);
-      }
 
       // @ts-expect-error: Argument type is handled by Zod schema validation
       return await tool.handler(args);

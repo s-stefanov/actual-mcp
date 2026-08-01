@@ -135,9 +135,33 @@ export async function getRules(): Promise<RuleEntity[]> {
   return api.getRules();
 }
 
+/** Get the months available in the loaded budget. */
+export async function getBudgetMonths(): Promise<string[]> {
+  await initActualApi();
+  return api.getBudgetMonths();
+}
+
+/** Get budget data for a month in YYYY-MM format. */
+export async function getBudgetMonth(month: string): Promise<Awaited<ReturnType<typeof api.getBudgetMonth>>> {
+  await initActualApi();
+  return api.getBudgetMonth(month);
+}
+
 // ----------------------------
 // ACTION
 // ----------------------------
+
+/** Set a category's budget amount in integer minor units. */
+export async function setBudgetAmount(month: string, categoryId: string, amount: number): Promise<void> {
+  await initActualApi();
+  return api.setBudgetAmount(month, categoryId, amount);
+}
+
+/** Enable or disable category carryover for a budget month. */
+export async function setBudgetCarryover(month: string, categoryId: string, carryover: boolean): Promise<void> {
+  await initActualApi();
+  return api.setBudgetCarryover(month, categoryId, carryover);
+}
 
 /**
  * Create a new payee (ensures API is initialized)
@@ -276,10 +300,7 @@ export async function deleteTransaction(id: string): Promise<unknown> {
 /**
  * Run bank sync for accounts (ensures API is initialized)
  *
- * @param accountId - Optional. Specific account ID, or special value:
- *   - "onbudget": sync all on-budget linked accounts
- *   - "offbudget": sync all off-budget linked accounts
- *   - undefined: sync ALL linked accounts
+ * @param accountId - Optional specific account ID. If omitted, sync all linked accounts.
  */
 export async function runBankSync(accountId?: string): Promise<void> {
   await initActualApi();

@@ -19,8 +19,10 @@ import express, { NextFunction, Request, Response } from 'express';
 import { randomUUID } from 'node:crypto';
 import { parseArgs } from 'node:util';
 import { initActualApi, shutdownActualApi } from './actual-api.js';
+import { resolveAllowedTools } from './allowed-tools.js';
 import { fetchAllAccounts } from './core/data/fetch-accounts.js';
 import { createServer } from './server.js';
+import { validateAllowedTools } from './tools/index.js';
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 
 // Reason: dotenv@17 (dotenvx) prints to stdout by default, which breaks MCP stdio JSON parsing
@@ -32,6 +34,7 @@ const {
     sse: useSse,
     'enable-write': enableWrite,
     'enable-bearer': enableBearer,
+    'allowed-tools': allowedToolsOption,
     port,
     'test-resources': testResources,
     'test-custom': testCustom,
@@ -41,6 +44,7 @@ const {
     sse: { type: 'boolean', default: false },
     'enable-write': { type: 'boolean', default: false },
     'enable-bearer': { type: 'boolean', default: false },
+    'allowed-tools': { type: 'string' },
     port: { type: 'string' },
     'test-resources': { type: 'boolean', default: false },
     'test-custom': { type: 'boolean', default: false },
@@ -49,6 +53,7 @@ const {
 });
 
 const resolvedPort = port ? parseInt(port, 10) : 3000;
+const allowedTools = resolveAllowedTools(allowedToolsOption, process.env.ACTUAL_MCP_ALLOWED_TOOLS);
 
 // Bearer authentication middleware
 const bearerAuth = (req: Request, res: Response, next: NextFunction): void => {
@@ -114,6 +119,9 @@ const toErrorMessage = (value: unknown): string =>
 
 // Start the server
 async function main(): Promise<void> {
+  // Validate before opening a transport (and, in SSE mode, before accepting connections).
+  validateAllowedTools(allowedTools, !!enableWrite);
+
   // If testing resources, verify connectivity and list accounts, then exit
   if (testResources) {
     console.log('Testing resources...');
@@ -189,7 +197,7 @@ async function main(): Promise<void> {
 
     const handleLegacySse = (_req: Request, res: Response): void => {
       const connectionId = randomUUID();
-      const connServer = createServer({ enableWrite: !!enableWrite });
+      const connServer = createServer({ enableWrite: !!enableWrite, allowedTools });
       const sseTransport = new SSEServerTransport(`/messages?connectionId=${connectionId}`, res);
       legacySseConnections.set(connectionId, { server: connServer, transport: sseTransport });
 
@@ -220,7 +228,7 @@ async function main(): Promise<void> {
         if (!session) {
           if (req.method === 'POST' && isInitializeRequest(req.body)) {
             const remoteAddress = req.ip ?? req.socket.remoteAddress ?? 'unknown';
-            const sessionServer = createServer({ enableWrite: !!enableWrite });
+            const sessionServer = createServer({ enableWrite: !!enableWrite, allowedTools });
             const streamableTransport = new StreamableHTTPServerTransport({
               sessionIdGenerator: () => randomUUID(),
               onsessioninitialized: (sessionId) => {
@@ -319,7 +327,7 @@ async function main(): Promise<void> {
       process.exit(0);
     });
   } else {
-    const server = createServer({ enableWrite: !!enableWrite });
+    const server = createServer({ enableWrite: !!enableWrite, allowedTools });
     const transport = new StdioServerTransport();
     await server.connect(transport);
     console.error('Actual Budget MCP Server (stdio) started');

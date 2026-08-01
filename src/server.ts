@@ -6,6 +6,7 @@ import { setupTools } from './tools/index.js';
 
 interface CreateServerOptions {
   enableWrite: boolean;
+  allowedTools?: readonly string[];
 }
 
 /**
@@ -31,7 +32,11 @@ export function createServer(options: CreateServerOptions): Server {
   );
 
   setupResources(server);
-  setupTools(server, options.enableWrite);
+  if (options.allowedTools === undefined) {
+    setupTools(server, options.enableWrite);
+  } else {
+    setupTools(server, options.enableWrite, options.allowedTools);
+  }
   setupPrompts(server);
 
   server.setRequestHandler(SetLevelRequestSchema, (request) => {

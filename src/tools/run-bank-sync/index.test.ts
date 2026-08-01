@@ -18,9 +18,13 @@ describe('run-bank-sync tool', () => {
       expect(schema.description).toContain('bank synchronization');
     });
 
-    it('should have inputSchema defined', () => {
+    it('should document only a specific account ID or all accounts', () => {
       expect(schema.inputSchema).toBeDefined();
       expect(schema.inputSchema.type).toBe('object');
+      expect(schema.description).not.toContain('onbudget');
+      expect(schema.description).not.toContain('offbudget');
+      expect(JSON.stringify(schema.inputSchema)).not.toContain('onbudget');
+      expect(JSON.stringify(schema.inputSchema)).not.toContain('offbudget');
     });
   });
 
@@ -43,24 +47,6 @@ describe('run-bank-sync tool', () => {
       expect(runBankSync).toHaveBeenCalledWith(undefined);
       expect(result.content[0]).toHaveProperty('text');
       expect((result.content[0] as { text: string }).text).toContain('all linked accounts');
-    });
-
-    it('should sync onbudget accounts with special value', async () => {
-      vi.mocked(runBankSync).mockResolvedValue(undefined);
-
-      const result = await handler({ accountId: 'onbudget' });
-
-      expect(runBankSync).toHaveBeenCalledWith('onbudget');
-      expect((result.content[0] as { text: string }).text).toContain('on-budget');
-    });
-
-    it('should sync offbudget accounts with special value', async () => {
-      vi.mocked(runBankSync).mockResolvedValue(undefined);
-
-      const result = await handler({ accountId: 'offbudget' });
-
-      expect(runBankSync).toHaveBeenCalledWith('offbudget');
-      expect((result.content[0] as { text: string }).text).toContain('off-budget');
     });
   });
 
