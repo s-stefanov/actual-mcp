@@ -29,6 +29,14 @@ The Actual Budget MCP Server allows you to interact with your personal financial
 - **`spending-by-category`** - Generate spending breakdowns categorized by type
 - **`monthly-summary`** - Get monthly income, expenses, and savings metrics
 
+#### Budget Management
+
+- **`get-budget-months`** - Retrieve the months available in the budget
+- **`get-budget-month`** - Retrieve category groups and budget totals for a `YYYY-MM` month
+- **`set-budget-amount`** *(write access)* - Set a category's budget amount using integer minor units (including zero or negative values)
+- **`set-budget-carryover`** *(write access)* - Enable or disable carryover for a category in a month
+- **`run-bank-sync`** *(write access)* - Sync one linked account by ID, or all linked accounts when no ID is provided
+
 #### Categories
 
 - **`get-grouped-categories`** - Retrieve a list of all category groups with their categories
@@ -212,6 +220,24 @@ After saving the configuration, restart Claude Desktop.
 > 💡 `ACTUAL_DATA_DIR` is optional if you're using `ACTUAL_SERVER_URL`.
 
 > 💡 Use `--enable-write` to enable write-access tools.
+
+### Restricting exposed tools
+
+By default, the server exposes every read tool, plus every write tool when `--enable-write` is set. To expose only an explicit subset, provide a comma-separated allowlist with `ACTUAL_MCP_ALLOWED_TOOLS` or `--allowed-tools`. Names are trimmed and duplicates are ignored. The CLI option takes precedence over the environment variable, and an unknown name causes startup to fail. Allowlisting a write tool does not bypass the requirement for `--enable-write`.
+
+Docker example using the environment variable:
+
+```bash
+docker run -i --rm \
+  -e ACTUAL_SERVER_URL="https://your-actual-server.com" \
+  -e ACTUAL_PASSWORD="your-password" \
+  -e ACTUAL_BUDGET_SYNC_ID="your-budget-id" \
+  -e ACTUAL_MCP_ALLOWED_TOOLS="get-accounts, get-transactions, create-transaction" \
+  sstefanov/actual-mcp:latest \
+  --enable-write
+```
+
+The equivalent CLI form is `--allowed-tools "get-accounts,get-transactions,create-transaction"`. If both forms are provided, the CLI value is used.
 
 ## Running an SSE Server
 

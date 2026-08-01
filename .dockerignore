@@ -1,0 +1,14 @@
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+node_modules
+build
+coverage
+data
+.actual
+*.log
+.DS_Store
+.vscode
+.gemini
