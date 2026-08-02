@@ -71,5 +71,39 @@ describe('tool allowlisting', () => {
     expect(names).toContain('create-transaction');
     expect(names).toContain('delete-transaction');
     expect(names).toContain('import-transactions');
+    expect(names).toContain('get-receipts');
+    expect(names).toContain('record-receipt');
+    expect(names).toContain('update-receipt');
+  });
+
+  it('registers receipt permissions and dispatches receipt tools without Actual initialization', async () => {
+    const [readList, readCall] = captureHandlers(false, ['get-receipts']);
+    const listed = (await readList({ params: { name: '' } })) as { tools: Array<{ name: string }> };
+    expect(listed.tools.map(({ name }) => name)).toEqual(['get-receipts']);
+
+    await readCall({ params: { name: 'get-receipts', arguments: {} } });
+    expect(initActualApi).not.toHaveBeenCalled();
+    expect(shutdownActualApi).not.toHaveBeenCalled();
+
+    expect(() => captureHandlers(false, ['record-receipt'])).toThrow(
+      'Write tool(s) require --enable-write: record-receipt'
+    );
+    const [, writeCall] = captureHandlers(true, ['record-receipt']);
+    await writeCall({ params: { name: 'record-receipt', arguments: {} } });
+    expect(initActualApi).not.toHaveBeenCalled();
+    expect(shutdownActualApi).not.toHaveBeenCalled();
+
+    const [, updateCall] = captureHandlers(true, ['update-receipt']);
+    await updateCall({ params: { name: 'update-receipt', arguments: {} } });
+    expect(initActualApi).not.toHaveBeenCalled();
+    expect(shutdownActualApi).not.toHaveBeenCalled();
+  });
+
+  it('always shuts Actual down when an existing Actual-backed tool handler fails', async () => {
+    const [, callTool] = captureHandlers(true, ['get-accounts']);
+    await callTool({ params: { name: 'get-accounts', arguments: { unexpected: true } } });
+
+    expect(initActualApi).toHaveBeenCalledOnce();
+    expect(shutdownActualApi).toHaveBeenCalledOnce();
   });
 });

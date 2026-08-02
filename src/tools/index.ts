@@ -36,6 +36,7 @@ import * as getBudgetMonths from './get-budget-months/index.js';
 import * as getBudgetMonth from './get-budget-month/index.js';
 import * as setBudgetAmount from './set-budget-amount/index.js';
 import * as setBudgetCarryover from './set-budget-carryover/index.js';
+import { getReceipts, recordReceipt, updateReceipt } from './receipts/index.js';
 
 const readTools = [
   getTransactions,
@@ -48,6 +49,7 @@ const readTools = [
   getRules,
   getBudgetMonths,
   getBudgetMonth,
+  getReceipts,
 ];
 
 const writeTools = [
@@ -70,6 +72,8 @@ const writeTools = [
   runBankSync,
   setBudgetAmount,
   setBudgetCarryover,
+  recordReceipt,
+  updateReceipt,
 ];
 
 const registeredTools = [...readTools, ...writeTools];
@@ -128,8 +132,11 @@ export const setupTools = (server: Server, enableWrite: boolean, allowedTools?: 
       return error(`Unknown tool ${name}`);
     }
 
+    const requiresActualApi = !('requiresActualApi' in tool) || tool.requiresActualApi !== false;
     try {
-      await initActualApi();
+      if (requiresActualApi) {
+        await initActualApi();
+      }
 
       // @ts-expect-error: Argument type is handled by Zod schema validation
       return await tool.handler(args);
@@ -137,7 +144,9 @@ export const setupTools = (server: Server, enableWrite: boolean, allowedTools?: 
       console.error(`Error executing tool ${request.params.name}:`, err);
       return errorFromCatch(err);
     } finally {
-      await shutdownActualApi();
+      if (requiresActualApi) {
+        await shutdownActualApi();
+      }
     }
   });
 };
