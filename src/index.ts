@@ -18,6 +18,7 @@ import dotenv from 'dotenv';
 import express, { NextFunction, Request, Response } from 'express';
 import { randomUUID } from 'node:crypto';
 import { parseArgs } from 'node:util';
+import { isValidBearerToken } from './bearer-auth.js';
 import { initActualApi, shutdownActualApi } from './actual-api.js';
 import { fetchAllAccounts } from './core/data/fetch-accounts.js';
 import { createServer } from './server.js';
@@ -84,7 +85,7 @@ const bearerAuth = (req: Request, res: Response, next: NextFunction): void => {
     return;
   }
 
-  if (token !== expectedToken) {
+  if (!isValidBearerToken(token, expectedToken)) {
     res.status(401).json({
       error: 'Invalid bearer token',
     });
