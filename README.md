@@ -21,6 +21,7 @@ The Actual Budget MCP Server allows you to interact with your personal financial
 - **`get-transactions`** - Retrieve and filter transactions by account, date, amount, category, or payee
 - **`create-transaction`** - Create a new transaction in an account with optional category, payee, and notes
 - **`update-transaction`** - Update an existing transaction with new category, payee, notes, or amount
+- **`split-transaction`** *(write access)* - Split an existing transaction into two or more subtransactions; split amounts must sum exactly to the original amount. The original transaction is replaced by a new split parent (its ID changes; both IDs are returned). Reconciled transactions, existing splits, and transfer legs are rejected
 - **`get-accounts`** - Retrieve a list of all accounts with their current balance and ID
 - **`balance-history`** - View account balance changes over time
 

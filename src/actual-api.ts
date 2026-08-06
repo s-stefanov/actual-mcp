@@ -269,6 +269,32 @@ export async function createTransaction(accountId: string, data: TransactionData
 }
 
 /**
+ * Fetch a single transaction by ID, including split flags (is_parent, is_child, transfer_id).
+ * Returns null when the transaction does not exist.
+ */
+export async function getTransactionById(id: string): Promise<TransactionEntity | null> {
+  await initActualApi();
+  // Reason: splits 'all' exposes child rows too; default views may hide them
+  const result = (await api.aqlQuery(
+    api.q('transactions').filter({ id }).select(['*']).options({ splits: 'all' })
+  )) as { data?: TransactionEntity[] };
+  return result.data?.[0] ?? null;
+}
+
+/**
+ * Create a split transaction (parent + children) in a single call.
+ * `data.subtransactions` amounts must sum to `data.amount`.
+ * Returns the created IDs: the parent first, then the children in order.
+ */
+export async function addSplitTransaction(accountId: string, data: TransactionData): Promise<string[]> {
+  await initActualApi();
+  // Reason: with runTransfers the SDK returns the created IDs (parent first),
+  // but the published types claim "ok"; cast based on verified runtime behavior.
+  const ids = (await api.addTransactions(accountId, [data], { runTransfers: true })) as unknown as string[];
+  return Array.isArray(ids) ? ids : [];
+}
+
+/**
  * Import a list of transactions using Actual's reconciliation logic.
  * Deduplicates via imported_id and optionally supports dry-run validation.
  */
