@@ -123,7 +123,7 @@ export const UpdateTransactionDataSchema = UpdateTransactionArgsSchema.omit({ id
 export type UpdateTransactionData = z.infer<typeof UpdateTransactionDataSchema>;
 
 export const SubtransactionSchema = z.object({
-  amount: z.number().describe('Required for subtransactions. A currency amount as an integer'),
+  amount: z.number().int().describe('Required for subtransactions. A currency amount as an integer'),
   category: z.string().optional().describe('The ID of the category for this subtransaction'),
   notes: z.string().optional().describe('Any additional notes for this subtransaction'),
 });
@@ -186,6 +186,19 @@ export type CreateTransactionArgs = z.infer<typeof CreateTransactionArgsSchema>;
 // Schema for transaction data passed to the API (without account and transfer_account_id, which are handled separately)
 export const TransactionDataSchema = CreateTransactionArgsSchema.omit({ account: true, transfer_account_id: true });
 export type TransactionData = z.infer<typeof TransactionDataSchema>;
+
+// Schema for splitting an EXISTING transaction into subtransactions.
+export const SplitTransactionArgsSchema = z.object({
+  transactionId: z.string().min(1).describe('Required. The ID of the existing transaction to split'),
+  splits: z
+    .array(SubtransactionSchema)
+    .min(2)
+    .describe(
+      'Required. Two or more subtransactions. Amounts are integer cents and must sum exactly to the original transaction amount.'
+    ),
+});
+
+export type SplitTransactionArgs = z.infer<typeof SplitTransactionArgsSchema>;
 
 // Subtransaction schema for imports — amount is a decimal (e.g. 3.24), converted to integer by the API wrapper
 export const ImportSubtransactionSchema = z.object({

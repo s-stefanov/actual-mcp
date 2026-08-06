@@ -35,6 +35,14 @@ describe('createServer', () => {
     expect(setupTools).toHaveBeenCalledWith(server, true);
   });
 
+  it('passes an explicit tool allowlist to setupTools', () => {
+    vi.mocked(setupTools).mockClear();
+    const allowedTools = ['get-accounts', 'create-transaction'];
+    const server = createServer({ enableWrite: true, allowedTools });
+
+    expect(setupTools).toHaveBeenCalledWith(server, true, allowedTools);
+  });
+
   it('registers all setup handlers for each new instance', () => {
     vi.mocked(setupResources).mockClear();
     vi.mocked(setupTools).mockClear();
