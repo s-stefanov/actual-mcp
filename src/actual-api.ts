@@ -8,17 +8,59 @@ import { RuleEntity, TransactionEntity } from '@actual-app/core/types/models';
 import { ImportTransactionEntity } from '@actual-app/core/types/models/import-transaction';
 
 const DEFAULT_DATA_DIR: string = path.resolve(os.homedir() || '.', '.actual');
+const DEFAULT_SYNC_TTL_MS = 60_000;
 
 // API initialization state
 let initialized = false;
 let initializing = false;
 let initializationError: Error | null = null;
+let lastSyncAt = 0;
+
+/**
+ * How long downloaded data is considered fresh, in milliseconds.
+ * Set ACTUAL_SYNC_TTL_MS to 0 to sync before every call, or to a negative
+ * value to disable automatic syncing entirely.
+ */
+function syncTtlMs(): number {
+  const raw = process.env.ACTUAL_SYNC_TTL_MS;
+  if (raw === undefined || raw === '') return DEFAULT_SYNC_TTL_MS;
+  const parsed = Number(raw);
+  return Number.isFinite(parsed) ? parsed : DEFAULT_SYNC_TTL_MS;
+}
+
+/**
+ * Pull changes made elsewhere (web UI, mobile, other clients) into the local
+ * budget file.
+ *
+ * `downloadBudget` only runs once, at initialization, so without this a
+ * long-running server keeps answering from the snapshot it started with:
+ * transactions added later are silently invisible. That is especially easy to
+ * hit over SSE/HTTP, where a single process serves requests for days.
+ *
+ * A failed sync is logged but not thrown: answering from slightly stale data
+ * beats failing the tool call outright.
+ */
+async function syncIfStale(): Promise<void> {
+  const ttl = syncTtlMs();
+  if (ttl < 0) return;
+  if (Date.now() - lastSyncAt < ttl) return;
+
+  try {
+    await api.sync();
+    lastSyncAt = Date.now();
+  } catch (error) {
+    console.error('Failed to sync with Actual server, continuing with local data:', error);
+  }
+}
 
 /**
  * Initialize the Actual Budget API
  */
 export async function initActualApi(): Promise<void> {
-  if (initialized) return;
+  if (initialized) {
+    await syncIfStale();
+    return;
+  }
   if (initializing) {
     // Wait for initialization to complete if already in progress
     while (initializing) {
@@ -59,6 +101,7 @@ export async function initActualApi(): Promise<void> {
     );
 
     initialized = true;
+    lastSyncAt = Date.now();
     console.error('Actual Budget API initialized successfully');
   } catch (error) {
     console.error('Failed to initialize Actual Budget API:', error);
@@ -80,6 +123,7 @@ export async function shutdownActualApi(): Promise<void> {
     console.error('Error shutting down Actual Budget API:', err);
   } finally {
     initialized = false;
+    lastSyncAt = 0;
   }
 }
 
