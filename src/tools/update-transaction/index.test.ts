@@ -89,22 +89,6 @@ describe('update-transaction tool', () => {
       expect((result.content[0] as { text: string }).text).toContain('Updated fields: amount');
     });
 
-    it('should update with payee_name to create new payee', async () => {
-      vi.mocked(updateTransaction).mockResolvedValue(undefined);
-
-      const args = {
-        id: 'txn-123',
-        payee_name: 'New Grocery Store',
-      };
-
-      const result = await handler(args);
-
-      expect(updateTransaction).toHaveBeenCalledWith('txn-123', {
-        payee_name: 'New Grocery Store',
-      });
-      expect(result.isError).toBeUndefined();
-    });
-
     it('should update imported_payee field', async () => {
       vi.mocked(updateTransaction).mockResolvedValue(undefined);
 
@@ -348,6 +332,34 @@ describe('update-transaction tool', () => {
       const result = await handler(args);
 
       expect(result.isError).toBe(true);
+    });
+
+    it('should reject payee_name instead of forwarding it to the API', async () => {
+      const args = {
+        id: 'txn-123',
+        payee_name: 'New Grocery Store',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any;
+
+      const result = await handler(args);
+
+      expect(result.isError).toBe(true);
+      expect((result.content[0] as { text: string }).text).toContain('payee_name is not supported');
+      expect(updateTransaction).not.toHaveBeenCalled();
+    });
+
+    it('should reject payee_name even when combined with other valid fields', async () => {
+      const args = {
+        id: 'txn-123',
+        amount: -5000,
+        payee_name: 'New Grocery Store',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any;
+
+      const result = await handler(args);
+
+      expect(result.isError).toBe(true);
+      expect(updateTransaction).not.toHaveBeenCalled();
     });
   });
 
