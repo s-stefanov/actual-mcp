@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.12.1](https://github.com/s-stefanov/actual-mcp/compare/v1.12.0...v1.12.1) (2026-08-11)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @actual-app/api to v26.8.1 ([#200](https://github.com/s-stefanov/actual-mcp/issues/200)) ([b0c6071](https://github.com/s-stefanov/actual-mcp/commit/b0c6071d651688ce51e96b8eb932c69ce04d3f5b))
+* **deps:** update dependency @actual-app/core to v26.8.1 ([#202](https://github.com/s-stefanov/actual-mcp/issues/202)) ([1c4ee17](https://github.com/s-stefanov/actual-mcp/commit/1c4ee17da9af6995d2f7dac6a949c87b5ab9cb4f))
+* **deps:** update dependency zod to v4.4.3 ([#178](https://github.com/s-stefanov/actual-mcp/issues/178)) ([69d9413](https://github.com/s-stefanov/actual-mcp/commit/69d9413342acbecd1f6ab748300337418ec8ac6d))
+* re-sync with the server instead of serving the startup snapshot ([#193](https://github.com/s-stefanov/actual-mcp/issues/193)) ([0ca295c](https://github.com/s-stefanov/actual-mcp/commit/0ca295cb5f791f2b26e1bb9f9a01379e6945c80d))
+* stop update-transaction payee_name from crashing the server ([#204](https://github.com/s-stefanov/actual-mcp/issues/204)) ([d4aca92](https://github.com/s-stefanov/actual-mcp/commit/d4aca924e09731e3106d6f9e7e31fb621afe2a02))
+* use constant-time comparison for bearer token validation ([#194](https://github.com/s-stefanov/actual-mcp/issues/194)) ([d761cea](https://github.com/s-stefanov/actual-mcp/commit/d761cead6b322549d26012b1cc662a03acf50f53))
+
 ## [1.12.0](https://github.com/s-stefanov/actual-mcp/compare/v1.11.3...v1.12.0) (2026-07-27)
 
 
