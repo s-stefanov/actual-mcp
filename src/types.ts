@@ -89,12 +89,6 @@ export const UpdateTransactionArgsSchema = z.object({
       'A currency amount as an integer representing the value without decimal places. For example, USD amount of $120.30 would be 12030'
     ),
   payee: z.string().optional().describe('An existing payee ID'),
-  payee_name: z
-    .string()
-    .optional()
-    .describe(
-      'If given, a payee will be created with this name. If this matches an already existing payee, that payee will be used.'
-    ),
   imported_payee: z
     .string()
     .optional()

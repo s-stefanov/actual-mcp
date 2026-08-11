@@ -1,6 +1,6 @@
 import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { toJSONSchema } from 'zod';
-import { success, errorFromCatch } from '../../utils/response.js';
+import { error, success, errorFromCatch } from '../../utils/response.js';
 import { updateTransaction } from '../../actual-api.js';
 import { UpdateTransactionArgsSchema, type UpdateTransactionArgs, ToolInput } from '../../types.js';
 
@@ -13,6 +13,18 @@ export const schema = {
 
 export async function handler(args: UpdateTransactionArgs): Promise<CallToolResult> {
   try {
+    // Reason: payee_name is only resolved on the create/import path in @actual-app/api.
+    // On update it reaches an unguarded schema-conform step that throws asynchronously
+    // after the call already appears to succeed, crashing the whole server process
+    // (upstream https://github.com/s-stefanov/actual-mcp/issues/150). Reject it here
+    // with a clear alternative rather than silently dropping it or letting it crash.
+    if (args && typeof args === 'object' && 'payee_name' in args) {
+      return error(
+        'payee_name is not supported on update-transaction (it can crash the server). ' +
+          'Use create-payee to get or create a payee, then pass its id via the payee field instead.'
+      );
+    }
+
     const validatedArgs = UpdateTransactionArgsSchema.parse(args);
     const { id: transactionId, ...updateData } = validatedArgs;
 

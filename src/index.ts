@@ -109,6 +109,18 @@ const safeStringify = (value: unknown): string => {
 const toErrorMessage = (value: unknown): string =>
   value instanceof Error ? `${value.name}: ${value.message}` : safeStringify(value);
 
+// Reason: a rejection or throw from anywhere in the process (e.g. an unawaited async
+// side-effect inside @actual-app/api, see s-stefanov/actual-mcp#150 and #95) otherwise
+// terminates the whole server. That kills every in-flight tool call and, over stdio,
+// disconnects the client; over HTTP it can leave sessions in a state that looks
+// connected but never responds. Log and keep serving instead of exiting.
+process.on('unhandledRejection', (reason) => {
+  console.error(`Unhandled rejection: ${toErrorMessage(reason)}`);
+});
+process.on('uncaughtException', (err) => {
+  console.error(`Uncaught exception: ${toErrorMessage(err)}`);
+});
+
 // ----------------------------
 // SERVER STARTUP
 // ----------------------------
