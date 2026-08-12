@@ -31,6 +31,7 @@ import * as deleteTransaction from './delete-transaction/index.js';
 import * as updateTransaction from './update-transaction/index.js';
 import * as createTransaction from './create-transaction/index.js';
 import * as importTransactions from './import-transactions/index.js';
+import * as makeTransfer from './make-transfer/index.js';
 import * as runBankSync from './run-bank-sync/index.js';
 
 const readTools = [
@@ -61,6 +62,7 @@ const writeTools = [
   deleteTransaction,
   createTransaction,
   importTransactions,
+  makeTransfer,
   runBankSync,
 ];
 
