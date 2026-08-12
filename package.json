@@ -54,7 +54,7 @@
     "prettier": "3.9.6",
     "tsx": "4.21.0",
     "typescript": "5.9.3",
-    "typescript-eslint": "8.60.1",
+    "typescript-eslint": "8.67.0",
     "vite-tsconfig-paths": "6.1.1",
     "vitest": "4.1.10"
   },
