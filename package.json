@@ -43,7 +43,7 @@
   },
   "devDependencies": {
     "@types/express": "5.0.6",
-    "@types/node": "24.13.0",
+    "@types/node": "24.13.3",
     "@vitest/coverage-v8": "4.1.10",
     "@vitest/ui": "4.1.10",
     "eslint": "9.39.5",
