@@ -13,14 +13,32 @@ export interface BudgetFile {
 
 // Type definitions for tool arguments
 export const GetTransactionsArgsSchema = z.object({
-  accountId: z.string(),
-  startDate: z.string().optional(),
-  endDate: z.string().optional(),
-  minAmount: z.number().optional(),
-  maxAmount: z.number().optional(),
-  categoryName: z.string().optional(),
-  payeeName: z.string().optional(),
-  limit: z.number().optional(),
+  accountId: z.string().describe('The ID of the account to fetch transactions for'),
+  startDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'startDate must be in YYYY-MM-DD format')
+    .optional()
+    .describe('Inclusive start of the date range in YYYY-MM-DD format. Defaults to 3 months ago.'),
+  endDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'endDate must be in YYYY-MM-DD format')
+    .optional()
+    .describe('Inclusive end of the date range in YYYY-MM-DD format. Defaults to today.'),
+  minAmount: z
+    .number()
+    .optional()
+    .describe('Only include transactions with an amount at or above this value (dollars)'),
+  maxAmount: z
+    .number()
+    .optional()
+    .describe('Only include transactions with an amount at or below this value (dollars)'),
+  categoryName: z.string().optional().describe('Only include transactions whose category name contains this text'),
+  uncategorized: z
+    .boolean()
+    .optional()
+    .describe('When true, only include transactions that have no category assigned (uncategorized)'),
+  payeeName: z.string().optional().describe('Only include transactions whose payee name contains this text'),
+  limit: z.number().optional().describe('Maximum number of transactions to return'),
 });
 
 export type GetTransactionsArgs = z.infer<typeof GetTransactionsArgsSchema>;
