@@ -23,6 +23,7 @@ import { initActualApi, shutdownActualApi } from './actual-api.js';
 import { fetchAllAccounts } from './core/data/fetch-accounts.js';
 import { createServer } from './server.js';
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
+import { redirectConsoleToStderr } from './utils/redirect-console.js';
 
 // Reason: dotenv@17 (dotenvx) prints to stdout by default, which breaks MCP stdio JSON parsing
 dotenv.config({ path: '.env', quiet: true } as Parameters<typeof dotenv.config>[0]);
@@ -50,6 +51,13 @@ const {
 });
 
 const resolvedPort = port ? parseInt(port, 10) : 3000;
+
+// Reason: in stdio mode stdout carries only JSON-RPC; @actual-app/api logs via
+// console.log ("[Breadcrumb]", "Loaded spreadsheet", ...) which would corrupt
+// the protocol stream, so route those to stderr before the API can log anything.
+if (!useSse && !testResources && !testCustom) {
+  redirectConsoleToStderr();
+}
 
 // Bearer authentication middleware
 const bearerAuth = (req: Request, res: Response, next: NextFunction): void => {
