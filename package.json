@@ -52,7 +52,7 @@
     "globals": "17.9.0",
     "jiti": "2.7.0",
     "prettier": "3.9.6",
-    "tsx": "4.21.0",
+    "tsx": "4.23.12",
     "typescript": "5.9.3",
     "typescript-eslint": "8.60.1",
     "vite-tsconfig-paths": "6.1.1",
