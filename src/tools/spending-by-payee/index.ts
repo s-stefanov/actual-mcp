@@ -4,14 +4,15 @@ import { toJSONSchema } from 'zod';
 import { SpendingByPayeeInputParser } from './input-parser.js';
 import { SpendingByPayeeDataFetcher } from './data-fetcher.js';
 import { PayeeAggregator } from './payee-aggregator.js';
-import { SpendingByPayeeReportGenerator } from './report-generator.js';
-import { success, errorFromCatch } from '../../utils/response.js';
+import { SpendingByPayeeReportBuilder } from './report-builder.js';
+import { successWithJson, errorFromCatch } from '../../utils/response.js';
 import { getDateRange } from '../../utils.js';
 import { SpendingByPayeeArgsSchema, type SpendingByPayeeArgs, ToolInput } from '../../types.js';
 
 export const schema = {
   name: 'spending-by-payee',
-  description: 'Rank payees by how much money was spent with (or received from) each one',
+  description:
+    'Rank payees by how much money was spent with (or received from) each one. Returns JSON; amounts are integer cents.',
   inputSchema: toJSONSchema(SpendingByPayeeArgsSchema) as ToolInput,
 };
 
@@ -27,7 +28,7 @@ export async function handler(args: SpendingByPayeeArgs): Promise<CallToolResult
     );
     const allPayees = new PayeeAggregator().aggregate(transactions, input.includeIncome);
 
-    const markdown = new SpendingByPayeeReportGenerator().generate({
+    const report = new SpendingByPayeeReportBuilder().build({
       start: startDate,
       end: endDate,
       accountName: account?.name,
@@ -37,7 +38,7 @@ export async function handler(args: SpendingByPayeeArgs): Promise<CallToolResult
       grandTotal: allPayees.reduce((sum, payee) => sum + payee.total, 0),
     });
 
-    return success(markdown);
+    return successWithJson(report);
   } catch (err) {
     return errorFromCatch(err);
   }

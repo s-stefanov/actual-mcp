@@ -4,14 +4,15 @@ import { toJSONSchema } from 'zod';
 import { CategoryTrendsInputParser } from './input-parser.js';
 import { CategoryTrendsDataFetcher } from './data-fetcher.js';
 import { CategoryTrendsAggregator } from './trend-aggregator.js';
-import { CategoryTrendsReportGenerator } from './report-generator.js';
-import { success, errorFromCatch } from '../../utils/response.js';
+import { CategoryTrendsReportBuilder } from './report-builder.js';
+import { successWithJson, errorFromCatch } from '../../utils/response.js';
 import { getDateRangeForMonths, getRecentMonths } from '../../utils.js';
 import { CategoryTrendsArgsSchema, type CategoryTrendsArgs, ToolInput } from '../../types.js';
 
 export const schema = {
   name: 'category-trends',
-  description: 'Show how spending in each category changes month over month, with trend direction',
+  description:
+    'Show how spending in each category changes month over month, with trend direction. Returns JSON; amounts are integer cents.',
   inputSchema: toJSONSchema(CategoryTrendsArgsSchema) as ToolInput,
 };
 
@@ -29,13 +30,13 @@ export async function handler(args: CategoryTrendsArgs): Promise<CallToolResult>
       categoryGroupName: input.categoryGroupName,
     });
 
-    const markdown = new CategoryTrendsReportGenerator().generate({
+    const report = new CategoryTrendsReportBuilder().build({
       months,
       rows,
       includeIncome: input.includeIncome,
     });
 
-    return success(markdown);
+    return successWithJson(report);
   } catch (err) {
     return errorFromCatch(err);
   }

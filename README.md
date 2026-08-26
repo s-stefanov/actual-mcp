@@ -34,6 +34,8 @@ The Actual Budget MCP Server allows you to interact with your personal financial
 - **`spending-by-payee`** - Rank payees by how much was spent with (or received from) each one
 - **`cash-flow`** - Report income, expenses, and net cash flow per month or week
 
+> The five tools above return JSON rather than markdown, so amounts stay machine-readable. Every amount is an integer number of cents, and each response carries an `amountsIn` field describing the sign conventions it uses.
+
 #### Categories
 
 - **`get-grouped-categories`** - Retrieve a list of all category groups with their categories

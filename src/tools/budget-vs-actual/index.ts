@@ -4,14 +4,15 @@ import { toJSONSchema } from 'zod';
 import { BudgetVsActualInputParser } from './input-parser.js';
 import { BudgetVsActualDataFetcher } from './data-fetcher.js';
 import { BudgetVsActualAggregator } from './budget-aggregator.js';
-import { BudgetVsActualReportGenerator } from './report-generator.js';
-import { success, errorFromCatch } from '../../utils/response.js';
+import { BudgetVsActualReportBuilder } from './report-builder.js';
+import { successWithJson, errorFromCatch } from '../../utils/response.js';
 import { getRecentMonths } from '../../utils.js';
 import { BudgetVsActualArgsSchema, type BudgetVsActualArgs, ToolInput } from '../../types.js';
 
 export const schema = {
   name: 'budget-vs-actual',
-  description: 'Compare budgeted amounts against actual spending per category, for recent months',
+  description:
+    'Compare budgeted amounts against actual spending per category, for recent months. Returns JSON; amounts are integer cents.',
   inputSchema: toJSONSchema(BudgetVsActualArgsSchema) as ToolInput,
 };
 
@@ -26,13 +27,13 @@ export async function handler(args: BudgetVsActualArgs): Promise<CallToolResult>
       categoryGroupName: input.categoryGroupName,
     });
 
-    const markdown = new BudgetVsActualReportGenerator().generate({
+    const report = new BudgetVsActualReportBuilder().build({
       months,
       categoryGroupName: input.categoryGroupName,
       missingMonths,
     });
 
-    return success(markdown);
+    return successWithJson(report);
   } catch (err) {
     return errorFromCatch(err);
   }
