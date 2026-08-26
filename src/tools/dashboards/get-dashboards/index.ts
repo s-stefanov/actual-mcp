@@ -7,7 +7,8 @@ import { getDashboardPages, getDashboardWidgets } from '../../../actual-api.js';
 
 export const schema = {
   name: 'get-dashboards',
-  description: 'Retrieve every dashboard page and the widgets laid out on it',
+  description:
+    'Retrieve every dashboard page and the widgets laid out on it. These are the dashboards under the Reports section of the sidebar.',
   inputSchema: {
     type: 'object',
     description: 'This tool does not accept any arguments.',

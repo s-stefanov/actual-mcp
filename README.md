@@ -29,12 +29,12 @@ The Actual Budget MCP Server allows you to interact with your personal financial
 - **`spending-by-category`** - Generate spending breakdowns categorized by type
 - **`monthly-summary`** - Get monthly income, expenses, and savings metrics
 
-#### Saved Reports & Dashboards
+#### Custom Reports & Dashboards
 
-- **`get-reports`** - Retrieve every saved custom report from the Reports page
-- **`create-report`** - Create a saved custom report
-- **`update-report`** - Update fields on a saved custom report, leaving the rest unchanged
-- **`delete-report`** - Delete a saved custom report
+- **`get-custom-reports`** - Retrieve every saved custom report from the Reports section
+- **`create-custom-report`** - Create a saved custom report
+- **`update-custom-report`** - Update fields on a saved custom report, leaving the rest unchanged
+- **`delete-custom-report`** - Delete a saved custom report
 - **`get-dashboards`** - Retrieve every dashboard page and the widgets laid out on it
 - **`add-dashboard-widget`** - Add a widget to a dashboard page
 - **`update-dashboard-widget`** - Update a widget's configuration, position, or size
@@ -258,7 +258,7 @@ Once connected, you can ask Claude questions like:
 - "How much did I spend on groceries in January?"
 - "What's my savings rate over the past 3 months?"
 - "Analyze my budget and suggest areas to improve"
-- "What saved reports do I have?"
+- "What custom reports do I have?"
 - "Add a net worth widget to my Spending Plan dashboard"
 - "Rearrange my dashboard so the cash flow card is full width at the top"
 

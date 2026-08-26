@@ -8,7 +8,7 @@ import { AddWidgetInputSchema } from '../input-schema.js';
 
 export const schema = {
   name: 'add-dashboard-widget',
-  description: 'Add a widget to a dashboard page',
+  description: 'Add a widget to a dashboard page in the Reports section',
   inputSchema: AddWidgetInputSchema,
 };
 

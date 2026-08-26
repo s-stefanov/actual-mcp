@@ -7,7 +7,7 @@ import { createDashboardPage } from '../../../actual-api.js';
 
 export const schema = {
   name: 'create-dashboard-page',
-  description: 'Create a new, empty dashboard page',
+  description: 'Create a new, empty dashboard page in the Reports section',
   inputSchema: {
     type: 'object',
     required: ['name'],

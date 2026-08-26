@@ -1,12 +1,12 @@
 // ----------------------------
-// DELETE REPORT TOOL
+// DELETE CUSTOM REPORT TOOL
 // ----------------------------
 
 import { successWithJson, errorFromCatch } from '../../../utils/response.js';
 import { deleteReport } from '../../../actual-api.js';
 
 export const schema = {
-  name: 'delete-report',
+  name: 'delete-custom-report',
   description: 'Delete a saved custom report',
   inputSchema: {
     type: 'object',

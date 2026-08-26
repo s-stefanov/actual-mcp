@@ -10,7 +10,8 @@ const LAYOUT_FIELDS = ['x', 'y', 'width', 'height'] as const;
 
 export const schema = {
   name: 'organize-dashboard',
-  description: 'Reposition and resize several dashboard widgets at once, to rearrange a page layout',
+  description:
+    'Reposition and resize several dashboard widgets at once, to rearrange a dashboard layout in the Reports section',
   inputSchema: OrganizeDashboardInputSchema,
 };
 

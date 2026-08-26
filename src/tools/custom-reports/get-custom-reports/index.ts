@@ -1,5 +1,5 @@
 // ----------------------------
-// GET REPORTS TOOL
+// GET CUSTOM REPORTS TOOL
 // ----------------------------
 
 import { successWithJson, errorFromCatch } from '../../../utils/response.js';
@@ -7,8 +7,8 @@ import { getReports } from '../../../actual-api.js';
 import { CustomReportEntity } from '@actual-app/core/types/models';
 
 export const schema = {
-  name: 'get-reports',
-  description: "Retrieve every saved custom report from the budget's Reports page",
+  name: 'get-custom-reports',
+  description: "Retrieve every saved custom report from the budget's Reports section",
   inputSchema: {
     type: 'object',
     description: 'This tool does not accept any arguments.',

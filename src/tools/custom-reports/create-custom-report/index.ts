@@ -1,5 +1,5 @@
 // ----------------------------
-// CREATE REPORT TOOL
+// CREATE CUSTOM REPORT TOOL
 // ----------------------------
 
 import { successWithJson, errorFromCatch } from '../../../utils/response.js';
@@ -8,8 +8,8 @@ import { CreateReportInputSchema } from '../input-schema.js';
 import { CustomReportEntity } from '@actual-app/core/types/models';
 
 export const schema = {
-  name: 'create-report',
-  description: 'Create a saved custom report on the Reports page',
+  name: 'create-custom-report',
+  description: 'Create a saved custom report, selectable as a widget in the Reports section',
   inputSchema: CreateReportInputSchema,
 };
 

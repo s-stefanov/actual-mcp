@@ -1,5 +1,5 @@
 // ----------------------------
-// UPDATE REPORT TOOL
+// UPDATE CUSTOM REPORT TOOL
 // ----------------------------
 
 import { successWithJson, errorFromCatch } from '../../../utils/response.js';
@@ -8,7 +8,7 @@ import { UpdateReportInputSchema } from '../input-schema.js';
 import { CustomReportEntity } from '@actual-app/core/types/models';
 
 export const schema = {
-  name: 'update-report',
+  name: 'update-custom-report',
   description: 'Update fields on a saved custom report, leaving unspecified fields unchanged',
   inputSchema: UpdateReportInputSchema,
 };

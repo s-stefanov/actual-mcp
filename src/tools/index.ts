@@ -8,10 +8,10 @@ import { initActualApi, shutdownActualApi } from '../actual-api.js';
 import { error, errorFromCatch } from '../utils/response.js';
 
 import * as balanceHistory from './balance-history/index.js';
-import * as getReports from './reports/get-reports/index.js';
-import * as createReport from './reports/create-report/index.js';
-import * as updateReport from './reports/update-report/index.js';
-import * as deleteReport from './reports/delete-report/index.js';
+import * as getCustomReports from './custom-reports/get-custom-reports/index.js';
+import * as createCustomReport from './custom-reports/create-custom-report/index.js';
+import * as updateCustomReport from './custom-reports/update-custom-report/index.js';
+import * as deleteCustomReport from './custom-reports/delete-custom-report/index.js';
 import * as getDashboards from './dashboards/get-dashboards/index.js';
 import * as addDashboardWidget from './dashboards/add-dashboard-widget/index.js';
 import * as updateDashboardWidget from './dashboards/update-dashboard-widget/index.js';
@@ -54,7 +54,7 @@ const readTools = [
   getGroupedCategories,
   getPayees,
   getRules,
-  getReports,
+  getCustomReports,
   getDashboards,
 ];
 
@@ -76,9 +76,9 @@ const writeTools = [
   createTransaction,
   importTransactions,
   runBankSync,
-  createReport,
-  updateReport,
-  deleteReport,
+  createCustomReport,
+  updateCustomReport,
+  deleteCustomReport,
   addDashboardWidget,
   updateDashboardWidget,
   removeDashboardWidget,
