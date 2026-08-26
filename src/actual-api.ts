@@ -2,7 +2,7 @@ import * as api from '@actual-app/api';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
-import { BudgetFile, TransactionData, UpdateTransactionData } from './types.js';
+import { BudgetFile, BudgetMonth, TransactionData, UpdateTransactionData } from './types.js';
 import { APIAccountEntity, APICategoryEntity, APICategoryGroupEntity, APIPayeeEntity } from '@actual-app/api/models';
 import { RuleEntity, TransactionEntity } from '@actual-app/core/types/models';
 import { ImportTransactionEntity } from '@actual-app/core/types/models/import-transaction';
@@ -169,6 +169,34 @@ export async function getPayees(): Promise<APIPayeeEntity[]> {
 export async function getTransactions(accountId: string, start: string, end: string): Promise<TransactionEntity[]> {
   await initActualApi();
   return api.getTransactions(accountId, start, end);
+}
+
+/**
+ * Get the list of months the budget has data for, as `YYYY-MM` strings
+ * (ensures API is initialized)
+ */
+export async function getBudgetMonths(): Promise<string[]> {
+  await initActualApi();
+  return api.getBudgetMonths();
+}
+
+/**
+ * Get budgeted/spent/balance figures for a single `YYYY-MM` month
+ * (ensures API is initialized)
+ */
+export async function getBudgetMonth(month: string): Promise<BudgetMonth> {
+  await initActualApi();
+  // Reason: the API types category groups as Record<string, unknown>; BudgetMonth names
+  // the fields it actually returns so callers do not re-cast at every use site.
+  return api.getBudgetMonth(month) as unknown as Promise<BudgetMonth>;
+}
+
+/**
+ * Get an account balance as of a cutoff date (ensures API is initialized)
+ */
+export async function getAccountBalance(id: string, cutoff: Date): Promise<number> {
+  await initActualApi();
+  return api.getAccountBalance(id, cutoff);
 }
 
 /**

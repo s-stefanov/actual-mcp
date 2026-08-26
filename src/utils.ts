@@ -50,3 +50,35 @@ export function getDateRangeForMonths(months: number): {
     end: end.toISOString().slice(0, 10),
   };
 }
+
+/**
+ * List the N most recent months as `YYYY-MM` strings, oldest first,
+ * ending with the current month.
+ */
+export function getRecentMonths(months: number): string[] {
+  const now = new Date();
+  const result: string[] = [];
+  for (let i = months - 1; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    result.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`);
+  }
+  return result;
+}
+
+/**
+ * Render a `YYYY-MM` month key as a short human label, e.g. `Jul 2026`.
+ */
+export function formatMonthLabel(month: string): string {
+  const [year, monthNumber] = month.split('-').map(Number);
+  if (!year || !monthNumber) return month;
+  const label = new Date(year, monthNumber - 1, 1).toLocaleString('default', { month: 'short' });
+  return `${label} ${year}`;
+}
+
+/**
+ * Last calendar day of a `YYYY-MM` month, as a Date.
+ */
+export function endOfMonth(month: string): Date {
+  const [year, monthNumber] = month.split('-').map(Number);
+  return new Date(year, monthNumber, 0);
+}
