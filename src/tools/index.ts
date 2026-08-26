@@ -8,6 +8,18 @@ import { initActualApi, shutdownActualApi } from '../actual-api.js';
 import { error, errorFromCatch } from '../utils/response.js';
 
 import * as balanceHistory from './balance-history/index.js';
+import * as getReports from './reports/get-reports/index.js';
+import * as createReport from './reports/create-report/index.js';
+import * as updateReport from './reports/update-report/index.js';
+import * as deleteReport from './reports/delete-report/index.js';
+import * as getDashboards from './dashboards/get-dashboards/index.js';
+import * as addDashboardWidget from './dashboards/add-dashboard-widget/index.js';
+import * as updateDashboardWidget from './dashboards/update-dashboard-widget/index.js';
+import * as removeDashboardWidget from './dashboards/remove-dashboard-widget/index.js';
+import * as organizeDashboard from './dashboards/organize-dashboard/index.js';
+import * as createDashboardPage from './dashboards/create-dashboard-page/index.js';
+import * as renameDashboardPage from './dashboards/rename-dashboard-page/index.js';
+import * as deleteDashboardPage from './dashboards/delete-dashboard-page/index.js';
 import * as createCategoryGroup from './categories/create-category-group/index.js';
 import * as createCategory from './categories/create-category/index.js';
 import * as deleteCategoryGroup from './categories/delete-category-group/index.js';
@@ -42,6 +54,8 @@ const readTools = [
   getGroupedCategories,
   getPayees,
   getRules,
+  getReports,
+  getDashboards,
 ];
 
 const writeTools = [
@@ -62,6 +76,16 @@ const writeTools = [
   createTransaction,
   importTransactions,
   runBankSync,
+  createReport,
+  updateReport,
+  deleteReport,
+  addDashboardWidget,
+  updateDashboardWidget,
+  removeDashboardWidget,
+  organizeDashboard,
+  createDashboardPage,
+  renameDashboardPage,
+  deleteDashboardPage,
 ];
 
 export const setupTools = (server: Server, enableWrite: boolean): void => {

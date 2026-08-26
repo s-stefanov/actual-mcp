@@ -4,7 +4,14 @@ import * as path from 'path';
 import * as os from 'os';
 import { BudgetFile, TransactionData, UpdateTransactionData } from './types.js';
 import { APIAccountEntity, APICategoryEntity, APICategoryGroupEntity, APIPayeeEntity } from '@actual-app/api/models';
-import { RuleEntity, TransactionEntity } from '@actual-app/core/types/models';
+import {
+  CustomReportEntity,
+  DashboardPageEntity,
+  DashboardWidgetEntity,
+  RuleEntity,
+  TransactionEntity,
+} from '@actual-app/core/types/models';
+import type { Handlers } from '@actual-app/core/types/handlers';
 import { ImportTransactionEntity } from '@actual-app/core/types/models/import-transaction';
 
 const DEFAULT_DATA_DIR: string = path.resolve(os.homedir() || '.', '.actual');
@@ -12,6 +19,16 @@ const DEFAULT_SYNC_TTL_MS = 60_000;
 
 // API initialization state
 let initialized = false;
+
+/**
+ * The handle `init` returns, which exposes `send` and `q`.
+ *
+ * Reason: reports and dashboards have no functions on the public `@actual-app/api`
+ * surface; they are only reachable as server handlers through `send`. The package
+ * deprecates its `internal` export in favour of this return value, so this is the
+ * supported way to get at them.
+ */
+let actualLib: Awaited<ReturnType<typeof api.init>> | null = null;
 let initializing = false;
 let initializationError: Error | null = null;
 let lastSyncAt = 0;
@@ -81,7 +98,7 @@ export async function initActualApi(): Promise<void> {
     const password = process.env.ACTUAL_PASSWORD;
     // Reason: InitConfig is a discriminated union in 26.x — NoServerConfig forbids serverURL/password
     const initConfig = serverURL ? { dataDir, serverURL, password: password ?? '' } : { dataDir };
-    await api.init(initConfig);
+    actualLib = await api.init(initConfig);
 
     const budgets: BudgetFile[] = await api.getBudgets();
     if (!budgets || budgets.length === 0) {
@@ -124,6 +141,7 @@ export async function shutdownActualApi(): Promise<void> {
   } finally {
     initialized = false;
     lastSyncAt = 0;
+    actualLib = null;
   }
 }
 
@@ -329,4 +347,131 @@ export async function runBankSync(accountId?: string): Promise<void> {
   await initActualApi();
   // API expects { accountId } object or undefined for all accounts
   return api.runBankSync(accountId ? { accountId } : undefined);
+}
+
+// ----------------------------
+// REPORTS & DASHBOARDS
+// ----------------------------
+
+/**
+ * Invoke an Actual server handler by name.
+ *
+ * @param name - Handler name, e.g. `report/create`
+ * @param args - Arguments for that handler
+ * @returns Whatever the handler resolves to
+ */
+async function send<K extends keyof Handlers>(name: K, args?: Parameters<Handlers[K]>[0]): Promise<unknown> {
+  await initActualApi();
+  if (!actualLib) {
+    throw new Error('Actual API is not initialized');
+  }
+  return actualLib.send(name, args);
+}
+
+/**
+ * Run an AQL query against the loaded budget.
+ *
+ * Reason: dashboards have no read handler, so widgets and pages are read with
+ * AQL, which also parses `meta` into an object and `tombstone` into a boolean.
+ */
+async function query<T>(tableName: string): Promise<T[]> {
+  await initActualApi();
+  if (!actualLib) {
+    throw new Error('Actual API is not initialized');
+  }
+  const result = (await api.aqlQuery(actualLib.q(tableName).select('*'))) as { data: T[] };
+  return result.data ?? [];
+}
+
+/**
+ * Get all saved custom reports (ensures API is initialized)
+ */
+export async function getReports(): Promise<CustomReportEntity[]> {
+  return (await send('report/get')) as CustomReportEntity[];
+}
+
+/**
+ * Create a saved custom report (ensures API is initialized)
+ */
+export async function createReport(report: CustomReportEntity): Promise<string> {
+  return (await send('report/create', report)) as string;
+}
+
+/**
+ * Update a saved custom report (ensures API is initialized)
+ */
+export async function updateReport(report: CustomReportEntity): Promise<void> {
+  await send('report/update', report);
+}
+
+/**
+ * Delete a saved custom report (ensures API is initialized)
+ */
+export async function deleteReport(id: string): Promise<void> {
+  await send('report/delete', id);
+}
+
+/**
+ * Get all dashboard pages (ensures API is initialized)
+ */
+export async function getDashboardPages(): Promise<DashboardPageEntity[]> {
+  const pages = await query<DashboardPageEntity>('dashboard_pages');
+  return pages.filter((page) => !page.tombstone);
+}
+
+/**
+ * Get all dashboard widgets across every page (ensures API is initialized)
+ */
+export async function getDashboardWidgets(): Promise<DashboardWidgetEntity[]> {
+  const widgets = await query<DashboardWidgetEntity>('dashboard');
+  return widgets.filter((widget) => !widget.tombstone);
+}
+
+/**
+ * Add a widget to a dashboard page (ensures API is initialized)
+ */
+export async function addDashboardWidget(widget: Record<string, unknown>): Promise<void> {
+  await send('dashboard-add-widget', widget as Parameters<Handlers['dashboard-add-widget']>[0]);
+}
+
+/**
+ * Update a single dashboard widget in place (ensures API is initialized)
+ */
+export async function updateDashboardWidget(widget: Record<string, unknown>): Promise<void> {
+  await send('dashboard-update-widget', widget as Parameters<Handlers['dashboard-update-widget']>[0]);
+}
+
+/**
+ * Remove a widget from its dashboard page (ensures API is initialized)
+ */
+export async function removeDashboardWidget(widgetId: string): Promise<void> {
+  await send('dashboard-remove-widget', widgetId);
+}
+
+/**
+ * Apply position and size updates to many widgets at once (ensures API is initialized)
+ */
+export async function updateDashboard(widgets: Array<Record<string, unknown>>): Promise<void> {
+  await send('dashboard-update', widgets as Parameters<Handlers['dashboard-update']>[0]);
+}
+
+/**
+ * Create a new dashboard page (ensures API is initialized)
+ */
+export async function createDashboardPage(name: string): Promise<string> {
+  return (await send('dashboard-create', { name })) as string;
+}
+
+/**
+ * Rename an existing dashboard page (ensures API is initialized)
+ */
+export async function renameDashboardPage(id: string, name: string): Promise<void> {
+  await send('dashboard-rename', { id, name });
+}
+
+/**
+ * Delete a dashboard page and the widgets on it (ensures API is initialized)
+ */
+export async function deleteDashboardPage(id: string): Promise<void> {
+  await send('dashboard-delete', id);
 }
