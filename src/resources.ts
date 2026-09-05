@@ -29,8 +29,10 @@ export const setupResources = (server: Server): void => {
         })),
       };
     } catch (error) {
+      // Reason: re-throwing a non-Error APIError object causes an unhandled rejection crash in Node ≥15.
+      // Return an empty list so the MCP server stays alive when the budget isn't loaded yet.
       console.error('Error listing resources:', error);
-      throw error;
+      return { resources: [] };
     } finally {
       await shutdownActualApi();
     }
