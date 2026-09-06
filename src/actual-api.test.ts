@@ -6,15 +6,20 @@ vi.mock('@actual-app/api', () => ({
   downloadBudget: vi.fn(),
   sync: vi.fn(),
   shutdown: vi.fn(),
+  getAccounts: vi.fn(),
+  getAccountBalance: vi.fn(),
 }));
 
 import * as api from '@actual-app/api';
-import { initActualApi, shutdownActualApi } from './actual-api.js';
+import { getAccounts, getAccountBalance, initActualApi, shutdownActualApi } from './actual-api.js';
+import { resetActualConnectionForTests } from './integrations/actual/connection.js';
 
 describe('initActualApi syncing', () => {
   beforeEach(async () => {
+    resetActualConnectionForTests();
     vi.clearAllMocks();
     vi.mocked(api.getBudgets).mockResolvedValue([{ id: 'budget-1', cloudFileId: 'cloud-1' }] as never);
+    vi.mocked(api.sync).mockResolvedValue(undefined as never);
     process.env.ACTUAL_SERVER_URL = 'https://example.invalid';
     process.env.ACTUAL_PASSWORD = 'secret';
     delete process.env.ACTUAL_SYNC_TTL_MS;
@@ -77,5 +82,39 @@ describe('initActualApi syncing', () => {
 
     vi.advanceTimersByTime(61_000);
     await expect(initActualApi()).resolves.toBeUndefined();
+  });
+});
+
+describe('actual-api wrappers delegate through the connection', () => {
+  beforeEach(() => {
+    resetActualConnectionForTests();
+    vi.clearAllMocks();
+    vi.mocked(api.getBudgets).mockResolvedValue([{ id: 'budget-1', cloudFileId: 'cloud-1' }] as never);
+    vi.mocked(api.sync).mockResolvedValue(undefined as never);
+    process.env.ACTUAL_SERVER_URL = 'https://example.invalid';
+    process.env.ACTUAL_PASSWORD = 'secret';
+    delete process.env.ACTUAL_SYNC_TTL_MS;
+  });
+
+  afterEach(() => resetActualConnectionForTests());
+
+  it('getAccounts ensures init then calls api.getAccounts once', async () => {
+    vi.mocked(api.getAccounts).mockResolvedValue([{ id: 'a1', name: 'Checking' }] as never);
+
+    const result = await getAccounts();
+
+    expect(api.init).toHaveBeenCalledTimes(1);
+    expect(api.getAccounts).toHaveBeenCalledTimes(1);
+    expect(result).toEqual([{ id: 'a1', name: 'Checking' }]);
+  });
+
+  it('getAccountBalance passes accountId and cutoff through to api', async () => {
+    vi.mocked(api.getAccountBalance).mockResolvedValue(12345 as never);
+    const cutoff = new Date('2099-01-01');
+
+    const balance = await getAccountBalance('a1', cutoff);
+
+    expect(api.getAccountBalance).toHaveBeenCalledWith('a1', cutoff);
+    expect(balance).toBe(12345);
   });
 });
