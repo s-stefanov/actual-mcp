@@ -188,13 +188,16 @@ describe('ActualConnection.drainAndClose', () => {
   it('awaits an in-flight operation before calling api.shutdown', async () => {
     const conn = getActualConnection();
     const gate = deferred<void>();
+    const opStarted = deferred<void>();
     let opFinished = false;
 
     const opPromise = conn.run(async () => {
+      opStarted.resolve();
       await gate.promise;
       opFinished = true;
     });
 
+    await opStarted.promise;
     const closePromise = conn.drainAndClose();
     // shutdown must not happen while the op is still running.
     await Promise.resolve();
@@ -205,6 +208,40 @@ describe('ActualConnection.drainAndClose', () => {
     await opPromise;
     await closePromise;
     expect(opFinished).toBe(true);
+    expect(api.shutdown).toHaveBeenCalledTimes(1);
+  });
+
+  it('waits for direct in-flight initialization before shutting down', async () => {
+    const initGate = deferred<void>();
+    vi.mocked(api.init).mockReturnValueOnce(initGate.promise as never);
+    const conn = getActualConnection();
+
+    const readyPromise = conn.ensureReady();
+    const closePromise = conn.drainAndClose();
+    await Promise.resolve();
+    expect(api.shutdown).not.toHaveBeenCalled();
+
+    initGate.resolve();
+    await readyPromise;
+    await closePromise;
+    expect(api.shutdown).toHaveBeenCalledTimes(1);
+  });
+
+  it('waits for direct in-flight synchronization before shutting down', async () => {
+    const conn = getActualConnection();
+    await conn.ensureReady();
+    const syncGate = deferred<void>();
+    process.env.ACTUAL_SYNC_TTL_MS = '0';
+    vi.mocked(api.sync).mockReturnValueOnce(syncGate.promise as never);
+
+    const syncPromise = conn.ensureReady();
+    const closePromise = conn.drainAndClose();
+    await Promise.resolve();
+    expect(api.shutdown).not.toHaveBeenCalled();
+
+    syncGate.resolve();
+    await syncPromise;
+    await closePromise;
     expect(api.shutdown).toHaveBeenCalledTimes(1);
   });
 
@@ -227,5 +264,22 @@ describe('ActualConnection.drainAndClose', () => {
     const conn = getActualConnection();
     await conn.drainAndClose();
     expect(api.shutdown).not.toHaveBeenCalled();
+  });
+
+  it('logs a shutdown failure and still reaches the closed state', async () => {
+    const conn = getActualConnection();
+    await conn.ensureReady();
+    const shutdownError = new Error('shutdown boom');
+    vi.mocked(api.shutdown).mockRejectedValueOnce(shutdownError as never);
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    try {
+      await expect(conn.drainAndClose()).resolves.toBeUndefined();
+      expect(consoleError).toHaveBeenCalledWith('Error shutting down Actual Budget API:', shutdownError);
+      expect((conn as unknown as { state: string }).state).toBe('closed');
+      await expect(conn.ensureReady()).rejects.toThrow(/closed/);
+    } finally {
+      consoleError.mockRestore();
+    }
   });
 });
