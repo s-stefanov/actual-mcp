@@ -5,25 +5,17 @@
 import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { toJSONSchema } from 'zod';
 import { successWithJson, errorFromCatch, error } from '../../utils/response.js';
-import { createTransaction, getPayees } from '../../actual-api.js';
+import { createTransaction } from '../../actual-api.js';
+import { resolveTransferPayee } from '../../core/data/resolve-transfer-payee.js';
 import { CreateTransactionArgsSchema, type CreateTransactionArgs, ToolInput } from '../../types.js';
 
 export const schema = {
   name: 'create-transaction',
   description:
-    'Create a new transaction. Use this to add transactions to accounts. Supports transfers between accounts by specifying transfer_account_id.',
+    'Create a new transaction. Use this to add transactions to accounts. Supports transfers between accounts by ' +
+    'specifying transfer_account_id, including transfers originating from a single subtransaction of a split.',
   inputSchema: toJSONSchema(CreateTransactionArgsSchema) as ToolInput,
 };
-
-/**
- * Resolve the transfer payee ID for a given destination account.
- * Each account in Actual has a corresponding payee with transfer_acct set.
- */
-async function resolveTransferPayee(destinationAccountId: string): Promise<string | null> {
-  const payees = await getPayees();
-  const transferPayee = payees.find((p) => p.transfer_acct === destinationAccountId);
-  return transferPayee?.id ?? null;
-}
 
 export async function handler(args: CreateTransactionArgs): Promise<CallToolResult> {
   try {
@@ -44,11 +36,32 @@ export async function handler(args: CreateTransactionArgs): Promise<CallToolResu
       transactionData.payee = transferPayeeId;
     }
 
+    // Reason: A subtransaction can itself be a transfer leg (e.g. a split where part of the
+    // amount is a purchase and part is a transfer to savings). Resolve each subtransaction's
+    // transfer_account_id into the corresponding transfer payee before sending to the API.
+    let hasSubtransactionTransfer = false;
+    if (transactionData.subtransactions) {
+      for (const sub of transactionData.subtransactions) {
+        if (sub.transfer_account_id) {
+          const subTransferPayeeId = await resolveTransferPayee(sub.transfer_account_id);
+          if (!subTransferPayeeId) {
+            return error(
+              `No transfer payee found for account ${sub.transfer_account_id}. Ensure the destination account exists.`
+            );
+          }
+          sub.payee = subTransferPayeeId;
+          hasSubtransactionTransfer = true;
+        }
+        delete sub.transfer_account_id;
+      }
+    }
+
     const id: string = await createTransaction(accountId, transactionData);
 
-    const message = transfer_account_id
-      ? `Successfully created transfer transaction ${id} (counterpart created in destination account)`
-      : `Successfully created transaction ${id}`;
+    const message =
+      transfer_account_id || hasSubtransactionTransfer
+        ? `Successfully created transfer transaction ${id} (counterpart created in destination account)`
+        : `Successfully created transaction ${id}`;
 
     return successWithJson(message);
   } catch (err) {
