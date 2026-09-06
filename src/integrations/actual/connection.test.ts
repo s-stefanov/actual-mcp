@@ -169,3 +169,63 @@ describe('ActualConnection.run', () => {
     await expect(conn.run(async () => 'ok')).resolves.toBe('ok');
   });
 });
+
+describe('ActualConnection.drainAndClose', () => {
+  beforeEach(() => {
+    resetActualConnectionForTests();
+    vi.clearAllMocks();
+    vi.mocked(api.init).mockResolvedValue(undefined as never);
+    vi.mocked(api.getBudgets).mockResolvedValue([{ id: 'budget-1', cloudFileId: 'cloud-1' }] as never);
+    vi.mocked(api.downloadBudget).mockResolvedValue(undefined as never);
+    vi.mocked(api.shutdown).mockResolvedValue(undefined as never);
+    process.env.ACTUAL_SERVER_URL = 'https://example.invalid';
+    process.env.ACTUAL_PASSWORD = 'secret';
+    delete process.env.ACTUAL_SYNC_TTL_MS;
+  });
+
+  afterEach(() => resetActualConnectionForTests());
+
+  it('awaits an in-flight operation before calling api.shutdown', async () => {
+    const conn = getActualConnection();
+    const gate = deferred<void>();
+    let opFinished = false;
+
+    const opPromise = conn.run(async () => {
+      await gate.promise;
+      opFinished = true;
+    });
+
+    const closePromise = conn.drainAndClose();
+    // shutdown must not happen while the op is still running.
+    await Promise.resolve();
+    expect(api.shutdown).not.toHaveBeenCalled();
+    expect(opFinished).toBe(false);
+
+    gate.resolve();
+    await opPromise;
+    await closePromise;
+    expect(opFinished).toBe(true);
+    expect(api.shutdown).toHaveBeenCalledTimes(1);
+  });
+
+  it('rejects operations submitted after close', async () => {
+    const conn = getActualConnection();
+    await conn.ensureReady();
+    await conn.drainAndClose();
+    await expect(conn.run(async () => 'nope')).rejects.toThrow(/closed/);
+    await expect(conn.ensureReady()).rejects.toThrow(/closed/);
+  });
+
+  it('is idempotent and shuts down exactly once', async () => {
+    const conn = getActualConnection();
+    await conn.ensureReady();
+    await Promise.all([conn.drainAndClose(), conn.drainAndClose()]);
+    expect(api.shutdown).toHaveBeenCalledTimes(1);
+  });
+
+  it('closes cleanly when never initialized (no api.shutdown)', async () => {
+    const conn = getActualConnection();
+    await conn.drainAndClose();
+    expect(api.shutdown).not.toHaveBeenCalled();
+  });
+});

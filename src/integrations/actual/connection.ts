@@ -15,6 +15,7 @@ export class ActualConnection {
   private inflightSync: Promise<void> | null = null;
   private lastSyncAt = 0;
   private queueTail: Promise<unknown> = Promise.resolve();
+  private closePromise: Promise<void> | null = null;
 
   private isClosingOrClosed(): boolean {
     return this.state === 'closing' || this.state === 'closed';
@@ -34,10 +35,6 @@ export class ActualConnection {
       throw new Error('ActualConnection is closed');
     }
     await this.ensureReady();
-    // Reason: with no intervening await, a concurrent close cannot enqueue after this check.
-    if (this.isClosingOrClosed()) {
-      throw new Error('ActualConnection is closed');
-    }
     const result = this.queueTail.then(() => operation());
     this.queueTail = result.then(
       () => undefined,
@@ -65,10 +62,14 @@ export class ActualConnection {
     this.state = 'initializing';
     this.inflightInit = this.doInit()
       .then(() => {
-        this.state = 'ready';
+        if (this.state === 'initializing') {
+          this.state = 'ready';
+        }
       })
       .catch((err: unknown) => {
-        this.state = 'failed';
+        if (this.state === 'initializing') {
+          this.state = 'failed';
+        }
         this.inflightInit = null;
         throw err;
       });
@@ -105,6 +106,34 @@ export class ActualConnection {
         this.inflightSync = null;
       });
     return this.inflightSync;
+  }
+
+  /**
+   * Stop accepting new operations, await all in-flight work (init, sync, and
+   * the operation queue), then shut down the underlying API. Idempotent.
+   */
+  async drainAndClose(): Promise<void> {
+    if (this.closePromise) return this.closePromise;
+    const wasInitialized = this.state === 'ready' || this.state === 'initializing';
+    this.state = 'closing';
+
+    this.closePromise = (async () => {
+      // Await in-flight init and sync first, then whatever operations are queued.
+      await Promise.allSettled([this.inflightInit ?? Promise.resolve(), this.inflightSync ?? Promise.resolve()]);
+      await this.queueTail.catch(() => undefined);
+
+      if (wasInitialized) {
+        try {
+          await api.shutdown();
+        } catch (err) {
+          console.error('Error shutting down Actual Budget API:', err);
+        }
+      }
+      this.state = 'closed';
+      this.lastSyncAt = 0;
+    })();
+
+    return this.closePromise;
   }
 
   /** Carried over verbatim from the previous initActualApi body. */
