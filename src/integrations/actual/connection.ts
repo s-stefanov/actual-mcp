@@ -14,6 +14,37 @@ export class ActualConnection {
   private inflightInit: Promise<void> | null = null;
   private inflightSync: Promise<void> | null = null;
   private lastSyncAt = 0;
+  private queueTail: Promise<unknown> = Promise.resolve();
+
+  private isClosingOrClosed(): boolean {
+    return this.state === 'closing' || this.state === 'closed';
+  }
+
+  /**
+   * Ensure readiness, then run an operation after all preceding operations.
+   *
+   * `operation` must call raw `api.*` functions. Calling an actual-api facade
+   * wrapper would re-enter this queue and wait for its own queued operation.
+   *
+   * @param operation - The raw Actual API operation to execute.
+   * @returns The operation result.
+   */
+  async run<T>(operation: () => Promise<T>): Promise<T> {
+    if (this.isClosingOrClosed()) {
+      throw new Error('ActualConnection is closed');
+    }
+    await this.ensureReady();
+    // Reason: with no intervening await, a concurrent close cannot enqueue after this check.
+    if (this.isClosingOrClosed()) {
+      throw new Error('ActualConnection is closed');
+    }
+    const result = this.queueTail.then(() => operation());
+    this.queueTail = result.then(
+      () => undefined,
+      () => undefined
+    );
+    return result;
+  }
 
   /**
    * Ensure the connection is initialized and (when already ready) not stale.

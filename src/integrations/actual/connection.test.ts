@@ -117,3 +117,55 @@ describe('ActualConnection sync-if-stale', () => {
     await expect(conn.ensureReady()).resolves.toBeUndefined();
   });
 });
+
+describe('ActualConnection.run', () => {
+  beforeEach(() => {
+    resetActualConnectionForTests();
+    vi.clearAllMocks();
+    vi.mocked(api.init).mockResolvedValue(undefined as never);
+    vi.mocked(api.getBudgets).mockResolvedValue([{ id: 'budget-1', cloudFileId: 'cloud-1' }] as never);
+    vi.mocked(api.downloadBudget).mockResolvedValue(undefined as never);
+    process.env.ACTUAL_SERVER_URL = 'https://example.invalid';
+    process.env.ACTUAL_PASSWORD = 'secret';
+    delete process.env.ACTUAL_SYNC_TTL_MS;
+  });
+
+  afterEach(() => resetActualConnectionForTests());
+
+  it('serializes operations: the second starts only after the first finishes', async () => {
+    const conn = getActualConnection();
+    const events: string[] = [];
+    const first = deferred<void>();
+    const firstStarted = deferred<void>();
+
+    const p1 = conn.run(async () => {
+      events.push('start-1');
+      firstStarted.resolve();
+      await first.promise;
+      events.push('end-1');
+    });
+    const p2 = conn.run(async () => {
+      events.push('start-2');
+    });
+
+    await firstStarted.promise;
+    expect(events).toEqual(['start-1']);
+
+    first.resolve();
+    await Promise.all([p1, p2]);
+    expect(events).toEqual(['start-1', 'end-1', 'start-2']);
+  });
+
+  it('initializes exactly once across overlapping operations', async () => {
+    const conn = getActualConnection();
+    await Promise.all([conn.run(async () => 'a'), conn.run(async () => 'b')]);
+    expect(api.init).toHaveBeenCalledTimes(1);
+  });
+
+  it('propagates operation results and errors without breaking the queue', async () => {
+    const conn = getActualConnection();
+    await expect(conn.run(async () => 42)).resolves.toBe(42);
+    await expect(conn.run(async () => Promise.reject(new Error('op boom')))).rejects.toThrow('op boom');
+    await expect(conn.run(async () => 'ok')).resolves.toBe('ok');
+  });
+});
