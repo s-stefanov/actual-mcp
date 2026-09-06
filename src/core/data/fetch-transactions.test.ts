@@ -117,6 +117,54 @@ describe('fetchTransactionsForAccount', () => {
     expect(fetchAllPayees).not.toHaveBeenCalled();
     expect(fetchAllCategories).not.toHaveBeenCalled();
   });
+
+  it('should enrich subtransactions of a split with their own payee and category names', async () => {
+    const mockTransactions = [
+      {
+        id: 'parent-1',
+        account: 'acc1',
+        date: '2023-01-01',
+        amount: -10000,
+        is_parent: true,
+        subtransactions: [
+          { id: 'child-1', account: 'acc1', date: '2023-01-01', amount: -6000, category: 'c1' },
+          { id: 'child-2', account: 'acc1', date: '2023-01-01', amount: -4000, payee: 'p1' },
+        ],
+      },
+    ];
+    vi.mocked(getTransactions).mockResolvedValue(mockTransactions);
+    vi.mocked(fetchAllPayees).mockResolvedValue([{ id: 'p1', name: 'Transfer: Savings' }]);
+    vi.mocked(fetchAllCategories).mockResolvedValue([{ id: 'c1', name: 'Groceries', group_id: 'g1' }]);
+
+    const result = await fetchTransactionsForAccount('acc1', '2023-01-01', '2023-01-31');
+
+    expect(result[0].subtransactions).toEqual([
+      { ...mockTransactions[0].subtransactions[0], category_name: 'Groceries' },
+      { ...mockTransactions[0].subtransactions[1], payee_name: 'Transfer: Savings' },
+    ]);
+    expect(fetchAllPayees).toHaveBeenCalledTimes(1);
+    expect(fetchAllCategories).toHaveBeenCalledTimes(1);
+  });
+
+  it('should not request lookups when only subtransactions lack payee/category (edge case: none set anywhere)', async () => {
+    const mockTransactions = [
+      {
+        id: 'parent-1',
+        account: 'acc1',
+        date: '2023-01-01',
+        amount: -10000,
+        is_parent: true,
+        subtransactions: [{ id: 'child-1', account: 'acc1', date: '2023-01-01', amount: -10000 }],
+      },
+    ];
+    vi.mocked(getTransactions).mockResolvedValue(mockTransactions);
+
+    const result = await fetchTransactionsForAccount('acc1', '2023-01-01', '2023-01-31');
+
+    expect(result).toEqual(mockTransactions);
+    expect(fetchAllPayees).not.toHaveBeenCalled();
+    expect(fetchAllCategories).not.toHaveBeenCalled();
+  });
 });
 
 describe('fetchAllOnBudgetTransactions', () => {

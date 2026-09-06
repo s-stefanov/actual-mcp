@@ -53,4 +53,58 @@ describe('GetTransactionsMapper', () => {
     expect(mapped.cleared).toBe(false);
     expect(mapped.transferId).toBe('');
   });
+
+  it('omits subtransactions when the transaction is not a split', () => {
+    const tx: Transaction = {
+      id: 'tx-5',
+      account: 'acc-1',
+      date: '2024-05-04',
+      amount: -1000,
+    };
+
+    const [mapped] = mapper.map([tx]);
+
+    expect(mapped.subtransactions).toBeUndefined();
+  });
+
+  it('maps each subtransaction of a split, exposing its own id, payee, and transfer', () => {
+    const tx: Transaction = {
+      id: 'tx-parent',
+      account: 'acc-1',
+      date: '2024-05-05',
+      amount: -10000,
+      is_parent: true,
+      subtransactions: [
+        {
+          id: 'tx-child-1',
+          account: 'acc-1',
+          date: '2024-05-05',
+          amount: -6000,
+          category_name: 'Groceries',
+          is_child: true,
+          parent_id: 'tx-parent',
+        },
+        {
+          id: 'tx-child-2',
+          account: 'acc-1',
+          date: '2024-05-05',
+          amount: -4000,
+          payee_name: 'Transfer: Savings',
+          transfer_id: 'tx-transfer-counterpart',
+          is_child: true,
+          parent_id: 'tx-parent',
+        },
+      ],
+    };
+
+    const [mapped] = mapper.map([tx]);
+
+    expect(mapped.subtransactions).toHaveLength(2);
+    expect(mapped.subtransactions?.[0]).toMatchObject({ id: 'tx-child-1', category: 'Groceries' });
+    expect(mapped.subtransactions?.[1]).toMatchObject({
+      id: 'tx-child-2',
+      payee: 'Transfer: Savings',
+      transferId: 'tx-transfer-counterpart',
+    });
+  });
 });

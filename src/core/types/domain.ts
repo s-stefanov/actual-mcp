@@ -21,6 +21,14 @@ export interface Transaction {
   notes?: string;
   transfer_id?: string;
   cleared?: boolean;
+  // Reason: Actual returns split transactions as a parent with a nested `subtransactions`
+  // array (one level deep) when queried with `splits: 'grouped'`, which is what the
+  // underlying getTransactions call uses. is_parent/is_child/parent_id mirror Actual's own
+  // TransactionEntity so callers can tell a split leg apart from a regular transaction.
+  is_parent?: boolean;
+  is_child?: boolean;
+  parent_id?: string;
+  subtransactions?: Transaction[];
 }
 
 export interface Category {
