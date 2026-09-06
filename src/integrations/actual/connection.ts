@@ -5,13 +5,14 @@ import * as os from 'os';
 import { BudgetFile } from '../../types.js';
 
 const DEFAULT_DATA_DIR: string = path.resolve(os.homedir() || '.', '.actual');
-const _DEFAULT_SYNC_TTL_MS = 60_000;
+const DEFAULT_SYNC_TTL_MS = 60_000;
 
 type ConnectionState = 'idle' | 'initializing' | 'ready' | 'closing' | 'closed' | 'failed';
 
 export class ActualConnection {
   private state: ConnectionState = 'idle';
   private inflightInit: Promise<void> | null = null;
+  private inflightSync: Promise<void> | null = null;
   private lastSyncAt = 0;
 
   /**
@@ -24,7 +25,7 @@ export class ActualConnection {
       throw new Error('ActualConnection is closed');
     }
     if (this.state === 'ready') {
-      return; // sync-if-stale added in Task 2
+      return this.syncIfStale();
     }
     if (this.state === 'initializing' && this.inflightInit) {
       return this.inflightInit;
@@ -41,6 +42,38 @@ export class ActualConnection {
         throw err;
       });
     return this.inflightInit;
+  }
+
+  private syncTtlMs(): number {
+    const raw = process.env.ACTUAL_SYNC_TTL_MS;
+    if (raw === undefined || raw === '') return DEFAULT_SYNC_TTL_MS;
+    const parsed = Number(raw);
+    return Number.isFinite(parsed) ? parsed : DEFAULT_SYNC_TTL_MS;
+  }
+
+  /**
+   * Pull remote changes into local data when the TTL has elapsed. Concurrent
+   * stale callers share one in-flight sync. A failed sync is logged, not thrown:
+   * answering from slightly stale data beats failing the call.
+   */
+  private syncIfStale(): Promise<void> {
+    const ttl = this.syncTtlMs();
+    if (ttl < 0) return Promise.resolve();
+    if (Date.now() - this.lastSyncAt < ttl) return Promise.resolve();
+    if (this.inflightSync) return this.inflightSync;
+
+    this.inflightSync = api
+      .sync()
+      .then(() => {
+        this.lastSyncAt = Date.now();
+      })
+      .catch((error: unknown) => {
+        console.error('Failed to sync with Actual server, continuing with local data:', error);
+      })
+      .finally(() => {
+        this.inflightSync = null;
+      });
+    return this.inflightSync;
   }
 
   /** Carried over verbatim from the previous initActualApi body. */

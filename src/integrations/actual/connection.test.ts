@@ -59,3 +59,61 @@ describe('ActualConnection.ensureReady', () => {
     expect(api.init).toHaveBeenCalledTimes(2);
   });
 });
+
+describe('ActualConnection sync-if-stale', () => {
+  beforeEach(() => {
+    resetActualConnectionForTests();
+    vi.clearAllMocks();
+    vi.useFakeTimers();
+    vi.mocked(api.init).mockResolvedValue(undefined as never);
+    vi.mocked(api.getBudgets).mockResolvedValue([{ id: 'budget-1', cloudFileId: 'cloud-1' }] as never);
+    vi.mocked(api.downloadBudget).mockResolvedValue(undefined as never);
+    vi.mocked(api.sync).mockResolvedValue(undefined as never);
+    process.env.ACTUAL_SERVER_URL = 'https://example.invalid';
+    process.env.ACTUAL_PASSWORD = 'secret';
+    delete process.env.ACTUAL_SYNC_TTL_MS;
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    resetActualConnectionForTests();
+  });
+
+  it('does not sync on the first call after init', async () => {
+    await getActualConnection().ensureReady();
+    expect(api.sync).not.toHaveBeenCalled();
+  });
+
+  it('concurrent stale reads share a single sync', async () => {
+    const pending = deferred<void>();
+    vi.mocked(api.sync).mockReturnValueOnce(pending.promise as never);
+    const conn = getActualConnection();
+
+    await conn.ensureReady(); // becomes ready, seeds lastSyncAt
+    vi.advanceTimersByTime(61_000); // now stale
+
+    const a = conn.ensureReady();
+    const b = conn.ensureReady();
+    pending.resolve();
+    await Promise.all([a, b]);
+
+    expect(api.sync).toHaveBeenCalledTimes(1);
+  });
+
+  it('never syncs when ACTUAL_SYNC_TTL_MS is negative', async () => {
+    process.env.ACTUAL_SYNC_TTL_MS = '-1';
+    const conn = getActualConnection();
+    await conn.ensureReady();
+    vi.advanceTimersByTime(600_000);
+    await conn.ensureReady();
+    expect(api.sync).not.toHaveBeenCalled();
+  });
+
+  it('keeps serving when a sync fails', async () => {
+    const conn = getActualConnection();
+    await conn.ensureReady();
+    vi.mocked(api.sync).mockRejectedValueOnce(new Error('server unreachable'));
+    vi.advanceTimersByTime(61_000);
+    await expect(conn.ensureReady()).resolves.toBeUndefined();
+  });
+});
