@@ -21,6 +21,7 @@ import { parseArgs } from 'node:util';
 import { isValidBearerToken } from './utils/bearer-auth.js';
 import { initActualApi, shutdownActualApi } from './actual-api.js';
 import { fetchAllAccounts } from './core/data/fetch-accounts.js';
+import { getActualConnection } from './integrations/actual/connection.js';
 import { createServer } from './server.js';
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 
@@ -312,16 +313,17 @@ async function main(): Promise<void> {
       }
     });
 
-    app.listen(resolvedPort, (error) => {
+    const httpServer = app.listen(resolvedPort, (error) => {
       if (error) {
         process.stderr.write(`Error: ${toErrorMessage(error)}\n`);
       } else {
         process.stderr.write(`Actual Budget MCP Server (HTTP) listening on port ${resolvedPort}\n`);
       }
     });
-    // SIGINT handler: close all active connections
-    process.on('SIGINT', () => {
-      process.stderr.write('SIGINT received, shutting down server\n');
+
+    const shutdown = async (signal: string): Promise<void> => {
+      process.stderr.write(`${signal} received, shutting down server\n`);
+      httpServer.close();
       for (const [, conn] of legacySseConnections) {
         conn.server.close();
       }
@@ -329,19 +331,33 @@ async function main(): Promise<void> {
         session.server.close();
         session.transport.close();
       }
+      try {
+        await getActualConnection().drainAndClose();
+      } catch (err) {
+        process.stderr.write(`Error during connection shutdown: ${toErrorMessage(err)}\n`);
+      }
       process.exit(0);
-    });
+    };
+    process.on('SIGINT', () => void shutdown('SIGINT'));
+    process.on('SIGTERM', () => void shutdown('SIGTERM'));
   } else {
     const server = createServer({ enableWrite: !!enableWrite });
     const transport = new StdioServerTransport();
     await server.connect(transport);
     console.error('Actual Budget MCP Server (stdio) started');
 
-    process.on('SIGINT', () => {
-      console.error('SIGINT received, shutting down server');
+    const shutdown = async (signal: string): Promise<void> => {
+      console.error(`${signal} received, shutting down server`);
       server.close();
+      try {
+        await getActualConnection().drainAndClose();
+      } catch (err) {
+        console.error('Error during connection shutdown:', err);
+      }
       process.exit(0);
-    });
+    };
+    process.on('SIGINT', () => void shutdown('SIGINT'));
+    process.on('SIGTERM', () => void shutdown('SIGTERM'));
   }
 }
 
