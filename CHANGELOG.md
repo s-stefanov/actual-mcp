@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+* Connection lifecycle: a single shared Actual connection now serializes all budget operations and shuts down gracefully on SIGINT/SIGTERM; the previous per-tool-call initialize/shutdown (which could let overlapping calls close each other's connection) is removed.
+
 ## [1.12.1](https://github.com/s-stefanov/actual-mcp/compare/v1.12.0...v1.12.1) (2026-08-11)
 
 
