@@ -1,5 +1,6 @@
 {
   "name": "actual-mcp",
+  "mcpName": "io.github.s-stefanov/actual-mcp",
   "version": "1.12.1",
   "description": "Actual Budget MCP server exposing API functionality",
   "private": false,
@@ -12,7 +13,8 @@
   "files": [
     "build",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "server.json"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json && node -e \"require('fs').chmodSync('build/index.js', '755')\"",

@@ -1,0 +1,62 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.s-stefanov/actual-mcp",
+  "title": "Actual Budget MCP Server",
+  "description": "MCP server exposing Actual Budget accounts, transactions, budgets and reporting to LLM assistants.",
+  "version": "1.12.1",
+  "websiteUrl": "https://github.com/s-stefanov/actual-mcp",
+  "repository": {
+    "url": "https://github.com/s-stefanov/actual-mcp",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "actual-mcp",
+      "version": "1.12.1",
+      "runtimeHint": "npx",
+      "transport": { "type": "stdio" },
+      "environmentVariables": [
+        { "name": "ACTUAL_SERVER_URL", "description": "URL of your Actual Budget server", "isRequired": true },
+        { "name": "ACTUAL_PASSWORD", "description": "Actual Budget server password", "isRequired": true, "isSecret": true },
+        { "name": "ACTUAL_BUDGET_SYNC_ID", "description": "Budget sync ID", "isRequired": true },
+        { "name": "ACTUAL_DATA_DIR", "description": "Local dir for cached budget data" },
+        { "name": "ACTUAL_BUDGET_ENCRYPTION_PASSWORD", "description": "E2E encryption password, if enabled", "isSecret": true },
+        { "name": "ACTUAL_SYNC_TTL_MS", "description": "Sync cache TTL in ms", "default": "60000" }
+      ]
+    },
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "actual-mcp",
+      "version": "1.12.1",
+      "runtimeHint": "npx",
+      "transport": { "type": "streamable-http", "url": "http://localhost:3000/mcp" },
+      "packageArguments": [
+        { "type": "named", "name": "--sse" },
+        { "type": "named", "name": "--port", "value": "3000" }
+      ],
+      "environmentVariables": [
+        { "name": "ACTUAL_SERVER_URL", "description": "URL of your Actual Budget server", "isRequired": true },
+        { "name": "ACTUAL_PASSWORD", "description": "Actual Budget server password", "isRequired": true, "isSecret": true },
+        { "name": "ACTUAL_BUDGET_SYNC_ID", "description": "Budget sync ID", "isRequired": true },
+        { "name": "ACTUAL_DATA_DIR", "description": "Local dir for cached budget data" },
+        { "name": "ACTUAL_BUDGET_ENCRYPTION_PASSWORD", "description": "E2E encryption password, if enabled", "isSecret": true },
+        { "name": "ACTUAL_SYNC_TTL_MS", "description": "Sync cache TTL in ms", "default": "60000" }
+      ]
+    },
+    {
+      "registryType": "oci",
+      "identifier": "docker.io/s-stefanov/actual-mcp",
+      "version": "1.12.1",
+      "runtimeHint": "docker",
+      "transport": { "type": "stdio" },
+      "environmentVariables": [
+        { "name": "ACTUAL_SERVER_URL", "description": "URL of your Actual Budget server", "isRequired": true },
+        { "name": "ACTUAL_PASSWORD", "description": "Actual Budget server password", "isRequired": true, "isSecret": true },
+        { "name": "ACTUAL_BUDGET_SYNC_ID", "description": "Budget sync ID", "isRequired": true }
+      ]
+    }
+  ]
+}
