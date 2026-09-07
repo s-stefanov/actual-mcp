@@ -5,7 +5,7 @@ These downstream directories reward an explicitly **claimed** listing; do each
 once after the first successful registry publish.
 
 - [ ] **Official MCP Registry** — automated on release. Confirm the entry at
-  https://registry.modelcontextprotocol.io shows all three packages.
+  https://registry.modelcontextprotocol.io shows both npm packages (stdio + streamable-http).
 - [ ] **Glama** (https://glama.ai/mcp) — claim ownership to move out of the
   crawled tier; verify the imported description/links.
 - [ ] **PulseMCP** — claim the entry to separate verified owner info from

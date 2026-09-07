@@ -1,5 +1,5 @@
 import { readFileSync, writeFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 /**
  * Returns a copy of `serverJson` with the top-level `version` and every
@@ -9,10 +9,7 @@ import { fileURLToPath } from 'node:url';
  * @param version - The version to stamp everywhere (from package.json).
  * @returns A new server.json object with synced versions.
  */
-export function syncServerJsonVersion(
-  serverJson: Record<string, unknown>,
-  version: string,
-): Record<string, unknown> {
+export function syncServerJsonVersion(serverJson: Record<string, unknown>, version: string): Record<string, unknown> {
   const packages = serverJson.packages;
   if (!Array.isArray(packages)) {
     throw new Error('server.json is missing a "packages" array');
@@ -35,6 +32,6 @@ function main(): void {
   console.log(`server.json version synced to ${pkg.version}`);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   main();
 }

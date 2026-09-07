@@ -304,8 +304,8 @@ as `io.github.s-stefanov/actual-mcp`. Registry metadata lives in
 (see `.github/workflows/release-please.yml`).
 
 It advertises two transports on the npm package — `stdio` (default) and
-`streamable-http` (via the `--sse` flag) — plus a Docker/OCI image
-(`docker.io/s-stefanov/actual-mcp`).
+`streamable-http` (via the `--sse` flag). (A Docker image is also published,
+but is not yet listed as a registry package.)
 
 Post-release directory listings are tracked in
 [`docs/mcp-registry-checklist.md`](./docs/mcp-registry-checklist.md).

@@ -105,33 +105,6 @@
           "default": "60000"
         }
       ]
-    },
-    {
-      "registryType": "oci",
-      "identifier": "docker.io/s-stefanov/actual-mcp",
-      "version": "1.12.1",
-      "runtimeHint": "docker",
-      "transport": {
-        "type": "stdio"
-      },
-      "environmentVariables": [
-        {
-          "name": "ACTUAL_SERVER_URL",
-          "description": "URL of your Actual Budget server",
-          "isRequired": true
-        },
-        {
-          "name": "ACTUAL_PASSWORD",
-          "description": "Actual Budget server password",
-          "isRequired": true,
-          "isSecret": true
-        },
-        {
-          "name": "ACTUAL_BUDGET_SYNC_ID",
-          "description": "Budget sync ID",
-          "isRequired": true
-        }
-      ]
     }
   ]
 }
