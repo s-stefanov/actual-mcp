@@ -1,0 +1,20 @@
+{
+  // Reason: the root tsconfig scopes rootDir to ./src, so e2e/**/*.ts falls
+  // outside it. This project is picked up automatically by both `tsc -p` and
+  // typescript-eslint's projectService (which discovers nested tsconfig.json
+  // files), so e2e files get real type-checking and linting instead of being
+  // silently skipped.
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "../build-e2e",
+    "noEmit": true,
+    // declaration/declarationDir must stay set (even though noEmit makes them
+    // moot) because TS errors (TS5069) if declarationDir is inherited from
+    // the base config without an accompanying `declaration`/`composite` flag.
+    "declaration": true,
+    "declarationDir": "../build-e2e"
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["../node_modules"]
+}
