@@ -3,7 +3,7 @@ name: PR Validation
 on:
   pull_request:
     branches: [main]
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened, labeled]
 
 permissions:
   contents: read # Read repository contents
@@ -108,3 +108,20 @@ jobs:
 
       - name: Run quality checks
         run: npm run quality
+
+  e2e-test:
+    name: E2E Validation Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: >
+      startsWith(github.head_ref, 'release-please--') ||
+      contains(github.event.pull_request.labels.*.name, 'run-e2e')
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build
+      - run: npm run test:e2e
