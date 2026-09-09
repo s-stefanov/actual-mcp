@@ -14,6 +14,7 @@ export interface Transaction {
   account: string;
   date: string;
   amount: number;
+  is_parent?: boolean;
   payee?: string | null;
   payee_name?: string;
   category?: string;
