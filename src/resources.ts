@@ -93,7 +93,9 @@ export const setupResources = (server: Server): void => {
           };
         }
 
-        const balance: number = await api.getAccountBalance(accountId, new Date('2099-01-01'));
+        // No cutoff: `api/account-balance` defaults to now. A future cutoff would
+        // fold scheduled/uncleared future transactions into the current balance.
+        const balance: number = await api.getAccountBalance(accountId);
         const formattedBalance: string = formatAmount(balance);
 
         const details = `# Account: ${account.name}

@@ -24,7 +24,9 @@ export async function handler(): Promise<ReturnType<typeof successWithJson> | Re
     const accounts: Account[] = await fetchAllAccounts();
 
     for (const account of accounts) {
-      account.balance = await getAccountBalance(account.id, new Date('2099-01-01'));
+      // No cutoff: `api/account-balance` defaults to now. A future cutoff would
+      // fold scheduled/uncleared future transactions into the current balance.
+      account.balance = await getAccountBalance(account.id);
     }
 
     const structured = accounts.map((account) => ({
