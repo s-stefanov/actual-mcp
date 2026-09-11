@@ -8,7 +8,7 @@ import api from '@actual-app/api';
 
 // Import types from types.ts
 import { Account, Transaction } from './types.js';
-import { formatAmount, formatDate, getDateRange } from './utils.js';
+import { formatAmount, formatDisplayDate, getDateRange } from './utils.js';
 import { initActualApi, shutdownActualApi } from './actual-api.js';
 import { fetchAllAccounts } from './core/data/fetch-accounts.js';
 
@@ -93,7 +93,9 @@ export const setupResources = (server: Server): void => {
           };
         }
 
-        const balance: number = await api.getAccountBalance(accountId, new Date('2099-01-01'));
+        // No cutoff: `api/account-balance` defaults to now. A future cutoff would
+        // fold scheduled/uncleared future transactions into the current balance.
+        const balance: number = await api.getAccountBalance(accountId);
         const formattedBalance: string = formatAmount(balance);
 
         const details = `# Account: ${account.name}
@@ -140,7 +142,7 @@ To view transactions for this account, use the get-transactions tool.`;
         const rows: string = transactions
           .map((t) => {
             const amount: string = formatAmount(t.amount);
-            const date: string = formatDate(t.date);
+            const date: string = formatDisplayDate(t.date);
             const payee: string = t.payee_name || '(No payee)';
             const category: string = t.category_name || '(Uncategorized)';
             const notes: string = t.notes || '';

@@ -2,6 +2,7 @@ import * as api from '@actual-app/api';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
+import { setFormatConfig } from './format-config.js';
 import { BudgetFile, TransactionData, UpdateTransactionData } from './types.js';
 import { APIAccountEntity, APICategoryEntity, APICategoryGroupEntity, APIPayeeEntity } from '@actual-app/api/models';
 import { RuleEntity, TransactionEntity } from '@actual-app/core/types/models';
@@ -102,6 +103,18 @@ export async function initActualApi(): Promise<void> {
 
     initialized = true;
     lastSyncAt = Date.now();
+
+    // Load the budget's synced formatting preferences (currency, number format,
+    // symbol placement, date format) so display helpers honour them.
+    try {
+      const prefs = await api.getPreferences();
+      setFormatConfig(prefs as Record<string, unknown>);
+      console.error('Applied budget format prefs:', JSON.stringify(prefs));
+    } catch (error) {
+      // Non-fatal: fall back to the built-in defaults rather than refusing to run.
+      console.error('Could not load budget preferences, using defaults:', error);
+    }
+
     console.error('Actual Budget API initialized successfully');
   } catch (error) {
     console.error('Failed to initialize Actual Budget API:', error);

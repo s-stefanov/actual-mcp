@@ -1,5 +1,6 @@
 import { MonthlySummaryReportData } from './types.js';
 import { formatAmount } from '../../utils.js';
+import { getFormatConfig } from '../../format-config.js';
 import type { MonthData } from '../../types.js';
 
 export class MonthlySummaryReportGenerator {
@@ -34,7 +35,10 @@ export class MonthlySummaryReportGenerator {
     markdown += `| ----- | ------ | ---------------- | ----------- | ------------------- | ------------- | ------------------ |\n`;
 
     sortedMonths.forEach((month: MonthData) => {
-      const monthName: string = new Date(month.year, month.month - 1, 1).toLocaleString('default', { month: 'long' });
+      const monthName: string = new Date(month.year, month.month - 1, 1).toLocaleString(getFormatConfig().locale, {
+        month: 'long',
+        timeZone: 'UTC',
+      });
       const income: string = formatAmount(month.income);
       const expenses: string = formatAmount(month.expenses);
       const investments: string = formatAmount(month.investments);

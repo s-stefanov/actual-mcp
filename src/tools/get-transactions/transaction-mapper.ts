@@ -1,5 +1,5 @@
 // Maps and formats transaction data for get-transactions tool
-import { formatAmount, formatDate } from '../../utils.js';
+import { formatAmount, formatDisplayDate } from '../../utils.js';
 import type { Transaction } from '../../types.js';
 
 export class GetTransactionsMapper {
@@ -15,7 +15,7 @@ export class GetTransactionsMapper {
   }> {
     return transactions.map((t) => ({
       id: t.id,
-      date: formatDate(t.date),
+      date: formatDisplayDate(t.date),
       payee: t.payee_name || t.payee || '(No payee)',
       category: t.category_name || t.category || '(Uncategorized)',
       amount: formatAmount(t.amount),
