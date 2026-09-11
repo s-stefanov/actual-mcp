@@ -1,5 +1,6 @@
 // Generates the markdown report for balance-history tool
 import { formatAmount } from '../../utils.js';
+import { getFormatConfig } from '../../format-config.js';
 import type { Account } from '../../types.js';
 import type { MonthBalance } from './balance-calculator.js';
 
@@ -24,7 +25,10 @@ export class BalanceHistoryReportGenerator {
 
     sortedMonths.forEach((month) => {
       const accountName = month.account;
-      const monthName: string = new Date(month.year, month.month - 1, 1).toLocaleString('default', { month: 'long' });
+      const monthName: string = new Date(month.year, month.month - 1, 1).toLocaleString(getFormatConfig().locale, {
+        month: 'long',
+        timeZone: 'UTC',
+      });
       const balance: string = formatAmount(month.balance);
 
       let change = '';
