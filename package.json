@@ -1,7 +1,7 @@
 {
   "name": "actual-mcp",
   "mcpName": "io.github.s-stefanov/actual-mcp",
-  "version": "1.13.0",
+  "version": "1.13.1",
   "description": "Actual Budget MCP server exposing API functionality",
   "private": false,
   "main": "build/index.js",
