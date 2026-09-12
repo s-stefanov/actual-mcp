@@ -13,14 +13,16 @@ export function getDateRange(startDate?: string, endDate?: string): { startDate:
 }
 
 /**
- * Format a date as YYYY-MM-DD
+ * Format a local calendar date as YYYY-MM-DD
  */
 export function formatDate(date: Date | string | undefined | null): string {
   if (!date) return '';
   if (typeof date === 'string') return date;
 
   const d = new Date(date);
-  return d.toISOString().split('T')[0];
+  if (Number.isNaN(d.getTime())) throw new RangeError('Invalid time value');
+  // # Reason: UTC serialization can move local calendar boundaries into an adjacent day or month.
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
 /**
@@ -46,8 +48,8 @@ export function getDateRangeForMonths(months: number): {
   const end = new Date(now.getFullYear(), now.getMonth() + 1, 0); // last day of current month
   const start = new Date(end.getFullYear(), end.getMonth() - months + 1, 1); // first day of N months ago
   return {
-    start: start.toISOString().slice(0, 10),
-    end: end.toISOString().slice(0, 10),
+    start: formatDate(start),
+    end: formatDate(end),
   };
 }
 

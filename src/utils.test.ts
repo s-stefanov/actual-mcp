@@ -1,5 +1,14 @@
 import { describe, it, expect, afterEach, vi } from 'vitest';
-import { getRecentMonths, formatMonthLabel, endOfMonth, formatAmount, getDateRangeForMonths } from './utils.js';
+import {
+  getRecentMonths,
+  formatMonthLabel,
+  endOfMonth,
+  formatAmount,
+  formatDate,
+  getDateRangeForMonths,
+} from './utils.js';
+import { MonthlySummaryTransactionAggregator } from './tools/monthly-summary/transaction-aggregator.js';
+import { MonthlySummaryCalculator } from './tools/monthly-summary/summary-calculator.js';
 
 afterEach(() => {
   vi.useRealTimers();
@@ -79,10 +88,40 @@ describe('endOfMonth', () => {
 });
 
 describe('getDateRangeForMonths', () => {
+  it('preserves calendar months through aggregation in the local timezone', () => {
+    freeze('2026-09-12T12:00:00');
+    const { start, end } = getDateRangeForMonths(3);
+    const rows = new MonthlySummaryTransactionAggregator().aggregate(
+      [{ id: 'salary', account: 'checking', date: '2026-09-30', amount: 9_000, category: 'salary' }],
+      new Set(['salary']),
+      start,
+      end
+    );
+
+    expect(rows).toEqual([
+      { year: 2026, month: 7, income: 0, expenses: 0, transactions: 0 },
+      { year: 2026, month: 8, income: 0, expenses: 0, transactions: 0 },
+      { year: 2026, month: 9, income: 9_000, expenses: 0, transactions: 1 },
+    ]);
+    expect({ start, end }).toEqual({ start: '2026-07-01', end: '2026-09-30' });
+    expect(new MonthlySummaryCalculator().calculateAverages(rows).avgIncome).toBe(3_000);
+  });
+
   it('spans from the first day N months back to the last day of this month', () => {
     freeze('2026-08-15T12:00:00');
 
     expect(getDateRangeForMonths(3)).toEqual({ start: '2026-06-01', end: '2026-08-31' });
+  });
+});
+
+describe('formatDate', () => {
+  it('preserves local calendar dates at midnight and late evening', () => {
+    expect(formatDate(new Date(2026, 8, 1))).toBe('2026-09-01');
+    expect(formatDate(new Date(2026, 8, 30, 23, 59))).toBe('2026-09-30');
+  });
+
+  it('still rejects invalid Date objects', () => {
+    expect(() => formatDate(new Date(NaN))).toThrow(RangeError);
   });
 });
 
