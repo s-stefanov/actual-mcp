@@ -1,4 +1,11 @@
-import { createAccount, createCategoryGroup, createCategory, createPayee, addTransactions } from '@actual-app/api';
+import {
+  createAccount,
+  createCategoryGroup,
+  createCategory,
+  createPayee,
+  addTransactions,
+  getCategoryGroups,
+} from '@actual-app/api';
 
 /**
  * Plain typed seed helpers (no builder DSL, spec §5). Each wraps the same
@@ -16,10 +23,17 @@ export async function seedCategoryGroup(
   cats: string[],
   opts?: { isIncome?: boolean }
 ): Promise<{ groupId: string; catIds: Record<string, string> }> {
-  const groupId = await createCategoryGroup({
-    name,
-    is_income: opts?.isIncome ?? false,
-  });
+  // Reason: create-budget's default template ships an "Income" group that
+  // survives start-import's cleanup (only is_income=0 rows get purged), so
+  // insertCategoryGroup's case-insensitive uniqueness check rejects a second
+  // one. Reuse whatever group already has this name instead of colliding.
+  const existing = (await getCategoryGroups()).find((g) => g.name.toUpperCase() === name.toUpperCase());
+  const groupId = existing
+    ? existing.id
+    : await createCategoryGroup({
+        name,
+        is_income: opts?.isIncome ?? false,
+      });
 
   const catIds: Record<string, string> = {};
   for (const cat of cats) {

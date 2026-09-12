@@ -40,7 +40,10 @@ describe.skipIf(!ctx.syncId)('imports + reports (e2e)', () => {
       endDate: '2025-03-31',
     });
     expect(read.isError).toBe(false);
-    expect(read.text).toContain(token);
+    // Reason: Actual title-cases newly-learned payee names on import (see
+    // @actual-app/api's "title-case" normalization), which re-cases letters
+    // after each hyphen in the UUID — compare case-insensitively.
+    expect(read.text.toLowerCase()).toContain(token.toLowerCase());
   });
 
   it('import-transactions with a missing accountId returns isError (failure path)', async () => {

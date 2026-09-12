@@ -80,13 +80,17 @@ export default async function setup(ctx: TestProject): Promise<() => Promise<voi
     await lib.send('sync-reset' as never);
     await api.sync();
 
-    // Read the cloudFileId back by budget name (spec §10 / open item 3).
-    const budgets = (await api.getBudgets()) as Array<{ name?: string; cloudFileId?: string; id?: string }>;
-    const ours = budgets.find((b) => b.name === BUDGET_NAME);
-    const syncId = ours?.cloudFileId;
+    // Read the groupId back by budget name (spec §10 / open item 3). This is
+    // the "sync id" downloadBudget matches on (api/download-budget looks up
+    // `f.groupId === syncId`), not cloudFileId. getBudgets can return both a
+    // local-only entry and the synced/remote entry under the same name; only
+    // the remote one carries a groupId.
+    const budgets = (await api.getBudgets()) as Array<{ name?: string; groupId?: string; id?: string }>;
+    const ours = budgets.find((b) => b.name === BUDGET_NAME && b.groupId);
+    const syncId = ours?.groupId;
     if (!syncId) {
       throw new Error(
-        `Could not resolve cloudFileId for "${BUDGET_NAME}". getBudgets returned: ${JSON.stringify(budgets)}`
+        `Could not resolve groupId for "${BUDGET_NAME}". getBudgets returned: ${JSON.stringify(budgets)}`
       );
     }
 
