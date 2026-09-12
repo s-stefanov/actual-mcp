@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.13.1](https://github.com/s-stefanov/actual-mcp/compare/v1.13.0...v1.13.1) (2026-09-12)
+
+
+### Bug Fixes
+
+* keep release-please tags as v&lt;version&gt; ([#231](https://github.com/s-stefanov/actual-mcp/issues/231)) ([42e66ca](https://github.com/s-stefanov/actual-mcp/commit/42e66ca57c1ebee75a3805ff4e1a0bfb0f26c890))
+* remove duplicate npm ci --omit=dev layer in release image ([#233](https://github.com/s-stefanov/actual-mcp/issues/233)) ([92335cd](https://github.com/s-stefanov/actual-mcp/commit/92335cd746213fc4bb70fadfb66601dd13a13d23))
+
 ## [1.13.0](https://github.com/s-stefanov/actual-mcp/compare/v1.12.1...v1.13.0) (2026-09-12)
 
 
