@@ -110,7 +110,7 @@ describe('actual-api wrappers delegate through the connection', () => {
 
   it('getAccountBalance passes accountId and cutoff through to api', async () => {
     vi.mocked(api.getAccountBalance).mockResolvedValue(12345 as never);
-    const cutoff = new Date('2099-01-01');
+    const cutoff = new Date('2026-02-28');
 
     const balance = await getAccountBalance('a1', cutoff);
 
