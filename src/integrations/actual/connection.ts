@@ -23,6 +23,16 @@ export class ActualConnection {
     return this.state === 'closing' || this.state === 'closed';
   }
 
+  /** Add work to the shared lifecycle queue without letting a failure block later work. */
+  private enqueue<T>(operation: () => Promise<T>): Promise<T> {
+    const result = this.queueTail.then(operation);
+    this.queueTail = result.then(
+      () => undefined,
+      () => undefined
+    );
+    return result;
+  }
+
   /**
    * Ensure readiness, then run an operation after all preceding operations.
    *
@@ -32,17 +42,15 @@ export class ActualConnection {
    * @param operation - The raw Actual API operation to execute.
    * @returns The operation result.
    */
-  async run<T>(operation: (actualLib: ActualApi) => Promise<T>): Promise<T> {
+  run<T>(operation: (actualLib: ActualApi) => Promise<T>): Promise<T> {
     if (this.isClosingOrClosed()) {
-      throw new Error('ActualConnection is closed');
+      return Promise.reject(new Error('ActualConnection is closed'));
     }
-    await this.ensureReady();
-    const result = this.queueTail.then(() => operation(this.actualLib as ActualApi));
-    this.queueTail = result.then(
-      () => undefined,
-      () => undefined
-    );
-    return result;
+    const ready = this.ensureReady();
+    return this.enqueue(async () => {
+      await ready;
+      return operation(this.actualLib as ActualApi);
+    });
   }
 
   /**
@@ -62,7 +70,7 @@ export class ActualConnection {
     }
     // idle or failed → start a fresh attempt
     this.state = 'initializing';
-    this.inflightInit = this.doInit()
+    this.inflightInit = this.enqueue(() => this.doInit())
       .then(() => {
         if (this.state === 'initializing') {
           this.state = 'ready';
@@ -96,8 +104,7 @@ export class ActualConnection {
     if (Date.now() - this.lastSyncAt < ttl) return Promise.resolve();
     if (this.inflightSync) return this.inflightSync;
 
-    this.inflightSync = api
-      .sync()
+    this.inflightSync = this.enqueue(() => api.sync())
       .then(() => {
         this.lastSyncAt = Date.now();
       })
