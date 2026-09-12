@@ -1,16 +1,5 @@
 # Changelog
 
-## [Unreleased]
-
-### Changed
-
-* Balance reports now cap balances and histories as of today, exclude future-dated transactions, and mark current-month history as partial.
-* Balance history now applies its documented `accountId`, `includeOffBudget`, and `months` parameters coherently.
-* Monthly income now follows Actual category-group income metadata.
-* Signed refunds now net against expenses; uncategorized transfer pairs are skipped.
-* Closed accounts remain in historical reports, and zero-activity months count in averages.
-* The Investments bucket has been removed from monthly summaries.
-
 ## [1.13.0](https://github.com/s-stefanov/actual-mcp/compare/v1.12.1...v1.13.0) (2026-09-12)
 
 
