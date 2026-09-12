@@ -18,7 +18,6 @@ jobs:
         id: release
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          release-type: node
       - uses: actions/checkout@v7
         if: ${{ steps.release.outputs.release_created }}
       - uses: actions/setup-node@v7
@@ -28,9 +27,6 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - run: npm ci
         if: ${{ steps.release.outputs.release_created }}
-      - name: Sync server.json version
-        if: ${{ steps.release.outputs.release_created }}
-        run: npm run sync:server-json
       - run: npm publish
         if: ${{ steps.release.outputs.release_created }}
       - name: Install mcp-publisher
