@@ -8,6 +8,18 @@ import { initActualApi, shutdownActualApi } from '../actual-api.js';
 import { error, errorFromCatch } from '../utils/response.js';
 
 import * as balanceHistory from './balance-history/index.js';
+import * as getCustomReports from './custom-reports/get-custom-reports/index.js';
+import * as createCustomReport from './custom-reports/create-custom-report/index.js';
+import * as updateCustomReport from './custom-reports/update-custom-report/index.js';
+import * as deleteCustomReport from './custom-reports/delete-custom-report/index.js';
+import * as getDashboards from './dashboards/get-dashboards/index.js';
+import * as addDashboardWidget from './dashboards/add-dashboard-widget/index.js';
+import * as updateDashboardWidget from './dashboards/update-dashboard-widget/index.js';
+import * as removeDashboardWidget from './dashboards/remove-dashboard-widget/index.js';
+import * as organizeDashboard from './dashboards/organize-dashboard/index.js';
+import * as createDashboardPage from './dashboards/create-dashboard-page/index.js';
+import * as renameDashboardPage from './dashboards/rename-dashboard-page/index.js';
+import * as deleteDashboardPage from './dashboards/delete-dashboard-page/index.js';
 import * as budgetVsActual from './budget-vs-actual/index.js';
 import * as cashFlow from './cash-flow/index.js';
 import * as categoryTrends from './category-trends/index.js';
@@ -58,6 +70,8 @@ const readTools = [
   getGroupedCategories,
   getPayees,
   getRules,
+  getCustomReports,
+  getDashboards,
   getBudgetMonths,
   getBudgetMonth,
 ];
@@ -80,6 +94,16 @@ const writeTools = [
   createTransaction,
   importTransactions,
   runBankSync,
+  createCustomReport,
+  updateCustomReport,
+  deleteCustomReport,
+  addDashboardWidget,
+  updateDashboardWidget,
+  removeDashboardWidget,
+  organizeDashboard,
+  createDashboardPage,
+  renameDashboardPage,
+  deleteDashboardPage,
   setBudgetAmount,
   setBudgetCarryover,
   holdBudgetForNextMonth,
