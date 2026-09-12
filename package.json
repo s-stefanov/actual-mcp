@@ -1,5 +1,6 @@
 {
   "name": "actual-mcp",
+  "mcpName": "io.github.s-stefanov/actual-mcp",
   "version": "1.12.1",
   "description": "Actual Budget MCP server exposing API functionality",
   "private": false,
@@ -12,13 +13,15 @@
   "files": [
     "build",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "server.json"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json && node -e \"require('fs').chmodSync('build/index.js', '755')\"",
     "watch": "tsc --watch",
     "inspector": "npx @modelcontextprotocol/inspector -e ACTUAL_SERVER_URL=$ACTUAL_SERVER_URL -e ACTUAL_PASSWORD=$ACTUAL_PASSWORD -e ACTUAL_BUDGET_SYNC_ID=$ACTUAL_BUDGET_SYNC_ID node build/index.js",
     "start": "tsx src/index.ts",
+    "sync:server-json": "tsx src/registry/sync-server-json-version.ts",
     "test": "npm run test:unit",
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",

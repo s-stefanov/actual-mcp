@@ -307,6 +307,20 @@ This fork includes the following changes from the upstream [s-stefanov/actual-mc
 - **`@actual-app/api` bumped from `^26.3.0` to `^26.5.0`** — updates the Actual Budget API client to the latest version for compatibility with newer Actual server releases.
 - **Balance cutoff fix** — `getAccountBalance` calls now pass a far-future cutoff date (`2099-01-01`) so that future-dated pending transactions are included in balance calculations. Without this fix, banks that pre-date pending transactions (showing them in the future) would cause reported balances to be lower than the actual cleared balance.
 
+## Registry & Discovery
+
+`actual-mcp` is published to the [official MCP Registry](https://registry.modelcontextprotocol.io)
+as `io.github.s-stefanov/actual-mcp`. Registry metadata lives in
+[`server.json`](./server.json) and is published automatically on each release
+(see `.github/workflows/release-please.yml`).
+
+It advertises two transports on the npm package — `stdio` (default) and
+`streamable-http` (via the `--sse` flag). (A Docker image is also published,
+but is not yet listed as a registry package.)
+
+Post-release directory listings are tracked in
+[`docs/mcp-registry-checklist.md`](./docs/mcp-registry-checklist.md).
+
 ## License
 
 MIT

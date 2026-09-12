@@ -28,8 +28,21 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - run: npm ci
         if: ${{ steps.release.outputs.release_created }}
+      - name: Sync server.json version
+        if: ${{ steps.release.outputs.release_created }}
+        run: npm run sync:server-json
       - run: npm publish
         if: ${{ steps.release.outputs.release_created }}
+      - name: Install mcp-publisher
+        if: ${{ steps.release.outputs.release_created }}
+        run: |
+          curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
+      - name: Authenticate to MCP Registry
+        if: ${{ steps.release.outputs.release_created }}
+        run: ./mcp-publisher login github-oidc
+      - name: Publish to MCP Registry
+        if: ${{ steps.release.outputs.release_created }}
+        run: ./mcp-publisher publish
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
         if: ${{ steps.release.outputs.release_created }}
