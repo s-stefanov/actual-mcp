@@ -8,9 +8,6 @@ export interface MonthlySummaryReportData {
   sortedMonths: MonthData[];
   avgIncome: number;
   avgExpenses: number;
-  avgInvestments: number;
-  avgTraditionalSavings: number;
-  avgTotalSavings: number;
-  avgTraditionalSavingsRate: number;
-  avgTotalSavingsRate: number;
+  avgSavings: number;
+  avgSavingsRate: number;
 }

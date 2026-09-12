@@ -317,7 +317,6 @@ export interface MonthData {
   month: number;
   income: number;
   expenses: number;
-  investments: number;
   transactions: number;
 }
 

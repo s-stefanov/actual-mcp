@@ -4,34 +4,18 @@ export class MonthlySummaryCalculator {
   calculateAverages(sortedMonths: MonthData[]): {
     avgIncome: number;
     avgExpenses: number;
-    avgInvestments: number;
-    avgTraditionalSavings: number;
-    avgTotalSavings: number;
-    avgTraditionalSavingsRate: number;
-    avgTotalSavingsRate: number;
+    avgSavings: number;
+    avgSavingsRate: number;
   } {
     const totalIncome = sortedMonths.reduce((sum, m) => sum + m.income, 0);
     const totalExpenses = sortedMonths.reduce((sum, m) => sum + m.expenses, 0);
-    const totalInvestments = sortedMonths.reduce((sum, m) => sum + m.investments, 0);
     const monthCount = sortedMonths.length;
 
     const avgIncome = monthCount > 0 ? totalIncome / monthCount : 0;
     const avgExpenses = monthCount > 0 ? totalExpenses / monthCount : 0;
-    const avgInvestments = monthCount > 0 ? totalInvestments / monthCount : 0;
+    const avgSavings = avgIncome - avgExpenses;
+    const avgSavingsRate = avgIncome > 0 ? (avgSavings / avgIncome) * 100 : 0;
 
-    const avgTraditionalSavings = avgIncome - avgExpenses - avgInvestments;
-    const avgTotalSavings = avgTraditionalSavings + avgInvestments;
-    const avgTraditionalSavingsRate = avgIncome > 0 ? (avgTraditionalSavings / avgIncome) * 100 : 0;
-    const avgTotalSavingsRate = avgIncome > 0 ? ((avgTraditionalSavings + avgInvestments) / avgIncome) * 100 : 0;
-
-    return {
-      avgIncome,
-      avgExpenses,
-      avgInvestments,
-      avgTraditionalSavings,
-      avgTotalSavings,
-      avgTraditionalSavingsRate,
-      avgTotalSavingsRate,
-    };
+    return { avgIncome, avgExpenses, avgSavings, avgSavingsRate };
   }
 }
