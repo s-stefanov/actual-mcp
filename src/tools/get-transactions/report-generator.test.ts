@@ -57,4 +57,54 @@ describe('GetTransactionsReportGenerator', () => {
     expect(headers.slice(0, 7)).toEqual(['ID', 'Date', 'Payee', 'Category', 'Amount', 'Cleared', 'Notes']);
     expect(headers[7]).toBe('Transfer');
   });
+
+  it('renders a split subtransaction as its own row, nested under the parent, with its id visible', () => {
+    const splitRow = {
+      ...regularRow,
+      id: 'tx-parent',
+      subtransactions: [
+        {
+          id: 'tx-child-1',
+          date: '2024-05-02',
+          payee: '(No payee)',
+          category: 'Groceries',
+          amount: '-$8.00',
+          notes: '',
+          cleared: false,
+          transferId: '',
+        },
+        {
+          id: 'tx-child-2',
+          date: '2024-05-02',
+          payee: 'Transfer: Savings',
+          category: '(Uncategorized)',
+          amount: '-$4.34',
+          notes: '',
+          cleared: false,
+          transferId: 'tx-transfer-counterpart',
+        },
+      ],
+    };
+
+    const md = generator.generate([splitRow], '', 1, 1);
+    const lines = md.split('\n');
+    const parentIndex = lines.findIndex((line) => line.startsWith('| tx-parent |'));
+
+    expect(parentIndex).toBeGreaterThan(-1);
+    // The child rows immediately follow the parent row, keeping the id visible so it can be
+    // targeted with update-transaction (e.g. to turn a leg into a transfer).
+    expect(lines[parentIndex + 1]).toContain('| ↳ tx-child-1 |');
+    expect(lines[parentIndex + 1]).toContain('Groceries');
+    expect(lines[parentIndex + 2]).toContain('| ↳ tx-child-2 |');
+    expect(lines[parentIndex + 2]).toContain('tx-transfer-counterpart');
+  });
+
+  it('does not add any rows for a transaction without subtransactions', () => {
+    const md = generator.generate([regularRow], '', 1, 1);
+    const rowLines = md
+      .split('\n')
+      .filter((line) => line.startsWith('|') && !line.startsWith('| ID') && !line.startsWith('| ----'));
+
+    expect(rowLines).toHaveLength(1);
+  });
 });
