@@ -2,12 +2,14 @@ import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { toJSONSchema } from 'zod';
 import { error, success, errorFromCatch } from '../../utils/response.js';
 import { updateTransaction } from '../../actual-api.js';
+import { resolveTransferPayee } from '../../core/data/resolve-transfer-payee.js';
 import { UpdateTransactionArgsSchema, type UpdateTransactionArgs, ToolInput } from '../../types.js';
 
 export const schema = {
   name: 'update-transaction',
   description:
-    'Update an existing transaction. Can modify date, amount, payee, category, notes, cleared status, and subtransactions.',
+    'Update an existing transaction. Can modify date, amount, payee, category, notes, cleared status, and ' +
+    'subtransactions, including turning a subtransaction into a transfer via transfer_account_id.',
   inputSchema: toJSONSchema(UpdateTransactionArgsSchema) as ToolInput,
 };
 
@@ -27,6 +29,24 @@ export async function handler(args: UpdateTransactionArgs): Promise<CallToolResu
 
     const validatedArgs = UpdateTransactionArgsSchema.parse(args);
     const { id: transactionId, ...updateData } = validatedArgs;
+
+    // Reason: A subtransaction can itself be a transfer leg (e.g. turning one line of an
+    // existing split into a transfer to savings). Resolve each subtransaction's
+    // transfer_account_id into the corresponding transfer payee before sending to the API.
+    if (updateData.subtransactions) {
+      for (const sub of updateData.subtransactions) {
+        if (sub.transfer_account_id) {
+          const subTransferPayeeId = await resolveTransferPayee(sub.transfer_account_id);
+          if (!subTransferPayeeId) {
+            return error(
+              `No transfer payee found for account ${sub.transfer_account_id}. Ensure the destination account exists.`
+            );
+          }
+          sub.payee = subTransferPayeeId;
+        }
+        delete sub.transfer_account_id;
+      }
+    }
 
     // Filter out undefined values to only send fields that were explicitly provided
     const filteredUpdateData = Object.fromEntries(

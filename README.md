@@ -28,6 +28,26 @@ The Actual Budget MCP Server allows you to interact with your personal financial
 
 - **`spending-by-category`** - Generate spending breakdowns categorized by type
 - **`monthly-summary`** - Get monthly income, expenses, and savings metrics
+- **`budget-vs-actual`** - Compare budgeted amounts against actual spending per category
+- **`net-worth`** - Track assets, liabilities, and net worth across all accounts over time
+- **`category-trends`** - See how spending in each category moves month over month, with trend direction
+- **`spending-by-payee`** - Rank payees by how much was spent with (or received from) each one
+- **`cash-flow`** - Report income, expenses, and net cash flow per month or week
+
+> The five tools above return JSON rather than markdown, so amounts stay machine-readable. Every amount is an integer number of cents, and each response carries an `amountsIn` field describing the sign conventions it uses.
+
+#### Custom Reports & Dashboards
+
+- **`get-custom-reports`** - Retrieve every saved custom report from the Reports section
+- **`create-custom-report`** - Create a saved custom report
+- **`update-custom-report`** - Update fields on a saved custom report, leaving the rest unchanged
+- **`delete-custom-report`** - Delete a saved custom report
+- **`get-dashboards`** - Retrieve every dashboard page and the widgets laid out on it
+- **`add-dashboard-widget`** - Add a widget to a dashboard page
+- **`update-dashboard-widget`** - Update a widget's configuration, position, or size
+- **`remove-dashboard-widget`** - Remove a widget from its page
+- **`organize-dashboard`** - Reposition and resize several widgets at once
+- **`create-dashboard-page`** / **`rename-dashboard-page`** / **`delete-dashboard-page`** - Manage dashboard pages
 
 #### Categories
 
@@ -248,7 +268,14 @@ Once connected, you can ask Claude questions like:
 - "Show me my spending by category last month"
 - "How much did I spend on groceries in January?"
 - "What's my savings rate over the past 3 months?"
+- "Which categories am I overspending on this month?"
+- "How has my net worth changed over the past year?"
+- "Which payees do I spend the most with?"
+- "Is my grocery spending trending up or down?"
 - "Analyze my budget and suggest areas to improve"
+- "What custom reports do I have?"
+- "Add a net worth widget to my Spending Plan dashboard"
+- "Rearrange my dashboard so the cash flow card is full width at the top"
 
 ## Usage with Codex CLI
 
@@ -286,6 +313,20 @@ Since MCP servers communicate over stdio, debugging can be challenging. You can 
 npx @modelcontextprotocol/inspector node build/index.js
 ```
 
+### E2E validation gate
+
+The end-to-end test suite (`vitest.e2e.config.ts`) spins up a real Actual Budget server in a Docker container (via Testcontainers), seeds a budget, and drives it through a real MCP client over stdio to verify accounts, transactions, categories, payees, rules, and imports actually persist. It requires Docker to be running locally.
+
+In CI, the `e2e-test` job in `.github/workflows/pr-validation.yml` only runs on release-please PRs (branch prefix `release-please--`) or when a PR is given the `run-e2e` label — it does not run on every PR by default, since it needs Docker and takes longer than the standard checks.
+
+To run it locally:
+
+```bash
+npm run build && npm run test:e2e
+```
+
+Docker must be installed and running; the test suite pulls and starts the Actual server image automatically.
+
 ## Project Structure
 
 - `index.ts` - Main server implementation
@@ -293,12 +334,19 @@ npx @modelcontextprotocol/inspector node build/index.js
 - `prompts.ts` - Prompt templates for LLM interactions
 - `utils.ts` - Helper functions for date formatting and more
 
-## Fork Modifications
+## Registry & Discovery
 
-This fork includes the following changes from the upstream [s-stefanov/actual-mcp](https://github.com/s-stefanov/actual-mcp):
+`actual-mcp` is published to the [official MCP Registry](https://registry.modelcontextprotocol.io)
+as `io.github.s-stefanov/actual-mcp`. Registry metadata lives in
+[`server.json`](./server.json) and is published automatically on each release
+(see `.github/workflows/release-please.yml`).
 
-- **`@actual-app/api` bumped from `^26.3.0` to `^26.5.0`** — updates the Actual Budget API client to the latest version for compatibility with newer Actual server releases.
-- **Balance cutoff fix** — `getAccountBalance` calls now pass a far-future cutoff date (`2099-01-01`) so that future-dated pending transactions are included in balance calculations. Without this fix, banks that pre-date pending transactions (showing them in the future) would cause reported balances to be lower than the actual cleared balance.
+It advertises two transports on the npm package — `stdio` (default) and
+`streamable-http` (via the `--sse` flag). (A Docker image is also published,
+but is not yet listed as a registry package.)
+
+Post-release directory listings are tracked in
+[`docs/mcp-registry-checklist.md`](./docs/mcp-registry-checklist.md).
 
 ## License
 

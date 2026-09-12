@@ -11,8 +11,8 @@ vi.mock('@actual-app/api', () => ({
 }));
 
 import * as api from '@actual-app/api';
-import { getAccounts, getAccountBalance, initActualApi, shutdownActualApi } from './actual-api.js';
-import { resetActualConnectionForTests } from './integrations/actual/connection.js';
+import { getAccounts, getAccountBalance, getReports, initActualApi, shutdownActualApi } from './actual-api.js';
+import { getActualConnection, resetActualConnectionForTests } from './integrations/actual/connection.js';
 
 describe('initActualApi syncing', () => {
   beforeEach(async () => {
@@ -116,5 +116,16 @@ describe('actual-api wrappers delegate through the connection', () => {
 
     expect(api.getAccountBalance).toHaveBeenCalledWith('a1', cutoff);
     expect(balance).toBe(12345);
+  });
+
+  it('getReports uses the initialized handle in one queued operation', async () => {
+    const send = vi.fn().mockResolvedValue([{ id: 'report-1' }]);
+    vi.mocked(api.init).mockResolvedValue({ send } as never);
+    const run = vi.spyOn(getActualConnection(), 'run');
+
+    await expect(getReports()).resolves.toEqual([{ id: 'report-1' }]);
+
+    expect(run).toHaveBeenCalledTimes(1);
+    expect(send).toHaveBeenCalledWith('report/get', undefined);
   });
 });

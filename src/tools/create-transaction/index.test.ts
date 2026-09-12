@@ -196,6 +196,56 @@ describe('create-transaction tool', () => {
       expect(textContent(result.content[0])).toContain('No transfer payee found');
       expect(actualApi.createTransaction).not.toHaveBeenCalled();
     });
+
+    it('should resolve transfer payee for a subtransaction of a split', async () => {
+      const mockTransactionId = 'split-transfer-txn-1';
+      vi.mocked(actualApi.getPayees).mockResolvedValue([
+        { id: 'payee-savings', name: 'Transfer: Savings', transfer_acct: 'savings-account-id' },
+      ]);
+      vi.mocked(actualApi.createTransaction).mockResolvedValue(mockTransactionId);
+
+      const args: CreateTransactionArgs = {
+        account: 'checking-account-id',
+        date: '2025-12-18',
+        amount: -10000,
+        subtransactions: [
+          { amount: -6000, category: 'cat-groceries' },
+          { amount: -4000, transfer_account_id: 'savings-account-id' },
+        ],
+      };
+
+      const result = await handler(args);
+
+      expect(actualApi.getPayees).toHaveBeenCalled();
+      expect(actualApi.createTransaction).toHaveBeenCalledWith('checking-account-id', {
+        date: '2025-12-18',
+        amount: -10000,
+        subtransactions: [
+          { amount: -6000, category: 'cat-groceries' },
+          { amount: -4000, payee: 'payee-savings' },
+        ],
+      });
+      expect(result.isError).toBeUndefined();
+      expect(textContent(result.content[0])).toContain('transfer');
+      expect(textContent(result.content[0])).toContain('counterpart');
+    });
+
+    it('should return error when a subtransaction transfer payee is not found', async () => {
+      vi.mocked(actualApi.getPayees).mockResolvedValue([]);
+
+      const args: CreateTransactionArgs = {
+        account: 'checking-account-id',
+        date: '2025-12-18',
+        amount: -10000,
+        subtransactions: [{ amount: -10000, transfer_account_id: 'nonexistent-account-id' }],
+      };
+
+      const result = await handler(args);
+
+      expect(result.isError).toBe(true);
+      expect(textContent(result.content[0])).toContain('No transfer payee found');
+      expect(actualApi.createTransaction).not.toHaveBeenCalled();
+    });
   });
 
   describe('handler - validation errors', () => {

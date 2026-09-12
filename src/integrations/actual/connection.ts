@@ -8,6 +8,7 @@ const DEFAULT_DATA_DIR: string = path.resolve(os.homedir() || '.', '.actual');
 const DEFAULT_SYNC_TTL_MS = 60_000;
 
 type ConnectionState = 'idle' | 'initializing' | 'ready' | 'closing' | 'closed' | 'failed';
+type ActualApi = Awaited<ReturnType<typeof api.init>>;
 
 export class ActualConnection {
   private state: ConnectionState = 'idle';
@@ -16,6 +17,7 @@ export class ActualConnection {
   private lastSyncAt = 0;
   private queueTail: Promise<unknown> = Promise.resolve();
   private closePromise: Promise<void> | null = null;
+  private actualLib: ActualApi | null = null;
 
   private isClosingOrClosed(): boolean {
     return this.state === 'closing' || this.state === 'closed';
@@ -30,12 +32,12 @@ export class ActualConnection {
    * @param operation - The raw Actual API operation to execute.
    * @returns The operation result.
    */
-  async run<T>(operation: () => Promise<T>): Promise<T> {
+  async run<T>(operation: (actualLib: ActualApi) => Promise<T>): Promise<T> {
     if (this.isClosingOrClosed()) {
       throw new Error('ActualConnection is closed');
     }
     await this.ensureReady();
-    const result = this.queueTail.then(() => operation());
+    const result = this.queueTail.then(() => operation(this.actualLib as ActualApi));
     this.queueTail = result.then(
       () => undefined,
       () => undefined
@@ -131,6 +133,7 @@ export class ActualConnection {
       }
       this.state = 'closed';
       this.lastSyncAt = 0;
+      this.actualLib = null;
     })();
 
     return this.closePromise;
@@ -147,7 +150,7 @@ export class ActualConnection {
     const password = process.env.ACTUAL_PASSWORD;
     // Reason: InitConfig is a discriminated union in 26.x — NoServerConfig forbids serverURL/password
     const initConfig = serverURL ? { dataDir, serverURL, password: password ?? '' } : { dataDir };
-    await api.init(initConfig);
+    this.actualLib = await api.init(initConfig);
 
     const budgets: BudgetFile[] = await api.getBudgets();
     if (!budgets || budgets.length === 0) {
