@@ -14,6 +14,10 @@ const mockBudgetMonth = {
   forNextMonth: 0,
   totalBudgeted: -450000,
   toBudget: 50000,
+  fromLastMonth: 0,
+  totalIncome: 500000,
+  totalSpent: -150000,
+  totalBalance: 50000,
   categoryGroups: [
     {
       id: 'group-1',
