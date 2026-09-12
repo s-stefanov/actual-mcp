@@ -49,7 +49,6 @@ export interface CategoryGroupInfo {
   id: string;
   name: string;
   isIncome: boolean;
-  isSavingsOrInvestment: boolean;
 }
 
 export interface CategorySpending {

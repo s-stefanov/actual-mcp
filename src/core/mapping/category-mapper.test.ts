@@ -11,17 +11,13 @@ describe('CategoryMapper', () => {
     mockCategories = [
       { id: 'cat1', name: 'Food', group_id: 'g1' },
       { id: 'cat2', name: 'Rent', group_id: 'g1' },
-      { id: 'cat3', name: 'Salary', group_id: 'g2', is_income: true },
-      { id: 'cat4', name: 'Bonus', group_id: 'g2', is_income: true },
-      { id: 'cat5', name: 'Stocks', group_id: 'g3' },
-      { id: 'cat6', name: '401k', group_id: 'g4' },
+      { id: 'cat3', name: 'Salary', group_id: 'g2' },
+      { id: 'cat4', name: 'Bonus', group_id: 'g2' },
     ];
 
     mockCategoryGroups = [
       { id: 'g1', name: 'Living', is_income: false },
       { id: 'g2', name: 'Income', is_income: true },
-      { id: 'g3', name: 'Investment', is_income: false },
-      { id: 'g4', name: 'Savings', is_income: false },
     ];
 
     mapper = new CategoryMapper(mockCategories, mockCategoryGroups);
@@ -37,7 +33,6 @@ describe('CategoryMapper', () => {
     it('should initialize groupNames mapping', () => {
       expect(mapper.groupNames['g1']).toBe('Living');
       expect(mapper.groupNames['g2']).toBe('Income');
-      expect(mapper.groupNames['g3']).toBe('Investment');
     });
 
     it('should initialize categoryToGroup mapping', () => {
@@ -45,41 +40,13 @@ describe('CategoryMapper', () => {
         id: 'g1',
         name: 'Living',
         isIncome: false,
-        isSavingsOrInvestment: false,
       });
 
       expect(mapper.categoryToGroup['cat3']).toEqual({
         id: 'g2',
         name: 'Income',
         isIncome: true,
-        isSavingsOrInvestment: false,
       });
-    });
-
-    it('should identify savings and investment categories', () => {
-      expect(mapper.investmentCategories.has('cat5')).toBe(true); // Investment group
-      expect(mapper.investmentCategories.has('cat6')).toBe(true); // Savings group
-      expect(mapper.investmentCategories.has('cat1')).toBe(false); // Living group
-    });
-
-    it('should handle case insensitive investment/savings detection', () => {
-      const mockCategoryGroupsWithCase = [
-        { id: 'g1', name: 'INVESTMENT', is_income: false },
-        { id: 'g2', name: 'Personal Savings', is_income: false },
-        { id: 'g3', name: 'Regular Expenses', is_income: false },
-      ];
-
-      const mockCategoriesWithCase = [
-        { id: 'cat1', name: 'Stocks', group_id: 'g1' },
-        { id: 'cat2', name: 'Emergency Fund', group_id: 'g2' },
-        { id: 'cat3', name: 'Food', group_id: 'g3' },
-      ];
-
-      const mapperWithCase = new CategoryMapper(mockCategoriesWithCase, mockCategoryGroupsWithCase);
-
-      expect(mapperWithCase.investmentCategories.has('cat1')).toBe(true);
-      expect(mapperWithCase.investmentCategories.has('cat2')).toBe(true);
-      expect(mapperWithCase.investmentCategories.has('cat3')).toBe(false);
     });
   });
 
@@ -103,27 +70,15 @@ describe('CategoryMapper', () => {
         id: 'g1',
         name: 'Living',
         isIncome: false,
-        isSavingsOrInvestment: false,
       });
     });
 
-    it('should return income group info for income category', () => {
+    it('should use the group income flag when the category has no income flag', () => {
       const groupInfo = mapper.getGroupInfo('cat3');
       expect(groupInfo).toEqual({
         id: 'g2',
         name: 'Income',
         isIncome: true,
-        isSavingsOrInvestment: false,
-      });
-    });
-
-    it('should return investment group info for investment category', () => {
-      const groupInfo = mapper.getGroupInfo('cat5');
-      expect(groupInfo).toEqual({
-        id: 'g3',
-        name: 'Investment',
-        isIncome: false,
-        isSavingsOrInvestment: true,
       });
     });
 
@@ -133,31 +88,12 @@ describe('CategoryMapper', () => {
     });
   });
 
-  describe('isInvestmentCategory', () => {
-    it('should return true for investment categories', () => {
-      expect(mapper.isInvestmentCategory('cat5')).toBe(true); // Investment group
-      expect(mapper.isInvestmentCategory('cat6')).toBe(true); // Savings group
-    });
-
-    it('should return false for non-investment categories', () => {
-      expect(mapper.isInvestmentCategory('cat1')).toBe(false); // Living group
-      expect(mapper.isInvestmentCategory('cat2')).toBe(false); // Living group
-      expect(mapper.isInvestmentCategory('cat3')).toBe(false); // Income group
-    });
-
-    it('should return false for invalid category ID', () => {
-      expect(mapper.isInvestmentCategory('invalid')).toBe(false);
-      expect(mapper.isInvestmentCategory('')).toBe(false);
-    });
-  });
-
   describe('edge cases', () => {
     it('should handle empty categories and groups', () => {
       const emptyMapper = new CategoryMapper([], []);
 
       expect(emptyMapper.getCategoryName('cat1')).toBe('Unknown Category');
       expect(emptyMapper.getGroupInfo('cat1')).toBeUndefined();
-      expect(emptyMapper.isInvestmentCategory('cat1')).toBe(false);
     });
 
     it('should handle category without corresponding group', () => {
@@ -170,11 +106,10 @@ describe('CategoryMapper', () => {
         id: 'nonexistent',
         name: 'Unknown Group',
         isIncome: false,
-        isSavingsOrInvestment: false,
       });
     });
 
-    it('should handle category marked as income but group not marked as income', () => {
+    it('should prefer the group income flag over a category income flag', () => {
       const conflictingCategories = [{ id: 'cat1', name: 'Bonus', group_id: 'g1', is_income: true }];
 
       const conflictingGroups = [{ id: 'g1', name: 'Living', is_income: false }];
@@ -184,8 +119,7 @@ describe('CategoryMapper', () => {
       expect(conflictingMapper.getGroupInfo('cat1')).toEqual({
         id: 'g1',
         name: 'Living',
-        isIncome: true, // Uses category's is_income flag
-        isSavingsOrInvestment: false,
+        isIncome: false,
       });
     });
   });

@@ -1,11 +1,11 @@
-// Maps category IDs to names/groups and identifies income/savings/investment categories
+// Maps category IDs to names and groups.
 import type { Category, CategoryGroup, CategoryGroupInfo } from '../types/domain.js';
 
 export class CategoryMapper {
   categoryNames: Record<string, string> = {};
   groupNames: Record<string, string> = {};
   categoryToGroup: Record<string, CategoryGroupInfo> = {};
-  investmentCategories: Set<string> = new Set();
+  categoryGroupsById: Map<string, CategoryGroup> = new Map();
 
   constructor(categories: Category[], categoryGroups: CategoryGroup[]) {
     categories.forEach((cat) => {
@@ -13,21 +13,15 @@ export class CategoryMapper {
     });
     categoryGroups.forEach((group) => {
       this.groupNames[group.id] = group.name;
+      this.categoryGroupsById.set(group.id, group);
     });
     categories.forEach((cat) => {
-      const groupName = this.groupNames[cat.group_id] || 'Unknown Group';
-      const isIncome = !!cat.is_income;
-      const isSavingsOrInvestment =
-        groupName.toLowerCase().includes('investment') || groupName.toLowerCase().includes('savings');
+      const group = this.categoryGroupsById.get(cat.group_id);
       this.categoryToGroup[cat.id] = {
         id: cat.group_id,
-        name: groupName,
-        isIncome,
-        isSavingsOrInvestment,
+        name: group?.name ?? 'Unknown Group',
+        isIncome: !!group?.is_income,
       };
-      if (isSavingsOrInvestment) {
-        this.investmentCategories.add(cat.id);
-      }
     });
   }
 
@@ -37,9 +31,5 @@ export class CategoryMapper {
 
   getGroupInfo(categoryId: string): CategoryGroupInfo | undefined {
     return this.categoryToGroup[categoryId];
-  }
-
-  isInvestmentCategory(categoryId: string): boolean {
-    return this.investmentCategories.has(categoryId);
   }
 }

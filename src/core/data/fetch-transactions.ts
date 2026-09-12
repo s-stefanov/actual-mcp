@@ -103,7 +103,7 @@ export async function fetchAllOnBudgetTransactions(
   end: string
 ): Promise<Transaction[]> {
   let transactions: Transaction[] = [];
-  const onBudgetAccounts = accounts.filter((a) => !a.offbudget && !a.closed);
+  const onBudgetAccounts = accounts.filter((account) => !account.offbudget);
   for (const account of onBudgetAccounts) {
     const tx = await getTransactions(account.id, start, end);
     transactions = [...transactions, ...tx];
