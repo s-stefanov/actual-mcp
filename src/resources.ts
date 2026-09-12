@@ -8,7 +8,8 @@ import { ListResourcesRequestSchema, ReadResourceRequestSchema } from '@modelcon
 // Import types from types.ts
 import { Account, Transaction } from './types.js';
 import { formatAmount, formatDate, getDateRange } from './utils.js';
-import { getAccounts, getTransactions, getAccountBalance } from './actual-api.js';
+import { getAccounts, getTransactions } from './actual-api.js';
+import { fetchAccountBalanceAsOf } from './core/data/fetch-account-balance.js';
 import { fetchAllAccounts } from './core/data/fetch-accounts.js';
 
 export const setupResources = (server: Server): void => {
@@ -88,7 +89,7 @@ export const setupResources = (server: Server): void => {
           };
         }
 
-        const balance: number = await getAccountBalance(accountId, new Date('2099-01-01'));
+        const balance: number = await fetchAccountBalanceAsOf(accountId);
         const formattedBalance: string = formatAmount(balance);
 
         const details = `# Account: ${account.name}
