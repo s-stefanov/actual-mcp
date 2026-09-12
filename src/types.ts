@@ -70,6 +70,18 @@ export const UpdateSubtransactionSchema = z.object({
   amount: z.number().describe('Required for subtransactions. A currency amount as an integer'),
   category: z.string().optional().describe('The ID of the category for this subtransaction'),
   notes: z.string().optional().describe('Any additional notes for this subtransaction'),
+  payee: z
+    .string()
+    .optional()
+    .describe('An existing payee ID for this subtransaction. Overridden by transfer_account_id if both are given.'),
+  transfer_account_id: z
+    .string()
+    .optional()
+    .describe(
+      'The ID of the destination account for a transfer originating from this subtransaction (split leg). ' +
+        'When provided, the transfer payee is automatically resolved and the counterpart transaction is created ' +
+        'in the destination account. The amount should be negative (money leaving the source account).'
+    ),
 });
 
 export type UpdateSubtransaction = z.infer<typeof UpdateSubtransactionSchema>;
@@ -120,6 +132,18 @@ export const SubtransactionSchema = z.object({
   amount: z.number().describe('Required for subtransactions. A currency amount as an integer'),
   category: z.string().optional().describe('The ID of the category for this subtransaction'),
   notes: z.string().optional().describe('Any additional notes for this subtransaction'),
+  payee: z
+    .string()
+    .optional()
+    .describe('An existing payee ID for this subtransaction. Overridden by transfer_account_id if both are given.'),
+  transfer_account_id: z
+    .string()
+    .optional()
+    .describe(
+      'The ID of the destination account for a transfer originating from this subtransaction (split leg). ' +
+        'When provided, the transfer payee is automatically resolved and the counterpart transaction is created ' +
+        'in the destination account. The amount should be negative (money leaving the source account).'
+    ),
 });
 
 export type Subtransaction = z.infer<typeof SubtransactionSchema>;
@@ -190,6 +214,18 @@ export const ImportSubtransactionSchema = z.object({
     ),
   category: z.string().optional().describe('The ID of the category for this subtransaction'),
   notes: z.string().optional().describe('Any additional notes for this subtransaction'),
+  payee: z
+    .string()
+    .optional()
+    .describe('An existing payee ID for this subtransaction. Overridden by transfer_account_id if both are given.'),
+  transfer_account_id: z
+    .string()
+    .optional()
+    .describe(
+      'The ID of the destination account for a transfer originating from this subtransaction (split leg). ' +
+        'When provided, the transfer payee is automatically resolved and the counterpart transaction is created ' +
+        'in the destination account. The amount should be negative (money leaving the source account).'
+    ),
 });
 
 // Schema for a single transaction item in a bulk import.

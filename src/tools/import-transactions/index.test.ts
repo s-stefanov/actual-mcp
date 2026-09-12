@@ -11,6 +11,7 @@ import { textContent } from '../../utils/response.js';
 // Mock the actual-api module
 vi.mock('../../actual-api.js', () => ({
   importTransactions: vi.fn(),
+  getPayees: vi.fn(),
 }));
 
 // Mock @actual-app/api utils so amountToInteger works without a real API connection
@@ -138,6 +139,74 @@ describe('import-transactions tool', () => {
 
       expect(result.isError).toBeUndefined();
       expect(textContent(result.content[0])).toContain('Invalid date on row 1');
+    });
+  });
+
+  describe('handler - transfer cases', () => {
+    it('should resolve transfer payee for a subtransaction of a split', async () => {
+      vi.mocked(actualApi.getPayees).mockResolvedValue([
+        { id: 'payee-savings', name: 'Transfer: Savings', transfer_acct: 'savings-account-id' },
+      ]);
+      vi.mocked(actualApi.importTransactions).mockResolvedValue({
+        added: ['tx-parent', 'tx-child-1', 'tx-child-2'],
+        updated: [],
+        errors: [],
+      });
+
+      const args: ImportTransactionsArgs = {
+        accountId: 'account-123',
+        transactions: [
+          {
+            date: '2025-01-01',
+            amount: -100,
+            subtransactions: [
+              { amount: -60, category: 'cat-groceries' },
+              { amount: -40, transfer_account_id: 'savings-account-id' },
+            ],
+          },
+        ],
+      };
+
+      const result = await handler(args);
+
+      expect(actualApi.getPayees).toHaveBeenCalled();
+      expect(actualApi.importTransactions).toHaveBeenCalledWith(
+        'account-123',
+        [
+          {
+            date: '2025-01-01',
+            amount: -10000,
+            account: 'account-123',
+            subtransactions: [
+              { amount: -6000, category: 'cat-groceries' },
+              { amount: -4000, payee: 'payee-savings' },
+            ],
+          },
+        ],
+        { defaultCleared: undefined, dryRun: undefined }
+      );
+      expect(result.isError).toBeUndefined();
+    });
+
+    it('should return error when a subtransaction transfer payee is not found', async () => {
+      vi.mocked(actualApi.getPayees).mockResolvedValue([]);
+
+      const args: ImportTransactionsArgs = {
+        accountId: 'account-123',
+        transactions: [
+          {
+            date: '2025-01-01',
+            amount: -100,
+            subtransactions: [{ amount: -100, transfer_account_id: 'nonexistent-account-id' }],
+          },
+        ],
+      };
+
+      const result = await handler(args);
+
+      expect(result.isError).toBe(true);
+      expect(textContent(result.content[0])).toContain('No transfer payee found');
+      expect(actualApi.importTransactions).not.toHaveBeenCalled();
     });
   });
 
