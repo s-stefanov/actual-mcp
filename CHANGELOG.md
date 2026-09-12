@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.13.0](https://github.com/s-stefanov/actual-mcp/compare/actual-mcp-v1.12.1...actual-mcp-v1.13.0) (2026-09-12)
+## [1.13.0](https://github.com/s-stefanov/actual-mcp/compare/v1.12.1...v1.13.0) (2026-09-12)
 
 
 ### Features
