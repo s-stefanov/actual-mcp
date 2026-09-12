@@ -330,13 +330,6 @@ Docker must be installed and running; the test suite pulls and starts the Actual
 - `prompts.ts` - Prompt templates for LLM interactions
 - `utils.ts` - Helper functions for date formatting and more
 
-## Fork Modifications
-
-This fork includes the following changes from the upstream [s-stefanov/actual-mcp](https://github.com/s-stefanov/actual-mcp):
-
-- **`@actual-app/api` bumped from `^26.3.0` to `^26.5.0`** — updates the Actual Budget API client to the latest version for compatibility with newer Actual server releases.
-- **Balance cutoff fix** — `getAccountBalance` calls now pass a far-future cutoff date (`2099-01-01`) so that future-dated pending transactions are included in balance calculations. Without this fix, banks that pre-date pending transactions (showing them in the future) would cause reported balances to be lower than the actual cleared balance.
-
 ## Registry & Discovery
 
 `actual-mcp` is published to the [official MCP Registry](https://registry.modelcontextprotocol.io)
