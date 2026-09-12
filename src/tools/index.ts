@@ -8,6 +8,11 @@ import { initActualApi, shutdownActualApi } from '../actual-api.js';
 import { error, errorFromCatch } from '../utils/response.js';
 
 import * as balanceHistory from './balance-history/index.js';
+import * as budgetVsActual from './budget-vs-actual/index.js';
+import * as cashFlow from './cash-flow/index.js';
+import * as categoryTrends from './category-trends/index.js';
+import * as netWorth from './net-worth/index.js';
+import * as spendingByPayee from './spending-by-payee/index.js';
 import * as createCategoryGroup from './categories/create-category-group/index.js';
 import * as createCategory from './categories/create-category/index.js';
 import * as deleteCategoryGroup from './categories/delete-category-group/index.js';
@@ -44,6 +49,11 @@ const readTools = [
   spendingByCategory,
   monthlySummary,
   balanceHistory,
+  budgetVsActual,
+  netWorth,
+  categoryTrends,
+  spendingByPayee,
+  cashFlow,
   getAccounts,
   getGroupedCategories,
   getPayees,
