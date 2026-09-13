@@ -5,7 +5,7 @@
 import { successWithJson, errorFromCatch } from '../../utils/response.js';
 import { fetchAllAccounts } from '../../core/data/fetch-accounts.js';
 import type { Account } from '../../core/types/domain.js';
-import { getAccountBalance } from '@actual-app/api';
+import { getAccountBalance } from '../../actual-api.js';
 import { formatAmount } from '../../utils.js';
 import { z, toJSONSchema } from 'zod';
 import { type ToolInput } from '../../types.js';
