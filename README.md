@@ -149,6 +149,10 @@ If your Actual setup requires a different password to unlock the local/encrypted
 export ACTUAL_BUDGET_ENCRYPTION_PASSWORD="your-encryption-password"
 ```
 
+### Connection lifecycle
+
+The server keeps one shared Actual connection for its entire lifetime and serializes budget operations through it. Downloaded data is re-synced when it exceeds the `ACTUAL_SYNC_TTL_MS` freshness window. In both stdio and HTTP modes, SIGINT and SIGTERM drain in-flight work before the server shuts down. Actual is no longer initialized and shut down for each tool call.
+
 ## Usage with Claude Desktop
 
 To use this server with Claude Desktop, add it to your Claude configuration:

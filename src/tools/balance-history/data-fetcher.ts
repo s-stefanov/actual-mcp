@@ -2,7 +2,7 @@
 import { fetchAllAccounts } from '../../core/data/fetch-accounts.js';
 import { fetchAllTransactions, fetchTransactionsForAccount } from '../../core/data/fetch-transactions.js';
 import type { Account, Transaction } from '../../core/types/domain.js';
-import api from '@actual-app/api';
+import { getAccountBalance } from '../../actual-api.js';
 
 export class BalanceHistoryDataFetcher {
   async fetchAll(
@@ -20,11 +20,11 @@ export class BalanceHistoryDataFetcher {
     let transactions: Transaction[] = [];
     if (accountId && account) {
       transactions = await fetchTransactionsForAccount(accountId, start, end);
-      account.balance = await api.getAccountBalance(accountId, new Date('2099-01-01'));
+      account.balance = await getAccountBalance(accountId, new Date('2099-01-01'));
     } else {
       transactions = await fetchAllTransactions(accounts, start, end);
       for (const a of accounts) {
-        a.balance = await api.getAccountBalance(a.id, new Date('2099-01-01'));
+        a.balance = await getAccountBalance(a.id, new Date('2099-01-01'));
       }
     }
 

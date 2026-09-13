@@ -21,6 +21,7 @@ import { parseArgs } from 'node:util';
 import { isValidBearerToken } from './utils/bearer-auth.js';
 import { initActualApi, shutdownActualApi } from './actual-api.js';
 import { fetchAllAccounts } from './core/data/fetch-accounts.js';
+import { getActualConnection } from './integrations/actual/connection.js';
 import { createServer } from './server.js';
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 
@@ -108,6 +109,50 @@ const safeStringify = (value: unknown): string => {
 
 const toErrorMessage = (value: unknown): string =>
   value instanceof Error ? `${value.name}: ${value.message}` : safeStringify(value);
+
+// Reason: drainAndClose() waits on in-flight Actual work; if the Actual server is
+// unreachable a hanging sync/download would keep the process alive forever, and because
+// we handle SIGINT ourselves Ctrl-C no longer terminates it. Bound the wait, and let a
+// second signal give up immediately.
+const DRAIN_TIMEOUT_MS = 5000;
+// Reason: httpServer.close()'s callback only fires once every socket has closed, and this
+// server holds long-lived SSE streams and StreamableHTTP sessions that may not close
+// promptly (or at all) on their own. Treat hitting this bound as the normal shutdown path,
+// not a rare edge case. The value trades two things off: longer gives in-flight handlers
+// more room to finish before drainAndClose() flips the connection to "closing" (the race
+// this ordering exists to narrow), but quiesce + drain run sequentially and must fit
+// inside Docker's default 10s stop grace period -- the Dockerfile runs node as PID 1, so
+// SIGKILL at 10s would cut the Actual drain short. 3s + 5s = 8s leaves headroom.
+const HTTP_QUIESCE_TIMEOUT_MS = 3000;
+let shuttingDown = false;
+
+const drainConnection = async (): Promise<void> => {
+  const timeout = new Promise<'timeout'>((resolve) => setTimeout(() => resolve('timeout'), DRAIN_TIMEOUT_MS));
+  try {
+    if ((await Promise.race([getActualConnection().drainAndClose(), timeout])) === 'timeout') {
+      console.error(`Actual connection did not drain within ${DRAIN_TIMEOUT_MS}ms, exiting anyway`);
+    }
+  } catch (err) {
+    console.error(`Error during connection shutdown: ${toErrorMessage(err)}`);
+  }
+};
+
+const onShutdownSignal = (shutdown: (signal: string) => Promise<void>): void => {
+  for (const signal of ['SIGINT', 'SIGTERM'] as const) {
+    process.on(signal, () => {
+      if (shuttingDown) process.exit(1);
+      shuttingDown = true;
+      // Reason: shutdown()'s promise is otherwise discarded, so a throw inside it would
+      // only surface as an "unhandled rejection" -- which the handler below logs and
+      // swallows -- leaving the process running forever instead of exiting. Contain the
+      // error here and force the exit ourselves.
+      shutdown(signal).catch((err: unknown) => {
+        console.error(`Error during shutdown: ${toErrorMessage(err)}`);
+        process.exit(1);
+      });
+    });
+  }
+};
 
 // Reason: a rejection or throw from anywhere in the process (e.g. an unawaited async
 // side-effect inside @actual-app/api, see s-stefanov/actual-mcp#150 and #95) otherwise
@@ -312,36 +357,87 @@ async function main(): Promise<void> {
       }
     });
 
-    app.listen(resolvedPort, (error) => {
+    const httpServer = app.listen(resolvedPort, (error) => {
       if (error) {
         process.stderr.write(`Error: ${toErrorMessage(error)}\n`);
       } else {
         process.stderr.write(`Actual Budget MCP Server (HTTP) listening on port ${resolvedPort}\n`);
       }
     });
-    // SIGINT handler: close all active connections
-    process.on('SIGINT', () => {
-      process.stderr.write('SIGINT received, shutting down server\n');
+
+    const shutdown = async (signal: string): Promise<void> => {
+      process.stderr.write(`${signal} received, shutting down server\n`);
+
+      // Reason: quiesce the listener and every MCP server/transport BEFORE draining the
+      // Actual connection. drainAndClose() flips the connection state to "closing"
+      // immediately, so if it ran first, a handler still in flight could reach
+      // ActualConnection.run() afterward and fail with "ActualConnection is closed".
+      const listenerClosed = new Promise<void>((resolve) => {
+        httpServer.close((err) => {
+          if (err) {
+            process.stderr.write(`Error closing HTTP listener: ${toErrorMessage(err)}\n`);
+          }
+          resolve();
+        });
+      });
+      // Reason: idle keep-alive sockets otherwise hold the listener open indefinitely.
+      // Optional call since there's no `engines` field pinning a Node version that's
+      // guaranteed to have this method.
+      httpServer.closeIdleConnections?.();
+
+      const closures: Promise<unknown>[] = [listenerClosed];
       for (const [, conn] of legacySseConnections) {
-        conn.server.close();
+        closures.push(conn.server.close());
       }
       for (const [, session] of streamableSessions) {
-        session.server.close();
-        session.transport.close();
+        closures.push(session.server.close());
+        closures.push(session.transport.close());
       }
+
+      // Reason: the listener callback (and the SSE/StreamableHTTP transports it's
+      // waiting on) may never resolve -- this server holds long-lived streams that
+      // outlive a normal request. Hitting this bound is the expected exit path under
+      // load, not a fallback, so it gets its own timeout rather than hanging main().
+      const quiesceTimeout = new Promise<'timeout'>((resolve) =>
+        setTimeout(() => resolve('timeout'), HTTP_QUIESCE_TIMEOUT_MS)
+      );
+      const outcome = await Promise.race([Promise.allSettled(closures), quiesceTimeout]);
+      if (outcome === 'timeout') {
+        process.stderr.write(
+          `HTTP layer did not quiesce within ${HTTP_QUIESCE_TIMEOUT_MS}ms, draining Actual connection anyway\n`
+        );
+      } else {
+        for (const result of outcome) {
+          if (result.status === 'rejected') {
+            process.stderr.write(`Error closing HTTP session: ${toErrorMessage(result.reason)}\n`);
+          }
+        }
+      }
+
+      await drainConnection();
       process.exit(0);
-    });
+    };
+    onShutdownSignal(shutdown);
   } else {
     const server = createServer({ enableWrite: !!enableWrite });
     const transport = new StdioServerTransport();
     await server.connect(transport);
     console.error('Actual Budget MCP Server (stdio) started');
 
-    process.on('SIGINT', () => {
-      console.error('SIGINT received, shutting down server');
-      server.close();
+    const shutdown = async (signal: string): Promise<void> => {
+      console.error(`${signal} received, shutting down server`);
+      // Reason: await the MCP server's own close before draining the Actual connection,
+      // for the same reason as the HTTP path -- so a handler still in flight doesn't
+      // reach ActualConnection.run() after drainAndClose() has closed it. A rejected
+      // close must not skip the drain below, so contain it here the same way the HTTP
+      // path's Promise.allSettled does.
+      await server.close().catch((err: unknown) => {
+        console.error(`Error closing MCP server: ${toErrorMessage(err)}`);
+      });
+      await drainConnection();
       process.exit(0);
-    });
+    };
+    onShutdownSignal(shutdown);
   }
 }
 
