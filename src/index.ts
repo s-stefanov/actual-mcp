@@ -110,6 +110,34 @@ const safeStringify = (value: unknown): string => {
 const toErrorMessage = (value: unknown): string =>
   value instanceof Error ? `${value.name}: ${value.message}` : safeStringify(value);
 
+// Reason: drainAndClose() waits on in-flight Actual work; if the Actual server is
+// unreachable a hanging sync/download would keep the process alive forever, and because
+// we handle SIGINT ourselves Ctrl-C no longer terminates it. Bound the wait, and let a
+// second signal give up immediately.
+const DRAIN_TIMEOUT_MS = 5000;
+let shuttingDown = false;
+
+const drainConnection = async (): Promise<void> => {
+  const timeout = new Promise<'timeout'>((resolve) => setTimeout(() => resolve('timeout'), DRAIN_TIMEOUT_MS));
+  try {
+    if ((await Promise.race([getActualConnection().drainAndClose(), timeout])) === 'timeout') {
+      console.error(`Actual connection did not drain within ${DRAIN_TIMEOUT_MS}ms, exiting anyway`);
+    }
+  } catch (err) {
+    console.error(`Error during connection shutdown: ${toErrorMessage(err)}`);
+  }
+};
+
+const onShutdownSignal = (shutdown: (signal: string) => Promise<void>): void => {
+  for (const signal of ['SIGINT', 'SIGTERM'] as const) {
+    process.on(signal, () => {
+      if (shuttingDown) process.exit(1);
+      shuttingDown = true;
+      void shutdown(signal);
+    });
+  }
+};
+
 // Reason: a rejection or throw from anywhere in the process (e.g. an unawaited async
 // side-effect inside @actual-app/api, see s-stefanov/actual-mcp#150 and #95) otherwise
 // terminates the whole server. That kills every in-flight tool call and, over stdio,
@@ -331,15 +359,10 @@ async function main(): Promise<void> {
         session.server.close();
         session.transport.close();
       }
-      try {
-        await getActualConnection().drainAndClose();
-      } catch (err) {
-        process.stderr.write(`Error during connection shutdown: ${toErrorMessage(err)}\n`);
-      }
+      await drainConnection();
       process.exit(0);
     };
-    process.on('SIGINT', () => void shutdown('SIGINT'));
-    process.on('SIGTERM', () => void shutdown('SIGTERM'));
+    onShutdownSignal(shutdown);
   } else {
     const server = createServer({ enableWrite: !!enableWrite });
     const transport = new StdioServerTransport();
@@ -349,15 +372,10 @@ async function main(): Promise<void> {
     const shutdown = async (signal: string): Promise<void> => {
       console.error(`${signal} received, shutting down server`);
       server.close();
-      try {
-        await getActualConnection().drainAndClose();
-      } catch (err) {
-        console.error('Error during connection shutdown:', err);
-      }
+      await drainConnection();
       process.exit(0);
     };
-    process.on('SIGINT', () => void shutdown('SIGINT'));
-    process.on('SIGTERM', () => void shutdown('SIGTERM'));
+    onShutdownSignal(shutdown);
   }
 }
 

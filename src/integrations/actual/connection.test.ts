@@ -266,6 +266,15 @@ describe('ActualConnection.drainAndClose', () => {
     expect(api.shutdown).not.toHaveBeenCalled();
   });
 
+  it('still shuts the API down when init opened a handle but a later step failed', async () => {
+    vi.mocked(api.getBudgets).mockResolvedValue([] as never);
+    const conn = getActualConnection();
+    await expect(conn.ensureReady()).rejects.toThrow(/No budgets found/);
+
+    await conn.drainAndClose();
+    expect(api.shutdown).toHaveBeenCalledTimes(1);
+  });
+
   it('logs a shutdown failure and still reaches the closed state', async () => {
     const conn = getActualConnection();
     await conn.ensureReady();

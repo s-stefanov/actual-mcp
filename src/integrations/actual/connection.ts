@@ -18,6 +18,10 @@ export class ActualConnection {
   private queueTail: Promise<unknown> = Promise.resolve();
   private closePromise: Promise<void> | null = null;
   private actualLib: ActualApi | null = null;
+  // Reason: api.init() opens native handles (lmdb/sqlite) before it resolves, and it can
+  // resolve while a later init step still fails. Track "handle may exist" separately from
+  // state so drainAndClose() still shuts the API down after a failed init.
+  private apiOpened = false;
 
   private isClosingOrClosed(): boolean {
     return this.state === 'closing' || this.state === 'closed';
@@ -123,7 +127,6 @@ export class ActualConnection {
    */
   async drainAndClose(): Promise<void> {
     if (this.closePromise) return this.closePromise;
-    const wasInitialized = this.state === 'ready' || this.state === 'initializing';
     this.state = 'closing';
 
     this.closePromise = (async () => {
@@ -131,7 +134,7 @@ export class ActualConnection {
       await Promise.allSettled([this.inflightInit ?? Promise.resolve(), this.inflightSync ?? Promise.resolve()]);
       await this.queueTail.catch(() => undefined);
 
-      if (wasInitialized) {
+      if (this.apiOpened) {
         try {
           await api.shutdown();
         } catch (err) {
@@ -140,6 +143,7 @@ export class ActualConnection {
       }
       this.state = 'closed';
       this.lastSyncAt = 0;
+      this.apiOpened = false;
       this.actualLib = null;
     })();
 
@@ -157,6 +161,7 @@ export class ActualConnection {
     const password = process.env.ACTUAL_PASSWORD;
     // Reason: InitConfig is a discriminated union in 26.x — NoServerConfig forbids serverURL/password
     const initConfig = serverURL ? { dataDir, serverURL, password: password ?? '' } : { dataDir };
+    this.apiOpened = true;
     this.actualLib = await api.init(initConfig);
 
     const budgets: BudgetFile[] = await api.getBudgets();
