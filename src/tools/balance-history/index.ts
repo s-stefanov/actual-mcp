@@ -12,7 +12,7 @@ import { toJSONSchema } from 'zod';
 export const schema = {
   name: 'balance-history',
   description: 'Get account balance history over time',
-  inputSchema: toJSONSchema(BalanceHistoryArgsSchema) as ToolInput,
+  inputSchema: toJSONSchema(BalanceHistoryArgsSchema, { io: 'input' }) as ToolInput,
 };
 
 export async function handler(args: BalanceHistoryArgs): Promise<CallToolResult> {

@@ -38,6 +38,23 @@ describe('MonthlySummaryTransactionAggregator', () => {
     ).toEqual([{ year: 2026, month: 1, income: -200, expenses: -500, transactions: 2 }]);
   });
 
+  it('classifies grouped split children without counting their parent', () => {
+    expect(
+      aggregator.aggregate(
+        [
+          {
+            ...transaction('2026-01-05', 10_000),
+            is_parent: true,
+            subtransactions: [transaction('2026-01-05', 6_000, 'salary'), transaction('2026-01-05', 4_000, 'bonus')],
+          },
+        ],
+        new Set(['salary', 'bonus']),
+        '2026-01-01',
+        '2026-01-31'
+      )
+    ).toEqual([{ year: 2026, month: 1, income: 10_000, expenses: 0, transactions: 2 }]);
+  });
+
   it('skips both uncategorized transfer legs but counts categorized transfers', () => {
     expect(
       aggregator.aggregate(
