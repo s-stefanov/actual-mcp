@@ -150,7 +150,10 @@ export class ActualConnection {
     return this.closePromise;
   }
 
-  /** Carried over verbatim from the previous initActualApi body. */
+  /**
+   * Open the API, pick a budget, and download it. On any failure after `api.init()`
+   * has opened handles, releases them before rethrowing so a retry starts clean.
+   */
   private async doInit(): Promise<void> {
     console.error('Initializing Actual Budget API...');
     const dataDir = process.env.ACTUAL_DATA_DIR || DEFAULT_DATA_DIR;
@@ -164,22 +167,38 @@ export class ActualConnection {
     this.apiOpened = true;
     this.actualLib = await api.init(initConfig);
 
-    const budgets: BudgetFile[] = await api.getBudgets();
-    if (!budgets || budgets.length === 0) {
-      throw new Error('No budgets found. Please create a budget in Actual first.');
+    try {
+      const budgets: BudgetFile[] = await api.getBudgets();
+      if (!budgets || budgets.length === 0) {
+        throw new Error('No budgets found. Please create a budget in Actual first.');
+      }
+
+      const budgetId: string = process.env.ACTUAL_BUDGET_SYNC_ID || budgets[0].cloudFileId || budgets[0].id || '';
+      console.error(`Loading budget: ${budgetId}`);
+      await api.downloadBudget(
+        budgetId,
+        process.env.ACTUAL_BUDGET_ENCRYPTION_PASSWORD
+          ? { password: process.env.ACTUAL_BUDGET_ENCRYPTION_PASSWORD }
+          : undefined
+      );
+
+      // Reason: seed lastSyncAt so the first call after init does not immediately sync.
+      this.lastSyncAt = Date.now();
+    } catch (err) {
+      // Reason: api.init() already opened native handles. Release them here, before a
+      // retry can call api.init() again, instead of leaving the failed attempt's state
+      // around for drainAndClose() to find later. If shutdown itself fails, keep
+      // apiOpened=true so drainAndClose() still attempts cleanup, but always rethrow the
+      // original error rather than the shutdown error.
+      try {
+        await api.shutdown();
+        this.apiOpened = false;
+        this.actualLib = null;
+      } catch (shutdownErr) {
+        console.error('Error shutting down Actual Budget API after failed init:', shutdownErr);
+      }
+      throw err;
     }
-
-    const budgetId: string = process.env.ACTUAL_BUDGET_SYNC_ID || budgets[0].cloudFileId || budgets[0].id || '';
-    console.error(`Loading budget: ${budgetId}`);
-    await api.downloadBudget(
-      budgetId,
-      process.env.ACTUAL_BUDGET_ENCRYPTION_PASSWORD
-        ? { password: process.env.ACTUAL_BUDGET_ENCRYPTION_PASSWORD }
-        : undefined
-    );
-
-    // Reason: seed lastSyncAt so the first call after init does not immediately sync.
-    this.lastSyncAt = Date.now();
     console.error('Actual Budget API initialized successfully');
   }
 }

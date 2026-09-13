@@ -29,6 +29,7 @@ describe('ActualConnection.ensureReady', () => {
     vi.mocked(api.init).mockResolvedValue(undefined as never);
     vi.mocked(api.getBudgets).mockResolvedValue([{ id: 'budget-1', cloudFileId: 'cloud-1' }] as never);
     vi.mocked(api.downloadBudget).mockResolvedValue(undefined as never);
+    vi.mocked(api.shutdown).mockResolvedValue(undefined as never);
     process.env.ACTUAL_SERVER_URL = 'https://example.invalid';
     process.env.ACTUAL_PASSWORD = 'secret';
     delete process.env.ACTUAL_SYNC_TTL_MS;
@@ -57,6 +58,24 @@ describe('ActualConnection.ensureReady', () => {
     // api.init resolves normally on the retry (default mockResolvedValue).
     await expect(conn.ensureReady()).resolves.toBeUndefined();
     expect(api.init).toHaveBeenCalledTimes(2);
+  });
+
+  it('shuts down the failed attempt before a retry calls api.init again', async () => {
+    vi.mocked(api.downloadBudget).mockRejectedValueOnce(new Error('download boom'));
+    const conn = getActualConnection();
+
+    await expect(conn.ensureReady()).rejects.toThrow('download boom');
+    // api.downloadBudget resolves normally on the retry (default mockResolvedValue).
+    await expect(conn.ensureReady()).resolves.toBeUndefined();
+
+    expect(api.init).toHaveBeenCalledTimes(2);
+    expect(api.shutdown).toHaveBeenCalledTimes(1);
+    // Reason: shutdown from the failed attempt must complete before the retry's
+    // api.init() runs, so the module-level API state is never overwritten while
+    // the failed attempt's handles are still open.
+    expect(vi.mocked(api.shutdown).mock.invocationCallOrder[0]).toBeLessThan(
+      vi.mocked(api.init).mock.invocationCallOrder[1]
+    );
   });
 });
 

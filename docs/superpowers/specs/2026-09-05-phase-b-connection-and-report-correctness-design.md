@@ -40,7 +40,7 @@ States: `idle → initializing → ready → closing → closed`, plus `failed` 
 
 | File | Change |
 | --- | --- |
-| `src/actual-api.ts` | Every exported wrapper keeps its signature but delegates through `connection.run(...)`. `initActualApi`/`shutdownActualApi` remain as deprecated aliases for `ensureReady`/`drainAndClose`. **No tool file changes.** |
+| `src/actual-api.ts` | Every exported wrapper keeps its signature but delegates through `connection.run(...)`. `initActualApi`/`shutdownActualApi` remain as deprecated aliases for `ensureReady`/`drainAndClose`. **No individual tool implementation files change** (the shared `src/tools/index.ts` lifecycle calls do change; see the next row). |
 | `src/tools/index.ts` | Remove `finally { await shutdownActualApi() }` and the up-front `initActualApi()` (wrappers ensure readiness). |
 | `src/resources.ts` | Remove `shutdownActualApi()` from listing. Replace direct `api.getAccounts` / `api.getTransactions` / `api.getAccountBalance` calls with the `actual-api.ts` wrappers so resources flow through the queue. |
 | `src/index.ts` | SIGINT/SIGTERM handlers call `drainAndClose()` before exit for both stdio and HTTP modes; in HTTP mode, stop accepting requests, then drain the connection, then exit. |
