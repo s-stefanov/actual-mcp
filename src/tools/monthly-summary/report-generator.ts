@@ -20,7 +20,7 @@ export class MonthlySummaryReportGenerator {
     markdown += `| ----- | ------ | -------- | ------- | ------------ |\n`;
 
     sortedMonths.forEach((month) => {
-      const monthName = new Date(month.year, month.month - 1, 1).toLocaleString('default', { month: 'long' });
+      const monthName = new Date(month.year, month.month - 1, 1).toLocaleString('en-US', { month: 'long' });
       const savings = month.income - month.expenses;
       const savingsRate = month.income > 0 ? (savings / month.income) * 100 : 0;
 

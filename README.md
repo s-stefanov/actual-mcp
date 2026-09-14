@@ -156,7 +156,7 @@ The server keeps one shared Actual connection for its entire lifetime and serial
 ### Report semantics
 
 - Balances and balance histories are capped as of today; future-dated transactions are excluded, and the current-month balance-history row is partial.
-- Closed accounts remain in historical reports.
+- Closed on-budget accounts remain included in historical reports; closed off-budget accounts stay excluded by default.
 - Monthly income follows Actual's income-group metadata. Refunds net against expenses, zero-activity months count in averages, and uncategorized transfer pairs are skipped.
 - The former Investments bucket is removed from monthly summaries.
 
