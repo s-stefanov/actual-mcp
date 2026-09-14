@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.14.0](https://github.com/s-stefanov/actual-mcp/compare/v1.13.0...v1.14.0) (2026-09-14)
+
+
+### Features
+
+* Fix report correctness: balances, income classification, refunds, dates ([#235](https://github.com/s-stefanov/actual-mcp/issues/235)) ([e110cc6](https://github.com/s-stefanov/actual-mcp/commit/e110cc6d49069e24e1089f91b8ccb01eeb6b21ab))
+* Own the Actual connection lifecycle end-to-end ([#234](https://github.com/s-stefanov/actual-mcp/issues/234)) ([73432ba](https://github.com/s-stefanov/actual-mcp/commit/73432ba19c7a1c4b97698914c3fdd31f08047331))
+
+
+### Bug Fixes
+
+* **deps:** update dependency zod to v4.6.4 ([#217](https://github.com/s-stefanov/actual-mcp/issues/217)) ([052e3fe](https://github.com/s-stefanov/actual-mcp/commit/052e3feb49685873a0d42c0203b416388f09bf9a))
+* keep release-please tags as v&lt;version&gt; ([#231](https://github.com/s-stefanov/actual-mcp/issues/231)) ([42e66ca](https://github.com/s-stefanov/actual-mcp/commit/42e66ca57c1ebee75a3805ff4e1a0bfb0f26c890))
+* remove duplicate npm ci --omit=dev layer in release image ([#233](https://github.com/s-stefanov/actual-mcp/issues/233)) ([92335cd](https://github.com/s-stefanov/actual-mcp/commit/92335cd746213fc4bb70fadfb66601dd13a13d23))
+
 ## [1.13.0](https://github.com/s-stefanov/actual-mcp/compare/v1.12.1...v1.13.0) (2026-09-12)
 
 
