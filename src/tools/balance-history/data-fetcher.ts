@@ -1,33 +1,40 @@
 // Fetches accounts, transactions, and balances for balance-history tool
 import { fetchAllAccounts } from '../../core/data/fetch-accounts.js';
+import { fetchAccountBalanceAsOf } from '../../core/data/fetch-account-balance.js';
 import { fetchAllTransactions, fetchTransactionsForAccount } from '../../core/data/fetch-transactions.js';
 import type { Account, Transaction } from '../../core/types/domain.js';
-import { getAccountBalance } from '../../actual-api.js';
 
 export class BalanceHistoryDataFetcher {
   async fetchAll(
     accountId: string | undefined,
+    includeOffBudget: boolean,
     start: string,
-    end: string
+    end: string,
+    endDate: Date
   ): Promise<{
-    account: Account | undefined;
+    account?: Account;
     accounts: Account[];
     transactions: Transaction[];
   }> {
-    const accounts = await fetchAllAccounts();
-    const account = accounts.find((a) => a.id === accountId);
+    const allAccounts = await fetchAllAccounts();
 
-    let transactions: Transaction[] = [];
-    if (accountId && account) {
-      transactions = await fetchTransactionsForAccount(accountId, start, end);
-      account.balance = await getAccountBalance(accountId, new Date('2099-01-01'));
-    } else {
-      transactions = await fetchAllTransactions(accounts, start, end);
-      for (const a of accounts) {
-        a.balance = await getAccountBalance(a.id, new Date('2099-01-01'));
+    if (accountId) {
+      const account = allAccounts.find((candidate) => candidate.id === accountId);
+      if (!account) {
+        throw new Error(`Account with ID ${accountId} not found`);
       }
+
+      account.balance = await fetchAccountBalanceAsOf(account.id, endDate);
+      const transactions = await fetchTransactionsForAccount(account.id, start, end);
+      return { account, accounts: [account], transactions };
     }
 
-    return { account, accounts, transactions };
+    const accounts = allAccounts.filter((account) => includeOffBudget || !account.offbudget);
+    const transactions = await fetchAllTransactions(accounts, start, end);
+    for (const account of accounts) {
+      account.balance = await fetchAccountBalanceAsOf(account.id, endDate);
+    }
+
+    return { accounts, transactions };
   }
 }

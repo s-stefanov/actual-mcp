@@ -1,24 +1,11 @@
-import type { Category } from '../../types.js';
+import type { Category, CategoryGroup } from '../../core/types/domain.js';
+import { CategoryMapper } from '../../core/mapping/category-mapper.js';
 
 export class MonthlySummaryCategoryClassifier {
-  classify(categories: Category[]): {
-    incomeCategories: Set<string>;
-    investmentSavingsCategories: Set<string>;
-  } {
-    const incomeCategories = new Set<string>();
-    const investmentSavingsCategories = new Set<string>();
-
-    categories.forEach((cat) => {
-      if (cat.is_income) incomeCategories.add(cat.id);
-      if (
-        cat.name.toLowerCase().includes('investment') ||
-        cat.name.toLowerCase().includes('vacation') ||
-        cat.name.toLowerCase().includes('savings')
-      ) {
-        investmentSavingsCategories.add(cat.id);
-      }
-    });
-
-    return { incomeCategories, investmentSavingsCategories };
+  classify(categories: Category[], groups: CategoryGroup[]): Set<string> {
+    const mapper = new CategoryMapper(categories, groups);
+    return new Set(
+      categories.filter((category) => mapper.getGroupInfo(category.id)?.isIncome).map((category) => category.id)
+    );
   }
 }

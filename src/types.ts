@@ -42,9 +42,9 @@ export const MonthlySummaryArgsSchema = z.object({
 export type MonthlySummaryArgs = z.infer<typeof MonthlySummaryArgsSchema>;
 
 export const BalanceHistoryArgsSchema = z.object({
-  accountId: z.string(),
-  includeOffBudget: z.boolean().optional().default(false),
-  months: z.number().optional().default(3),
+  accountId: z.string().min(1).optional(),
+  includeOffBudget: z.boolean().default(false),
+  months: z.number().int().positive().default(3),
 });
 
 export type BalanceHistoryArgs = z.infer<typeof BalanceHistoryArgsSchema>;
@@ -296,7 +296,6 @@ export interface CategoryGroupInfo {
   id: string;
   name: string;
   isIncome: boolean;
-  isSavingsOrInvestment: boolean;
 }
 
 export interface CategorySpending {
@@ -318,7 +317,6 @@ export interface MonthData {
   month: number;
   income: number;
   expenses: number;
-  investments: number;
   transactions: number;
 }
 

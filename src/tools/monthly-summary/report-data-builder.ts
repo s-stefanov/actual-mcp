@@ -11,11 +11,8 @@ export class MonthlySummaryReportDataBuilder {
     averages: {
       avgIncome: number;
       avgExpenses: number;
-      avgInvestments: number;
-      avgTraditionalSavings: number;
-      avgTotalSavings: number;
-      avgTraditionalSavingsRate: number;
-      avgTotalSavingsRate: number;
+      avgSavings: number;
+      avgSavingsRate: number;
     }
   ): MonthlySummaryReportData {
     const accountName = accountId ? accounts.find((a) => a.id === accountId)?.name : undefined;

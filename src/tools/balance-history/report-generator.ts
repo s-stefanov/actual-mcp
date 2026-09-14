@@ -24,7 +24,9 @@ export class BalanceHistoryReportGenerator {
 
     sortedMonths.forEach((month) => {
       const accountName = month.account;
-      const monthName: string = new Date(month.year, month.month - 1, 1).toLocaleString('default', { month: 'long' });
+      const monthName = `${new Date(month.year, month.month - 1, 1).toLocaleString('default', {
+        month: 'long',
+      })} ${month.year}${month.isPartial ? ' (partial)' : ''}`;
       const balance: string = formatAmount(month.balance);
 
       let change = '';
@@ -34,11 +36,11 @@ export class BalanceHistoryReportGenerator {
       change = `${direction} ${changeFormatted}`;
 
       if (account) {
-        markdown += `| ${monthName} ${month.year} | ${balance} | ${change} | ${month.transactions} |\n`;
+        markdown += `| ${monthName} | ${balance} | ${change} | ${month.transactions} |\n`;
       } else {
         if (monthName != previousMonth) {
           previousMonth = monthName;
-          markdown += `| ${monthName} ${month.year} |\n`;
+          markdown += `| ${monthName} |\n`;
         }
         markdown += `${accountName} | ${balance} | ${change} | ${month.transactions} |\n`;
       }

@@ -21,25 +21,21 @@ describe('TransactionGrouper', () => {
         id: 'g1',
         name: 'Living',
         isIncome: false,
-        isSavingsOrInvestment: false,
       },
       cat2: {
         id: 'g1',
         name: 'Living',
         isIncome: false,
-        isSavingsOrInvestment: false,
       },
       cat3: {
         id: 'g2',
         name: 'Income',
         isIncome: true,
-        isSavingsOrInvestment: false,
       },
       cat4: {
         id: 'g1',
         name: 'Living',
         isIncome: false,
-        isSavingsOrInvestment: false,
       },
     };
     return groups[categoryId];

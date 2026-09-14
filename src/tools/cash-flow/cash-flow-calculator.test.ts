@@ -52,6 +52,12 @@ describe('CashFlowCalculator', () => {
     expect(result[0].label).toBe('Week of 2026-06-29');
   });
 
+  it('keeps a Monday week key in the local calendar date', () => {
+    const result = new CashFlowCalculator().calculate([transaction('2026-07-06', -1000)], 'weekly');
+
+    expect(result[0].key).toBe('2026-07-06');
+  });
+
   it('excludes transfers from both income and expenses', () => {
     const transactions = [
       transaction('2026-07-01', 500000),

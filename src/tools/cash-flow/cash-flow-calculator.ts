@@ -1,5 +1,5 @@
 // Buckets transactions into periods and totals inflow/outflow for cash-flow tool
-import { formatMonthLabel } from '../../utils.js';
+import { formatDate, formatMonthLabel } from '../../utils.js';
 import type { Transaction } from '../../core/types/domain.js';
 import type { CashFlowPeriod } from './types.js';
 
@@ -50,6 +50,6 @@ export class CashFlowCalculator {
     const d = new Date(`${date}T00:00:00`);
     const dayOfWeek = (d.getDay() + 6) % 7;
     d.setDate(d.getDate() - dayOfWeek);
-    return d.toISOString().slice(0, 10);
+    return formatDate(d);
   }
 }

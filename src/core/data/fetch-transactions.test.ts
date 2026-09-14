@@ -172,27 +172,32 @@ describe('fetchAllOnBudgetTransactions', () => {
     vi.resetAllMocks();
   });
 
-  it('should return transactions for all on-budget accounts', async () => {
+  it('should return transactions for open and closed on-budget accounts', async () => {
     const mockAccounts: Account[] = [
       { id: 'acc1', name: 'Checking', offbudget: false, closed: false },
       { id: 'acc2', name: 'Savings', offbudget: false, closed: false },
       { id: 'acc3', name: 'Credit Card', offbudget: true, closed: false }, // Should be excluded
-      { id: 'acc4', name: 'Old Account', offbudget: false, closed: true }, // Should be excluded
+      { id: 'acc4', name: 'Old Account', offbudget: false, closed: true },
     ];
 
     const mockTransactions1 = [{ id: '1', account: 'acc1', date: '2023-01-01', amount: -100 }];
     const mockTransactions2 = [{ id: '2', account: 'acc2', date: '2023-01-01', amount: -50 }];
+    const mockTransactions3 = [{ id: '3', account: 'acc4', date: '2023-01-01', amount: -25 }];
 
-    vi.mocked(getTransactions).mockResolvedValueOnce(mockTransactions1).mockResolvedValueOnce(mockTransactions2);
+    vi.mocked(getTransactions)
+      .mockResolvedValueOnce(mockTransactions1)
+      .mockResolvedValueOnce(mockTransactions2)
+      .mockResolvedValueOnce(mockTransactions3);
     vi.mocked(fetchAllPayees).mockResolvedValue([]);
     vi.mocked(fetchAllCategories).mockResolvedValue([]);
 
     const result = await fetchAllOnBudgetTransactions(mockAccounts, '2023-01-01', '2023-01-31');
 
-    expect(result).toEqual([...mockTransactions1, ...mockTransactions2]);
-    expect(getTransactions).toHaveBeenCalledTimes(2);
+    expect(result).toEqual([...mockTransactions1, ...mockTransactions2, ...mockTransactions3]);
+    expect(getTransactions).toHaveBeenCalledTimes(3);
     expect(getTransactions).toHaveBeenCalledWith('acc1', '2023-01-01', '2023-01-31');
     expect(getTransactions).toHaveBeenCalledWith('acc2', '2023-01-01', '2023-01-31');
+    expect(getTransactions).toHaveBeenCalledWith('acc4', '2023-01-01', '2023-01-31');
   });
 
   it('should handle empty accounts array', async () => {
@@ -204,10 +209,10 @@ describe('fetchAllOnBudgetTransactions', () => {
     expect(fetchAllCategories).not.toHaveBeenCalled();
   });
 
-  it('should handle accounts with no on-budget accounts', async () => {
+  it('should handle accounts with only off-budget accounts', async () => {
     const mockAccounts: Account[] = [
       { id: 'acc1', name: 'Credit Card', offbudget: true, closed: false },
-      { id: 'acc2', name: 'Old Account', offbudget: false, closed: true },
+      { id: 'acc2', name: 'Savings', offbudget: true, closed: true },
     ];
 
     const result = await fetchAllOnBudgetTransactions(mockAccounts, '2023-01-01', '2023-01-31');

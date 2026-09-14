@@ -22,18 +22,17 @@ export async function handler(args: MonthlySummaryArgs): Promise<CallToolResult>
     const input = new MonthlySummaryInputParser().parse(args);
     const { start, end } = getDateRangeForMonths(input.months);
 
-    const { accounts, categories, transactions } = await new MonthlySummaryDataFetcher().fetchAll(
+    const { accounts, categories, categoryGroups, transactions } = await new MonthlySummaryDataFetcher().fetchAll(
       input.accountId,
       start,
       end
     );
-    const { incomeCategories, investmentSavingsCategories } = new MonthlySummaryCategoryClassifier().classify(
-      categories
-    );
+    const incomeCategories = new MonthlySummaryCategoryClassifier().classify(categories, categoryGroups);
     const sortedMonths = new MonthlySummaryTransactionAggregator().aggregate(
       transactions,
       incomeCategories,
-      investmentSavingsCategories
+      start,
+      end
     );
     const averages = new MonthlySummaryCalculator().calculateAverages(sortedMonths);
     const reportData = new MonthlySummaryReportDataBuilder().build(
