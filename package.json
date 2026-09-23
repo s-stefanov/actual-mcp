@@ -56,7 +56,7 @@
     "eslint-plugin-prettier": "5.5.6",
     "globals": "17.12.0",
     "jiti": "2.7.0",
-    "prettier": "3.9.6",
+    "prettier": "3.9.9",
     "testcontainers": "^12.1.0",
     "tsx": "4.23.13",
     "typescript": "5.9.3",
