@@ -11,7 +11,8 @@ import { toJSONSchema } from 'zod';
 
 export const schema = {
   name: 'get-transactions',
-  description: 'Get transactions for an account with optional filtering',
+  description:
+    'Get transactions with optional filtering, for one account or across all accounts if accountId is omitted',
   inputSchema: toJSONSchema(GetTransactionsArgsSchema) as ToolInput,
 };
 
@@ -23,7 +24,9 @@ export async function handler(args: GetTransactionsArgs): Promise<CallToolResult
 
     // Fetch transactions
     const transactions = await new GetTransactionsDataFetcher().fetch(accountId, start, end);
-    let filtered = [...transactions];
+    // Reason: `limit` must slice the most recent transactions, not whatever order the
+    // per-account fetches happened to concatenate in.
+    let filtered = [...transactions].sort((a, b) => b.date.localeCompare(a.date));
 
     if (minAmount !== undefined) {
       filtered = filtered.filter((t) => t.amount >= minAmount * 100);

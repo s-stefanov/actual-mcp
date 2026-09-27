@@ -13,7 +13,7 @@ export interface BudgetFile {
 
 // Type definitions for tool arguments
 export const GetTransactionsArgsSchema = z.object({
-  accountId: z.string(),
+  accountId: z.string().optional(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
   minAmount: z.number().optional(),
