@@ -267,6 +267,18 @@ docker run -i --rm \
 > ⚠️ Important: When using --enable-bearer, the BEARER_TOKEN environment variable must be set.  
 > 🔒 This is highly recommended if you're exposing your server via a public URL.
 
+For serverless or frequently restarted deployments, add `--stateless`:
+
+```bash
+actual-mcp --sse --stateless --port 3000
+```
+
+This makes the Streamable HTTP endpoints (`/` and `/mcp`) create a fresh transport for every
+request and omit `Mcp-Session-Id` response headers. Clients may continue sending an old session
+header after a container restart; stateless mode safely ignores it instead of returning
+`400 No valid session ID`. Stateful sessions remain the default, and the legacy `/sse` endpoint
+is unaffected.
+
 ## Example Queries
 
 Once connected, you can ask Claude questions like:

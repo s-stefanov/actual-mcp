@@ -32,6 +32,7 @@ dotenv.config({ path: '.env', quiet: true } as Parameters<typeof dotenv.config>[
 const {
   values: {
     sse: useSse,
+    stateless: useStatelessHttp,
     'enable-write': enableWrite,
     'enable-bearer': enableBearer,
     port,
@@ -41,6 +42,7 @@ const {
 } = parseArgs({
   options: {
     sse: { type: 'boolean', default: false },
+    stateless: { type: 'boolean', default: false },
     'enable-write': { type: 'boolean', default: false },
     'enable-bearer': { type: 'boolean', default: false },
     port: { type: 'string' },
@@ -230,6 +232,7 @@ async function main(): Promise<void> {
     // Per-connection maps for legacy SSE and streamable HTTP
     const legacySseConnections = new Map<string, { server: Server; transport: SSEServerTransport }>();
     const streamableSessions = new Map<string, { server: Server; transport: StreamableHTTPServerTransport }>();
+    const statelessRequests = new Set<() => Promise<void>>();
 
     const parseSessionHeader = (value: string | string[] | undefined): string | undefined => {
       if (!value) {
@@ -267,12 +270,34 @@ async function main(): Promise<void> {
 
     app.all(streamablePaths, bearerAuth, async (req: Request, res: Response) => {
       const sessionHeader = parseSessionHeader(req.headers['mcp-session-id']);
-      if (req.method === 'GET' && !sessionHeader && req.headers.accept?.includes('text/event-stream')) {
-        handleLegacySse(req, res);
-        return;
-      }
       const requestLabel = `${req.method} ${req.path}`;
       try {
+        if (useStatelessHttp) {
+          const requestServer = createServer({ enableWrite: !!enableWrite });
+          const transport = new StreamableHTTPServerTransport({
+            sessionIdGenerator: undefined,
+            enableJsonResponse: true,
+          });
+          let closed = false;
+          const closeRequest = async (): Promise<void> => {
+            if (closed) return;
+            closed = true;
+            statelessRequests.delete(closeRequest);
+            await Promise.allSettled([requestServer.close(), transport.close()]);
+          };
+
+          statelessRequests.add(closeRequest);
+          res.once('close', () => void closeRequest());
+          await requestServer.connect(transport);
+          await transport.handleRequest(req, res, req.body);
+          return;
+        }
+
+        if (req.method === 'GET' && !sessionHeader && req.headers.accept?.includes('text/event-stream')) {
+          handleLegacySse(req, res);
+          return;
+        }
+
         let session = sessionHeader ? streamableSessions.get(sessionHeader) : undefined;
 
         if (!session) {
@@ -392,6 +417,9 @@ async function main(): Promise<void> {
       for (const [, session] of streamableSessions) {
         closures.push(session.server.close());
         closures.push(session.transport.close());
+      }
+      for (const closeRequest of statelessRequests) {
+        closures.push(closeRequest());
       }
 
       // Reason: the listener callback (and the SSE/StreamableHTTP transports it's
