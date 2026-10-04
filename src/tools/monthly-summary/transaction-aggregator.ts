@@ -19,7 +19,10 @@ export class MonthlySummaryTransactionAggregator {
     }
 
     // # Reason: Grouped split parents duplicate their children, which contain the real categories.
-    const transactionsToAggregate = transactions.flatMap((transaction) => transaction.subtransactions ?? [transaction]);
+    // Ordinary transactions arrive with an empty `subtransactions` array, which is not nullish, so test its length.
+    const transactionsToAggregate = transactions.flatMap((transaction) =>
+      transaction.subtransactions?.length ? transaction.subtransactions : [transaction]
+    );
     transactionsToAggregate.forEach((transaction) => {
       // # Reason: Uncategorized transfer legs move existing funds without changing income or expenses.
       if (transaction.transfer_id && !transaction.category) return;
