@@ -55,6 +55,29 @@ describe('MonthlySummaryTransactionAggregator', () => {
     ).toEqual([{ year: 2026, month: 1, income: 10_000, expenses: 0, transactions: 2 }]);
   });
 
+  it('counts ordinary transactions that carry an empty subtransactions array', () => {
+    // Actual's grouped query returns `subtransactions: []` for every non-split transaction.
+    expect(
+      aggregator.aggregate(
+        [
+          { ...transaction('2026-01-05', 10_000, 'salary'), subtransactions: [] },
+          { ...transaction('2026-01-10', -5_000, 'groceries'), subtransactions: [] },
+          {
+            ...transaction('2026-01-15', -3_000),
+            is_parent: true,
+            subtransactions: [
+              transaction('2026-01-15', -2_000, 'groceries'),
+              transaction('2026-01-15', -1_000, 'fuel'),
+            ],
+          },
+        ],
+        new Set(['salary']),
+        '2026-01-01',
+        '2026-01-31'
+      )
+    ).toEqual([{ year: 2026, month: 1, income: 10_000, expenses: 8_000, transactions: 4 }]);
+  });
+
   it('skips both uncategorized transfer legs but counts categorized transfers', () => {
     expect(
       aggregator.aggregate(
