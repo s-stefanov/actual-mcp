@@ -37,6 +37,7 @@ import * as monthlySummary from './monthly-summary/index.js';
 import * as createPayee from './payees/create-payee/index.js';
 import * as deletePayee from './payees/delete-payee/index.js';
 import * as getPayees from './payees/get-payees/index.js';
+import * as mergePayees from './payees/merge-payees/index.js';
 import * as updatePayee from './payees/update-payee/index.js';
 import * as createRule from './rules/create-rule/index.js';
 import * as deleteRule from './rules/delete-rule/index.js';
@@ -85,6 +86,7 @@ const writeTools = [
   createPayee,
   updatePayee,
   deletePayee,
+  mergePayees,
   createRule,
   updateRule,
   deleteRule,

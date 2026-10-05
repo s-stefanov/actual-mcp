@@ -65,6 +65,7 @@ The Actual Budget MCP Server allows you to interact with your personal financial
 - **`create-payee`** - Create a new payee
 - **`update-payee`** - Update an existing payee's details
 - **`delete-payee`** - Delete a payee
+- **`merge-payees`** - Merge duplicate payees into a single target payee
 
 #### Rules
 
