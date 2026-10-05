@@ -2,19 +2,27 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { handler } from './index.js';
 
 vi.mock('../../../actual-api.js', () => ({
+  getPayees: vi.fn(),
   mergePayees: vi.fn(),
 }));
 
-import { mergePayees } from '../../../actual-api.js';
+import { getPayees, mergePayees } from '../../../actual-api.js';
+
+const payees = [
+  { id: 'target', name: 'Target' },
+  { id: 'a', name: 'A' },
+  { id: 'b', name: 'B' },
+  { id: 'transfer', name: 'Savings', transfer_acct: 'account-1' },
+];
 
 describe('merge-payees handler', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(getPayees).mockResolvedValue(payees);
+    vi.mocked(mergePayees).mockResolvedValue(undefined);
   });
 
   it('should merge payees into the target', async () => {
-    vi.mocked(mergePayees).mockResolvedValue(undefined);
-
     const result = await handler({ targetId: 'target', mergeIds: ['a', 'b'] });
 
     expect(result.isError).toBeFalsy();
@@ -23,8 +31,6 @@ describe('merge-payees handler', () => {
   });
 
   it('should drop duplicates and the target itself from mergeIds', async () => {
-    vi.mocked(mergePayees).mockResolvedValue(undefined);
-
     const result = await handler({ targetId: 'target', mergeIds: ['a', 'target', 'a'] });
 
     expect(result.isError).toBeFalsy();
@@ -45,12 +51,36 @@ describe('merge-payees handler', () => {
     expect(mergePayees).not.toHaveBeenCalled();
   });
 
+  it('should reject payee IDs that do not exist', async () => {
+    const result = await handler({ targetId: 'target', mergeIds: ['a', 'missing'] });
+
+    expect(result.isError).toBe(true);
+    expect(result.content[0]).toMatchObject({ type: 'text', text: expect.stringContaining('missing does not exist') });
+    expect(mergePayees).not.toHaveBeenCalled();
+  });
+
+  it('should reject a transfer payee as the target', async () => {
+    const result = await handler({ targetId: 'transfer', mergeIds: ['a'] });
+
+    expect(result.isError).toBe(true);
+    expect(result.content[0]).toMatchObject({ type: 'text', text: expect.stringContaining('transfer payee') });
+    expect(mergePayees).not.toHaveBeenCalled();
+  });
+
+  it('should reject a transfer payee in mergeIds', async () => {
+    const result = await handler({ targetId: 'target', mergeIds: ['a', 'transfer'] });
+
+    expect(result.isError).toBe(true);
+    expect(result.content[0]).toMatchObject({ type: 'text', text: expect.stringContaining('transfer payee') });
+    expect(mergePayees).not.toHaveBeenCalled();
+  });
+
   it('should return an error response when the API throws', async () => {
-    vi.mocked(mergePayees).mockRejectedValue(new Error('Payee not found'));
+    vi.mocked(mergePayees).mockRejectedValue(new Error('Database locked'));
 
     const result = await handler({ targetId: 'target', mergeIds: ['a'] });
 
     expect(result.isError).toBe(true);
-    expect(result.content[0]).toMatchObject({ type: 'text', text: expect.stringContaining('Payee not found') });
+    expect(result.content[0]).toMatchObject({ type: 'text', text: expect.stringContaining('Database locked') });
   });
 });
