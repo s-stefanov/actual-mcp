@@ -115,6 +115,15 @@ export function deletePayee(id: string): Promise<unknown> {
 }
 
 /**
+ * Merges payees into a target payee. Transactions referencing the merged payees are
+ * reassigned to the target; rules keep working because Actual maps the merged payee IDs
+ * to the target when rules are loaded.
+ */
+export function mergePayees(targetId: string, mergeIds: string[]): Promise<void> {
+  return getActualConnection().run(() => api.mergePayees(targetId, mergeIds));
+}
+
+/**
  * Creates a transaction rule and returns the resulting entity.
  */
 export function createRule(args: Record<string, unknown>): Promise<RuleEntity> {
