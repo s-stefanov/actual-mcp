@@ -9,7 +9,7 @@ vi.mock('@actual-app/api', () => ({
 }));
 
 import * as api from '@actual-app/api';
-import { getActualConnection, resetActualConnectionForTests } from './connection.js';
+import { buildInitConfig, getActualConnection, resetActualConnectionForTests } from './connection.js';
 
 /** A promise whose resolve/reject are exposed, for deterministic ordering control. */
 function deferred<T>(): { promise: Promise<T>; resolve: (v: T) => void; reject: (e: unknown) => void } {
@@ -309,5 +309,80 @@ describe('ActualConnection.drainAndClose', () => {
     } finally {
       consoleError.mockRestore();
     }
+  });
+});
+
+describe('buildInitConfig', () => {
+  const saved = { ...process.env };
+
+  beforeEach(() => {
+    delete process.env.ACTUAL_SERVER_URL;
+    delete process.env.ACTUAL_PASSWORD;
+    delete process.env.ACTUAL_SESSION_TOKEN;
+  });
+
+  afterEach(() => {
+    process.env = { ...saved };
+    vi.restoreAllMocks();
+  });
+
+  it('uses the session token when ACTUAL_SESSION_TOKEN is set', () => {
+    process.env.ACTUAL_SERVER_URL = 'https://example.invalid';
+    process.env.ACTUAL_SESSION_TOKEN = 'token-123';
+    expect(buildInitConfig('/data')).toEqual({
+      dataDir: '/data',
+      serverURL: 'https://example.invalid',
+      sessionToken: 'token-123',
+    });
+  });
+
+  it('prefers the session token over the password and warns', () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    process.env.ACTUAL_SERVER_URL = 'https://example.invalid';
+    process.env.ACTUAL_SESSION_TOKEN = 'token-123';
+    process.env.ACTUAL_PASSWORD = 'secret';
+    expect(buildInitConfig('/data')).toEqual({
+      dataDir: '/data',
+      serverURL: 'https://example.invalid',
+      sessionToken: 'token-123',
+    });
+    expect(consoleError).toHaveBeenCalledOnce();
+  });
+
+  it('falls back to password auth when no session token is set', () => {
+    process.env.ACTUAL_SERVER_URL = 'https://example.invalid';
+    process.env.ACTUAL_PASSWORD = 'secret';
+    expect(buildInitConfig('/data')).toEqual({
+      dataDir: '/data',
+      serverURL: 'https://example.invalid',
+      password: 'secret',
+    });
+  });
+
+  it('ignores credentials when no server URL is set', () => {
+    process.env.ACTUAL_SESSION_TOKEN = 'token-123';
+    process.env.ACTUAL_PASSWORD = 'secret';
+    expect(buildInitConfig('/data')).toEqual({ dataDir: '/data' });
+  });
+});
+
+describe('ActualConnection auth failures', () => {
+  beforeEach(() => {
+    resetActualConnectionForTests();
+    vi.clearAllMocks();
+    process.env.ACTUAL_SERVER_URL = 'https://example.invalid';
+    process.env.ACTUAL_SESSION_TOKEN = 'expired-token';
+    delete process.env.ACTUAL_PASSWORD;
+  });
+
+  afterEach(() => {
+    delete process.env.ACTUAL_SESSION_TOKEN;
+    resetActualConnectionForTests();
+  });
+
+  it('surfaces an expired session token error from api.init', async () => {
+    vi.mocked(api.init).mockRejectedValueOnce(new Error('Authentication failed: invalid or expired session token'));
+    await expect(getActualConnection().ensureReady()).rejects.toThrow('expired session token');
+    expect(api.init).toHaveBeenCalledWith(expect.objectContaining({ sessionToken: 'expired-token' }));
   });
 });
