@@ -7,8 +7,34 @@ import { BudgetFile } from '../../types.js';
 const DEFAULT_DATA_DIR: string = path.resolve(os.homedir() || '.', '.actual');
 const DEFAULT_SYNC_TTL_MS = 60_000;
 
+/**
+ * Build the `api.init()` config from environment variables.
+ *
+ * `ACTUAL_SESSION_TOKEN` takes precedence over `ACTUAL_PASSWORD`. A session token is
+ * the only way to authenticate against a server where password login is disabled,
+ * e.g. when OpenID is enforced with `ACTUAL_OPENID_ENFORCE=true`.
+ *
+ * @param dataDir - Local directory for budget data
+ * @returns The init config for `@actual-app/api`
+ */
+export function buildInitConfig(dataDir: string): InitConfig {
+  const serverURL = process.env.ACTUAL_SERVER_URL;
+  // Reason: InitConfig is a discriminated union in 26.x — NoServerConfig forbids serverURL/password,
+  // and password and sessionToken are mutually exclusive.
+  if (!serverURL) return { dataDir };
+  const sessionToken = process.env.ACTUAL_SESSION_TOKEN;
+  if (sessionToken) {
+    if (process.env.ACTUAL_PASSWORD) {
+      console.error('Both ACTUAL_SESSION_TOKEN and ACTUAL_PASSWORD are set; using ACTUAL_SESSION_TOKEN.');
+    }
+    return { dataDir, serverURL, sessionToken };
+  }
+  return { dataDir, serverURL, password: process.env.ACTUAL_PASSWORD ?? '' };
+}
+
 type ConnectionState = 'idle' | 'initializing' | 'ready' | 'closing' | 'closed' | 'failed';
 type ActualApi = Awaited<ReturnType<typeof api.init>>;
+type InitConfig = NonNullable<Parameters<typeof api.init>[0]>;
 
 export class ActualConnection {
   private state: ConnectionState = 'idle';
@@ -160,12 +186,8 @@ export class ActualConnection {
     if (!fs.existsSync(dataDir)) {
       fs.mkdirSync(dataDir, { recursive: true });
     }
-    const serverURL = process.env.ACTUAL_SERVER_URL;
-    const password = process.env.ACTUAL_PASSWORD;
-    // Reason: InitConfig is a discriminated union in 26.x — NoServerConfig forbids serverURL/password
-    const initConfig = serverURL ? { dataDir, serverURL, password: password ?? '' } : { dataDir };
     this.apiOpened = true;
-    this.actualLib = await api.init(initConfig);
+    this.actualLib = await api.init(buildInitConfig(dataDir));
 
     try {
       const budgets: BudgetFile[] = await api.getBudgets();

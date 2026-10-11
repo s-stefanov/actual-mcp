@@ -211,8 +211,8 @@ async function main(): Promise<void> {
     console.error('Warning: Neither ACTUAL_DATA_DIR nor ACTUAL_SERVER_URL is set.');
   }
 
-  if (process.env.ACTUAL_SERVER_URL && !process.env.ACTUAL_PASSWORD) {
-    console.error('Warning: ACTUAL_SERVER_URL is set but ACTUAL_PASSWORD is not.');
+  if (process.env.ACTUAL_SERVER_URL && !process.env.ACTUAL_PASSWORD && !process.env.ACTUAL_SESSION_TOKEN) {
+    console.error('Warning: ACTUAL_SERVER_URL is set but neither ACTUAL_PASSWORD nor ACTUAL_SESSION_TOKEN is.');
     console.error('If your server requires authentication, initialization will fail.');
   }
 
