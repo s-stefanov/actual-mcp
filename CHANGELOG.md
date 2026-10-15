@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.15.0](https://github.com/s-stefanov/actual-mcp/compare/v1.14.0...v1.15.0) (2026-10-15)
+
+
+### Features
+
+* add merge-payees tool ([#253](https://github.com/s-stefanov/actual-mcp/issues/253)) ([a6588e4](https://github.com/s-stefanov/actual-mcp/commit/a6588e4c669cc9e22731f01368bfe84bc0fb4ebc))
+* support session token auth for OpenID-enforced Actual servers ([#255](https://github.com/s-stefanov/actual-mcp/issues/255)) ([f9014d0](https://github.com/s-stefanov/actual-mcp/commit/f9014d0f88bd7d19f81a9d7d4f5424b4cf809196))
+
+
+### Bug Fixes
+
+* count ordinary transactions in monthly-summary ([#252](https://github.com/s-stefanov/actual-mcp/issues/252)) ([6589dd6](https://github.com/s-stefanov/actual-mcp/commit/6589dd6aeefe50759e9459e85e8447b19fad3553))
+* **deps:** bump @actual-app/api and core to 26.10.0 ([#254](https://github.com/s-stefanov/actual-mcp/issues/254)) ([b10cbe6](https://github.com/s-stefanov/actual-mcp/commit/b10cbe6a970f54ac9c11889f8a8cf4de0d38971e))
+* **e2e:** expect cross-account search when get-transactions omits accountId ([#258](https://github.com/s-stefanov/actual-mcp/issues/258)) ([6418ada](https://github.com/s-stefanov/actual-mcp/commit/6418ada7e852eb64ede7227f17ed087ec3655036))
+* **e2e:** pin actual-server image to 26.10.0 to match @actual-app/api ([#257](https://github.com/s-stefanov/actual-mcp/issues/257)) ([26d3e18](https://github.com/s-stefanov/actual-mcp/commit/26d3e18e745e40533e9628ab75563eac2837ee85))
+
 ## [1.14.0](https://github.com/s-stefanov/actual-mcp/compare/v1.13.0...v1.14.0) (2026-09-14)
 
 
