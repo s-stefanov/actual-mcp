@@ -2,12 +2,12 @@ import { GenericContainer, Wait, type StartedTestContainer } from 'testcontainer
 
 /**
  * Pinned to match the installed @actual-app/api (see Global Constraints).
- * This tag's version equals the installed @actual-app/api@26.9.0 / @actual-app/core@26.9.0,
+ * This tag's version equals the installed @actual-app/api@26.10.0 / @actual-app/core@26.10.0,
  * per the Global Constraint fallback rule ("pin to the published tag whose
  * version equals the installed api version"). Confirmed present on Docker Hub
- * (amd64 + arm64 manifests) as of 2026-09-01.
+ * (amd64 + arm64 manifests) as of 2026-10-15.
  */
-export const E2E_SERVER_IMAGE = 'actualbudget/actual-server:26.9.0';
+export const E2E_SERVER_IMAGE = 'actualbudget/actual-server:26.10.0';
 
 /** Fixed password used for the disposable test server + budget sync. */
 export const E2E_TEST_PASSWORD = 'e2e-test-password';
