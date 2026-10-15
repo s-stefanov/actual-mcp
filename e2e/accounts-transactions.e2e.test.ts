@@ -34,10 +34,16 @@ describe.skipIf(!ctx.syncId)('accounts + transactions (e2e)', () => {
     expect(res.text).toContain('Whole Foods');
   });
 
-  it('get-transactions with a missing accountId returns isError (failure path)', async () => {
-    const res = await mcp.callTool('get-transactions', {});
-    expect(res.isError).toBe(true);
-    expect(res.text).toContain('accountId is required');
+  it('get-transactions without accountId searches across all accounts', async () => {
+    // Reason: accountId became optional in #242; omitting it fetches every
+    // account (on- and off-budget) instead of returning an error.
+    const res = await mcp.callTool('get-transactions', {
+      startDate: '2025-01-01',
+      endDate: '2025-01-31',
+    });
+    expect(res.isError).toBe(false);
+    expect(res.text).toContain('Whole Foods');
+    expect(res.text).toContain('Employer');
   });
 
   it('create-transaction persists and is visible via get-transactions (mutation + persistence)', async () => {
