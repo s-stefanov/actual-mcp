@@ -33,6 +33,21 @@ jobs:
         if: ${{ steps.release.outputs.release_created }}
         run: |
           curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
+      - name: Wait for npm version to be visible
+        if: ${{ steps.release.outputs.release_created }}
+        # Reason: the MCP Registry rejects the publish until npm serves the new version, which can lag behind `npm publish`.
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          for attempt in $(seq 1 30); do
+            if npm view "actual-mcp@${VERSION}" version >/dev/null 2>&1; then
+              echo "actual-mcp@${VERSION} is available on npm"
+              exit 0
+            fi
+            echo "Attempt ${attempt}/30: actual-mcp@${VERSION} not visible yet, retrying in 10s"
+            sleep 10
+          done
+          echo "actual-mcp@${VERSION} still not visible on npm after 5 minutes" >&2
+          exit 1
       - name: Authenticate to MCP Registry
         if: ${{ steps.release.outputs.release_created }}
         run: ./mcp-publisher login github-oidc
