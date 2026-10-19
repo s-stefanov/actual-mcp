@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.15.1](https://github.com/s-stefanov/actual-mcp/compare/v1.15.0...v1.15.1) (2026-10-19)
+
+
+### Bug Fixes
+
+* accept a stringified "null" rule stage ([#245](https://github.com/s-stefanov/actual-mcp/issues/245)) ([5d9425c](https://github.com/s-stefanov/actual-mcp/commit/5d9425c8dee391e85e505d44ee8c92552c685fbe)), closes [#213](https://github.com/s-stefanov/actual-mcp/issues/213)
+* **deps:** update dependency express to v5.3.0 ([#264](https://github.com/s-stefanov/actual-mcp/issues/264)) ([715fbb9](https://github.com/s-stefanov/actual-mcp/commit/715fbb94e922f85de3cec33368b6a899924b1919))
+* **deps:** update dependency zod to v4.6.7 ([#237](https://github.com/s-stefanov/actual-mcp/issues/237)) ([b83e1bb](https://github.com/s-stefanov/actual-mcp/commit/b83e1bbfbf1eae6051dabefdbc1937ba75f6b214))
+* **docker:** compile better-sqlite3 in builder and wait for npm before MCP registry publish ([#259](https://github.com/s-stefanov/actual-mcp/issues/259)) ([946b1eb](https://github.com/s-stefanov/actual-mcp/commit/946b1eb649b21aa789604c0e1151a04a2b49ac6d))
+
 ## [1.15.0](https://github.com/s-stefanov/actual-mcp/compare/v1.14.0...v1.15.0) (2026-10-15)
 
 
