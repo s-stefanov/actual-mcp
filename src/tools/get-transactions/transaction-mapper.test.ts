@@ -107,4 +107,55 @@ describe('GetTransactionsMapper', () => {
       transferId: 'tx-transfer-counterpart',
     });
   });
+
+  it('labels a split parent as (Split) instead of (Uncategorized)', () => {
+    const tx: Transaction = {
+      id: 'tx-split',
+      account: 'acc-1',
+      date: '2024-05-06',
+      amount: -3000,
+      is_parent: true,
+      subtransactions: [
+        { id: 'c1', account: 'acc-1', date: '2024-05-06', amount: -3000, category_name: 'Food', is_child: true },
+      ],
+    };
+
+    const [mapped] = mapper.map([tx]);
+
+    expect(mapped.category).toBe('(Split)');
+  });
+
+  it('keeps (Uncategorized) for a non-split with an empty subtransactions array', () => {
+    const tx: Transaction = {
+      id: 'tx-empty-split',
+      account: 'acc-1',
+      date: '2024-05-07',
+      amount: -500,
+      subtransactions: [],
+    };
+
+    const [mapped] = mapper.map([tx]);
+
+    expect(mapped.category).toBe('(Uncategorized)');
+  });
+
+  it("keeps each subtransaction's own category when the parent is labelled (Split)", () => {
+    const tx: Transaction = {
+      id: 'tx-split-2',
+      account: 'acc-1',
+      date: '2024-05-08',
+      amount: -9000,
+      is_parent: true,
+      subtransactions: [
+        { id: 'c1', account: 'acc-1', date: '2024-05-08', amount: -5000, category_name: 'Food', is_child: true },
+        { id: 'c2', account: 'acc-1', date: '2024-05-08', amount: -4000, is_child: true },
+      ],
+    };
+
+    const [mapped] = mapper.map([tx]);
+
+    expect(mapped.category).toBe('(Split)');
+    expect(mapped.subtransactions?.[0].category).toBe('Food');
+    expect(mapped.subtransactions?.[1].category).toBe('(Uncategorized)');
+  });
 });

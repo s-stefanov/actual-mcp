@@ -26,7 +26,8 @@ export class GetTransactionsMapper {
       id: t.id,
       date: formatDate(t.date),
       payee: t.payee_name || t.payee || '(No payee)',
-      category: t.category_name || t.category || '(Uncategorized)',
+      // Reason: a split parent has no category of its own; its categories live on the subtransactions.
+      category: t.category_name || t.category || (t.subtransactions?.length ? '(Split)' : '(Uncategorized)'),
       amount: formatAmount(t.amount),
       notes: t.notes || '',
       cleared: t.cleared ?? false,
