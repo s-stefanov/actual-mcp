@@ -258,4 +258,95 @@ describe('TransactionGrouper', () => {
       transactions: 2,
     });
   });
+
+  it('groups the legs of a split by their own categories and ignores the parent', () => {
+    const split: Transaction[] = [
+      {
+        id: 'p',
+        account: 'acc1',
+        date: '2023-01-01',
+        amount: -150,
+        subtransactions: [
+          { id: 'l1', account: 'acc1', date: '2023-01-01', amount: -100, category: 'cat1' },
+          { id: 'l2', account: 'acc1', date: '2023-01-01', amount: -50, category: 'cat2' },
+        ],
+      },
+    ];
+
+    const result = grouper.groupByCategory(split, mockGetCategoryName, mockGetGroupInfo, false);
+
+    expect(Object.keys(result).sort()).toEqual(['cat1', 'cat2']);
+    expect(result.cat1).toMatchObject({ total: -100, transactions: 1 });
+    expect(result.cat2).toMatchObject({ total: -50, transactions: 1 });
+  });
+
+  it('counts uncategorized transactions in an Uncategorized entry when includeUncategorized is true', () => {
+    const txs: Transaction[] = [
+      { id: '1', account: 'acc1', date: '2023-01-01', amount: -100 },
+      { id: '2', account: 'acc1', date: '2023-01-02', amount: -30 },
+      { id: '3', account: 'acc1', date: '2023-01-03', amount: -50, category: 'cat1' },
+    ];
+
+    const result = grouper.groupByCategory(txs, mockGetCategoryName, mockGetGroupInfo, false, true);
+
+    expect(result.uncategorized).toEqual({
+      id: 'uncategorized',
+      name: 'Uncategorized',
+      group: 'Uncategorized',
+      isIncome: false,
+      total: -130,
+      transactions: 2,
+    });
+    expect(result.cat1.total).toBe(-50);
+  });
+
+  it('leaves uncategorized transfer legs out even when includeUncategorized is true', () => {
+    const txs: Transaction[] = [
+      { id: '1', account: 'acc1', date: '2023-01-01', amount: -100, transfer_id: 't1' },
+      {
+        id: 'p',
+        account: 'acc1',
+        date: '2023-01-02',
+        amount: -80,
+        subtransactions: [{ id: 'l1', account: 'acc1', date: '2023-01-02', amount: -80, transfer_id: 't2' }],
+      },
+    ];
+
+    const result = grouper.groupByCategory(txs, mockGetCategoryName, mockGetGroupInfo, false, true);
+
+    expect(result).not.toHaveProperty('uncategorized');
+    expect(Object.keys(result)).toHaveLength(0);
+  });
+
+  it('counts an uncategorized split leg in the Uncategorized entry', () => {
+    const split: Transaction[] = [
+      {
+        id: 'p',
+        account: 'acc1',
+        date: '2023-01-01',
+        amount: -150,
+        subtransactions: [
+          { id: 'l1', account: 'acc1', date: '2023-01-01', amount: -100, category: 'cat1' },
+          { id: 'l2', account: 'acc1', date: '2023-01-01', amount: -50 },
+        ],
+      },
+    ];
+
+    const result = grouper.groupByCategory(split, mockGetCategoryName, mockGetGroupInfo, false, true);
+
+    expect(result.cat1.total).toBe(-100);
+    expect(result.uncategorized).toMatchObject({ total: -50, transactions: 1 });
+  });
+
+  it('still skips uncategorized transactions when includeUncategorized is omitted', () => {
+    const txs: Transaction[] = [
+      { id: '1', account: 'acc1', date: '2023-01-01', amount: -100 },
+      { id: '2', account: 'acc1', date: '2023-01-02', amount: -50, category: 'cat1' },
+    ];
+
+    const result = grouper.groupByCategory(txs, mockGetCategoryName, mockGetGroupInfo, false);
+
+    expect(result).not.toHaveProperty('uncategorized');
+    expect(Object.keys(result)).toEqual(['cat1']);
+  });
 });

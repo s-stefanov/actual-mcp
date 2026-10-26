@@ -31,7 +31,8 @@ export async function handler(args: SpendingByCategoryArgs): Promise<CallToolRes
       transactions,
       (categoryId) => categoryMapper.getCategoryName(categoryId),
       (categoryId) => categoryMapper.getGroupInfo(categoryId),
-      includeIncome
+      includeIncome,
+      true
     );
     const sortedGroups = new GroupAggregator().aggregateAndSort(spendingByCategory);
 
