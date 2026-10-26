@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.15.2](https://github.com/s-stefanov/actual-mcp/compare/v1.15.1...v1.15.2) (2026-10-26)
+
+
+### Bug Fixes
+
+* label split parents as (Split) in get-transactions ([#267](https://github.com/s-stefanov/actual-mcp/issues/267)) ([36266e9](https://github.com/s-stefanov/actual-mcp/commit/36266e9daf46e2b273fed157ef8bdb0ab3deff55))
+
 ## [1.15.1](https://github.com/s-stefanov/actual-mcp/compare/v1.15.0...v1.15.1) (2026-10-19)
 
 
