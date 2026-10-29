@@ -1,5 +1,5 @@
 # ---- Builder ----
-FROM node:24-alpine AS builder
+FROM node:26-alpine AS builder
 
 WORKDIR /app
 
@@ -16,7 +16,7 @@ RUN npm run build
 RUN npm prune --omit=dev
 
 # ---- Release ----
-FROM node:24-alpine AS release
+FROM node:26-alpine AS release
 
 WORKDIR /app
 
