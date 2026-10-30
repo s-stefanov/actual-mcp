@@ -9,6 +9,12 @@ describe('GetTransactionsInputParser', () => {
     expect(result.payeeName).toBe('Amazon');
   });
 
+  it('parses notes when provided', () => {
+    const result = new GetTransactionsInputParser().parse({ notes: 'tax deduction' });
+
+    expect(result.notes).toBe('tax deduction');
+  });
+
   it('parses without accountId, leaving it undefined for a cross-account search', () => {
     const result = new GetTransactionsInputParser().parse({ payeeName: 'Amazon' });
 

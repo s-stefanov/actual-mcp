@@ -20,6 +20,10 @@ export const GetTransactionsArgsSchema = z.object({
   maxAmount: z.number().optional(),
   categoryName: z.string().optional(),
   payeeName: z.string().optional(),
+  notes: z
+    .string()
+    .optional()
+    .describe('Case-insensitive text to search for within transaction and subtransaction notes'),
   limit: z.number().optional(),
 });
 
