@@ -51,7 +51,7 @@
     "@types/node": "24.19.2",
     "@vitest/coverage-v8": "5.0.0",
     "@vitest/ui": "5.0.0",
-    "eslint": "9.39.5",
+    "eslint": "10.14.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.7",
     "globals": "17.13.0",
