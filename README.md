@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/s-stefanov-actual-mcp-badge.png)](https://mseep.ai/app/s-stefanov-actual-mcp)
+
 # Actual Budget MCP Server
 
 MCP server for integrating Actual Budget with Claude and other LLM assistants.
