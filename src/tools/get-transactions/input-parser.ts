@@ -33,7 +33,8 @@ export class GetTransactionsInputParser {
       payeeName: typeof payeeName === 'string' && payeeName ? payeeName : undefined,
       uncategorized: uncategorized === true ? true : undefined,
       includePayeeHistory: includePayeeHistory === true ? true : undefined,
-      limit: typeof limit === 'number' && limit > 0 ? Math.floor(limit) : undefined,
+      // Reason: check >= 1 before flooring, or a value like 0.5 would become LIMIT 0.
+      limit: typeof limit === 'number' && limit >= 1 ? Math.floor(limit) : undefined,
       offset: typeof offset === 'number' && offset > 0 ? Math.floor(offset) : undefined,
     };
   }

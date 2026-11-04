@@ -34,6 +34,11 @@ describe('GetTransactionsInputParser', () => {
     expect(parser.parse({ uncategorized: 'yes' }).uncategorized).toBeUndefined();
   });
 
+  it('ignores a limit below 1 instead of flooring it to 0', () => {
+    expect(new GetTransactionsInputParser().parse({ limit: 0.5 }).limit).toBeUndefined();
+    expect(new GetTransactionsInputParser().parse({ limit: 1.9 }).limit).toBe(1);
+  });
+
   it('rejects non-object arguments', () => {
     expect(() => new GetTransactionsInputParser().parse(null)).toThrow('Arguments must be an object');
   });

@@ -26,7 +26,7 @@ export class GetTransactionsReportGenerator {
         : 'no past categories';
       return `- ${name}: ${summary}`;
     });
-    return `\n\n## Past Categories by Payee\n\n${lines.join('\n')}`;
+    return `\n\n## Past Categories by Payee\n\nUp to 3 most-used categories per payee.\n\n${lines.join('\n')}`;
   }
 
   generate(

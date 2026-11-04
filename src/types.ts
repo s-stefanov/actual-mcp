@@ -18,8 +18,8 @@ export const GetTransactionsArgsSchema = z.object({
     .string()
     .optional()
     .describe(
-      'Earliest date (YYYY-MM-DD, inclusive). If both dates are omitted, defaults to the last 3 months, ' +
-        'unless filtering by category, payee, or uncategorized, in which case all dates are searched.'
+      'Earliest date (YYYY-MM-DD, inclusive). If both dates are omitted, defaults to the last 3 months. When ' +
+        'filtering by category, payee, or uncategorized, an omitted date is left open instead.'
     ),
   endDate: z.string().optional().describe('Latest date (YYYY-MM-DD, inclusive).'),
   minAmount: z.number().optional().describe('Minimum amount in currency units (e.g. -50 for $50 spent).'),
@@ -49,10 +49,16 @@ export const GetTransactionsArgsSchema = z.object({
     .boolean()
     .optional()
     .describe(
-      'Append, for each payee in the results, the categories previously used for that payee and how often. ' +
+      'Append, for each payee in the results, the 3 categories most often used for that payee and how often. ' +
         'Useful with uncategorized to suggest categories.'
     ),
-  limit: z.number().optional().describe('Maximum number of transactions to return, newest first.'),
+  limit: z
+    .number()
+    .optional()
+    .describe(
+      'Maximum number of transactions to return, newest first. Defaults to 100 when filtering by category, ' +
+        'payee, or uncategorized; otherwise all matches are returned.'
+    ),
   offset: z.number().optional().describe('Number of transactions to skip, for paging through results with limit.'),
 });
 

@@ -12,6 +12,7 @@ import { getPayeeCategoryCounts, queryTransactions } from '../../actual-api.js';
 import type { Category, Transaction } from '../../core/types/domain.js';
 import {
   buildTransactionFilter,
+  escapeLike,
   GetTransactionsDataFetcher,
   resolveCategory,
   summarizePayeeHistory,
@@ -107,6 +108,17 @@ describe('buildTransactionFilter', () => {
 
   it('supports an open-ended date range', () => {
     expect(buildTransactionFilter({ startDate: '2026-01-01' })).toEqual({ date: { $gte: '2026-01-01' } });
+  });
+});
+
+describe('escapeLike', () => {
+  it('escapes $like wildcards and the escape character, leaving other text alone', () => {
+    expect(escapeLike('100% off?')).toBe('100\\% off\\?');
+    expect(escapeLike('a\\b_c')).toBe('a\\\\b_c');
+  });
+
+  it('is applied to the payee filter', () => {
+    expect(buildTransactionFilter({ payeeName: '100%' })).toEqual({ 'payee.name': { $like: '%100\\%%' } });
   });
 });
 

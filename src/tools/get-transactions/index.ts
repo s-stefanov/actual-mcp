@@ -22,10 +22,12 @@ export const schema = {
   inputSchema: toJSONSchema(GetTransactionsArgsSchema) as ToolInput,
 };
 
+const DEFAULT_SEARCH_LIMIT = 100;
+
 export async function handler(args: GetTransactionsArgs): Promise<CallToolResult> {
   try {
     const input = new GetTransactionsInputParser().parse(args);
-    const { accountId, minAmount, maxAmount, payeeName, uncategorized, includePayeeHistory, limit } = input;
+    const { accountId, minAmount, maxAmount, payeeName, uncategorized, includePayeeHistory } = input;
     const offset = input.offset ?? 0;
 
     if (uncategorized && (input.categoryId || input.categoryName)) {
@@ -41,13 +43,13 @@ export async function handler(args: GetTransactionsArgs): Promise<CallToolResult
     }
 
     // Reason: looking up a category, payee, or what is uncategorized means "all transactions
-    // in X", so with no dates given it spans all time. A plain listing keeps the 3-month
-    // default so it stays small.
+    // in X", so an omitted date stays open (and the page size defaults to keep the reply
+    // small). A plain listing keeps the 3-month default.
     const isSearch = Boolean(categoryId || payeeName || uncategorized);
-    const { startDate, endDate } =
-      isSearch && !input.startDate && !input.endDate
-        ? { startDate: undefined, endDate: undefined }
-        : getDateRange(input.startDate, input.endDate);
+    const { startDate, endDate } = isSearch
+      ? { startDate: input.startDate, endDate: input.endDate }
+      : getDateRange(input.startDate, input.endDate);
+    const limit = input.limit ?? (isSearch ? DEFAULT_SEARCH_LIMIT : undefined);
 
     const fetcher = new GetTransactionsDataFetcher();
     const { transactions, total } = await fetcher.fetch({
