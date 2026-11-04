@@ -65,7 +65,11 @@ function _enrichSingleTransaction(
   return enriched;
 }
 
-async function _enrichTransactions(transactions: TransactionEntity[]): Promise<Transaction[]> {
+/**
+ * Adds payee_name and category_name (including on split lines), fetching the payee and
+ * category lists only when some transaction needs them.
+ */
+export async function enrichTransactions(transactions: TransactionEntity[]): Promise<Transaction[]> {
   if (transactions.length === 0) {
     return transactions;
   }
@@ -94,7 +98,7 @@ export async function fetchTransactionsForAccount(
   end: string
 ): Promise<Transaction[]> {
   const transactions = await getTransactions(accountId, start, end);
-  return _enrichTransactions(transactions);
+  return enrichTransactions(transactions);
 }
 
 export async function fetchAllOnBudgetTransactions(
@@ -108,7 +112,7 @@ export async function fetchAllOnBudgetTransactions(
     const tx = await getTransactions(account.id, start, end);
     transactions = [...transactions, ...tx];
   }
-  return _enrichTransactions(transactions);
+  return enrichTransactions(transactions);
 }
 
 export async function fetchAllTransactions(accounts: Account[], start: string, end: string): Promise<Transaction[]> {
@@ -117,5 +121,5 @@ export async function fetchAllTransactions(accounts: Account[], start: string, e
     const tx = await getTransactions(account.id, start, end);
     transactions = [...transactions, ...tx];
   }
-  return _enrichTransactions(transactions);
+  return enrichTransactions(transactions);
 }

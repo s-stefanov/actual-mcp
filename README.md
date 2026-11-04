@@ -18,7 +18,7 @@ The Actual Budget MCP Server allows you to interact with your personal financial
 
 #### Transaction & Account Management
 
-- **`get-transactions`** - Retrieve and filter transactions by account, date, amount, category, or payee
+- **`get-transactions`** - Retrieve and filter transactions by account, date, amount, category, payee, or notes, or list only uncategorized ones. Can also show the categories each payee has had before, to help suggest categories
 - **`create-transaction`** - Create a new transaction in an account with optional category, payee, and notes
 - **`update-transaction`** - Update an existing transaction with new category, payee, notes, or amount
 - **`get-accounts`** - Retrieve a list of all accounts with their current balance and ID

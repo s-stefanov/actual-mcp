@@ -8,10 +8,18 @@ vi.mock('@actual-app/api', () => ({
   shutdown: vi.fn(),
   getAccounts: vi.fn(),
   getAccountBalance: vi.fn(),
+  aqlQuery: vi.fn(),
 }));
 
 import * as api from '@actual-app/api';
-import { getAccounts, getAccountBalance, getReports, initActualApi, shutdownActualApi } from './actual-api.js';
+import {
+  getAccounts,
+  getAccountBalance,
+  getReports,
+  initActualApi,
+  queryTransactions,
+  shutdownActualApi,
+} from './actual-api.js';
 import { getActualConnection, resetActualConnectionForTests } from './integrations/actual/connection.js';
 
 describe('initActualApi syncing', () => {
@@ -127,5 +135,37 @@ describe('actual-api wrappers delegate through the connection', () => {
 
     expect(run).toHaveBeenCalledTimes(1);
     expect(send).toHaveBeenCalledWith('report/get', undefined);
+  });
+
+  it('queryTransactions pages the grouped query and counts a split once however many lines match', async () => {
+    const query = {
+      filter: vi.fn(),
+      select: vi.fn(),
+      options: vi.fn(),
+      orderBy: vi.fn(),
+      limit: vi.fn(),
+      offset: vi.fn(),
+    };
+    Object.values(query).forEach((fn) => fn.mockReturnValue(query));
+    vi.mocked(api.init).mockResolvedValue({ q: vi.fn(() => query) } as never);
+    vi.mocked(api.aqlQuery)
+      .mockResolvedValueOnce({ data: [{ id: 'split' }] } as never)
+      .mockResolvedValueOnce({
+        data: [
+          { id: 'split', parent_id: null },
+          { id: 'line-1', parent_id: 'split' },
+          { id: 'line-2', parent_id: 'split' },
+          { id: 'plain', parent_id: null },
+        ],
+      } as never);
+
+    const result = await queryTransactions({ category: 'groceries' }, { limit: 1, offset: 5 });
+
+    expect(result).toEqual({ transactions: [{ id: 'split' }], total: 2 });
+    expect(query.filter).toHaveBeenCalledWith({ category: 'groceries' });
+    expect(query.options).toHaveBeenCalledWith({ splits: 'grouped' });
+    expect(query.options).toHaveBeenCalledWith({ splits: 'all' });
+    expect(query.limit).toHaveBeenCalledWith(1);
+    expect(query.offset).toHaveBeenCalledWith(5);
   });
 });
