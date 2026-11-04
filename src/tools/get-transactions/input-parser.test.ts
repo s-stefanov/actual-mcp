@@ -16,6 +16,24 @@ describe('GetTransactionsInputParser', () => {
     expect(result.payeeName).toBe('Amazon');
   });
 
+  it('parses categoryId and offset, ignoring non-positive paging values', () => {
+    const result = new GetTransactionsInputParser().parse({ categoryId: 'groceries', offset: 40, limit: 0 });
+
+    expect(result.categoryId).toBe('groceries');
+    expect(result.offset).toBe(40);
+    expect(result.limit).toBeUndefined();
+  });
+
+  it('parses the uncategorized and includePayeeHistory flags, ignoring non-boolean values', () => {
+    const parser = new GetTransactionsInputParser();
+
+    expect(parser.parse({ uncategorized: true, includePayeeHistory: true })).toMatchObject({
+      uncategorized: true,
+      includePayeeHistory: true,
+    });
+    expect(parser.parse({ uncategorized: 'yes' }).uncategorized).toBeUndefined();
+  });
+
   it('rejects non-object arguments', () => {
     expect(() => new GetTransactionsInputParser().parse(null)).toThrow('Arguments must be an object');
   });

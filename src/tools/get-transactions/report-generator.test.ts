@@ -99,6 +99,30 @@ describe('GetTransactionsReportGenerator', () => {
     expect(lines[parentIndex + 2]).toContain('tx-transfer-counterpart');
   });
 
+  it('renders past categories per payee, naming payees from the transactions and split lines', () => {
+    const md = generator.generatePayeeHistory({ p1: [{ category: 'groc', category_name: 'Groceries', count: 12 }] }, [
+      {
+        id: 't1',
+        account: 'a',
+        date: '2026-10-01',
+        amount: -100,
+        payee: 'p1',
+        payee_name: 'Whole Foods',
+        subtransactions: [
+          { id: 't1a', account: 'a', date: '2026-10-01', amount: -100, payee: 'p2', payee_name: 'Costco' },
+        ],
+      },
+    ]);
+
+    expect(md).toContain('## Past Categories by Payee');
+    expect(md).toContain('- Whole Foods: Groceries (12, id groc)');
+    expect(md).toContain('- Costco: no past categories');
+  });
+
+  it('adds no payee history section when no transaction has a payee', () => {
+    expect(generator.generatePayeeHistory({}, [{ id: 't1', account: 'a', date: '2026-10-01', amount: -1 }])).toBe('');
+  });
+
   it('does not add any rows for a transaction without subtransactions', () => {
     const md = generator.generate([regularRow], '', 1, 1);
     const rowLines = md

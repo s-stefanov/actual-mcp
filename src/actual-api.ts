@@ -66,6 +66,67 @@ export function getTransactions(accountId: string, start: string, end: string): 
 }
 
 /**
+ * Runs a transactions query inside Actual's query engine, so only matching rows are loaded.
+ *
+ * Splits are grouped the way Actual's account view groups them: the filter is tested against
+ * split lines too, and a split whose parent or any line matches is returned whole (parent
+ * with `subtransactions`). `total` counts matching transactions the same way, so a split
+ * counts once however many of its lines match.
+ */
+export function queryTransactions(
+  filter: Record<string, unknown>,
+  page: { limit?: number; offset?: number }
+): Promise<{ transactions: TransactionEntity[]; total: number }> {
+  return getActualConnection().run(async (actualLib) => {
+    const base =
+      Object.keys(filter).length > 0 ? actualLib.q('transactions').filter(filter) : actualLib.q('transactions');
+
+    let pageQuery = base
+      .select('*')
+      .options({ splits: 'grouped' })
+      .orderBy([{ date: 'desc' }, 'id']);
+    if (page.limit !== undefined) pageQuery = pageQuery.limit(page.limit);
+    if (page.offset) pageQuery = pageQuery.offset(page.offset);
+
+    const result = (await api.aqlQuery(pageQuery)) as { data: TransactionEntity[] };
+
+    const matches = (await api.aqlQuery(base.select(['id', 'parent_id']).options({ splits: 'all' }))) as {
+      data: Array<{ id: string; parent_id: string | null }>;
+    };
+    const total = new Set((matches.data ?? []).map((row) => row.parent_id ?? row.id)).size;
+
+    return { transactions: result.data ?? [], total };
+  });
+}
+
+export interface PayeeCategoryCountRow {
+  payee: string;
+  category: string;
+  category_name: string;
+  count: number;
+}
+
+/**
+ * Returns how many times each category has been used for each of the given payees,
+ * aggregated by Actual's query engine.
+ */
+export function getPayeeCategoryCounts(payeeIds: string[]): Promise<PayeeCategoryCountRow[]> {
+  if (payeeIds.length === 0) {
+    return Promise.resolve([]);
+  }
+  return getActualConnection().run(async (actualLib) => {
+    const result = (await api.aqlQuery(
+      actualLib
+        .q('transactions')
+        .filter({ payee: { $oneof: payeeIds }, category: { $ne: null } })
+        .groupBy(['payee', 'category'])
+        .select(['payee', 'category', { category_name: '$category.name' }, { count: { $count: '$id' } }])
+    )) as { data: PayeeCategoryCountRow[] };
+    return result.data ?? [];
+  });
+}
+
+/**
  * Returns the months for which the loaded budget has data.
  */
 export function getBudgetMonths(): Promise<string[]> {

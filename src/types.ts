@@ -13,14 +13,47 @@ export interface BudgetFile {
 
 // Type definitions for tool arguments
 export const GetTransactionsArgsSchema = z.object({
-  accountId: z.string().optional(),
-  startDate: z.string().optional(),
-  endDate: z.string().optional(),
-  minAmount: z.number().optional(),
-  maxAmount: z.number().optional(),
-  categoryName: z.string().optional(),
-  payeeName: z.string().optional(),
-  limit: z.number().optional(),
+  accountId: z.string().optional().describe('Only return transactions from this account. Omit for all accounts.'),
+  startDate: z
+    .string()
+    .optional()
+    .describe(
+      'Earliest date (YYYY-MM-DD, inclusive). If both dates are omitted, defaults to the last 3 months, ' +
+        'unless filtering by category, payee, or uncategorized, in which case all dates are searched.'
+    ),
+  endDate: z.string().optional().describe('Latest date (YYYY-MM-DD, inclusive).'),
+  minAmount: z.number().optional().describe('Minimum amount in currency units (e.g. -50 for $50 spent).'),
+  maxAmount: z.number().optional().describe('Maximum amount in currency units.'),
+  categoryId: z
+    .string()
+    .optional()
+    .describe('Only return transactions in this category. Takes precedence over categoryName.'),
+  categoryName: z
+    .string()
+    .optional()
+    .describe(
+      'Only return transactions in the category with this name (case-insensitive). An exact name match wins; ' +
+        'otherwise a single partial match is used. If several categories match, an error lists them so ' +
+        'categoryId can be passed instead.'
+    ),
+  payeeName: z.string().optional().describe('Only return transactions whose payee name contains this text.'),
+  uncategorized: z
+    .boolean()
+    .optional()
+    .describe(
+      'Only return transactions that still need a category — the same set as Actual\'s "Uncategorized" view: ' +
+        'on-budget accounts, excluding transfers between on-budget accounts. A split is returned whole if any ' +
+        'of its lines is uncategorized. Cannot be combined with categoryId or categoryName.'
+    ),
+  includePayeeHistory: z
+    .boolean()
+    .optional()
+    .describe(
+      'Append, for each payee in the results, the categories previously used for that payee and how often. ' +
+        'Useful with uncategorized to suggest categories.'
+    ),
+  limit: z.number().optional().describe('Maximum number of transactions to return, newest first.'),
+  offset: z.number().optional().describe('Number of transactions to skip, for paging through results with limit.'),
 });
 
 export type GetTransactionsArgs = z.infer<typeof GetTransactionsArgsSchema>;

@@ -8,16 +8,33 @@ export class GetTransactionsInputParser {
       throw new Error('Arguments must be an object');
     }
     const argsObj = args as Record<string, unknown>;
-    const { accountId, startDate, endDate, minAmount, maxAmount, categoryName, payeeName, limit } = argsObj;
+    const {
+      accountId,
+      startDate,
+      endDate,
+      minAmount,
+      maxAmount,
+      categoryId,
+      categoryName,
+      payeeName,
+      uncategorized,
+      includePayeeHistory,
+      limit,
+      offset,
+    } = argsObj;
     return {
       accountId: typeof accountId === 'string' ? accountId : undefined,
       startDate: typeof startDate === 'string' ? startDate : undefined,
       endDate: typeof endDate === 'string' ? endDate : undefined,
       minAmount: typeof minAmount === 'number' ? minAmount : undefined,
       maxAmount: typeof maxAmount === 'number' ? maxAmount : undefined,
-      categoryName: typeof categoryName === 'string' ? categoryName : undefined,
-      payeeName: typeof payeeName === 'string' ? payeeName : undefined,
-      limit: typeof limit === 'number' ? limit : undefined,
+      categoryId: typeof categoryId === 'string' && categoryId ? categoryId : undefined,
+      categoryName: typeof categoryName === 'string' && categoryName ? categoryName : undefined,
+      payeeName: typeof payeeName === 'string' && payeeName ? payeeName : undefined,
+      uncategorized: uncategorized === true ? true : undefined,
+      includePayeeHistory: includePayeeHistory === true ? true : undefined,
+      limit: typeof limit === 'number' && limit > 0 ? Math.floor(limit) : undefined,
+      offset: typeof offset === 'number' && offset > 0 ? Math.floor(offset) : undefined,
     };
   }
 }

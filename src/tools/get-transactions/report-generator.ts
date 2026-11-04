@@ -1,7 +1,34 @@
 // Generates the response/report for get-transactions tool
+import type { Transaction } from '../../core/types/domain.js';
+import type { PayeeCategoryHistory } from './data-fetcher.js';
 import type { MappedTransaction } from './transaction-mapper.js';
 
 export class GetTransactionsReportGenerator {
+  /**
+   * Renders each payee's past categories as a section to append after the table. Payee names
+   * come from the transactions themselves (including split lines).
+   */
+  generatePayeeHistory(history: Record<string, PayeeCategoryHistory[]>, transactions: Transaction[]): string {
+    const payeeNames = new Map<string, string>();
+    for (const t of transactions) {
+      for (const line of [t, ...(t.subtransactions ?? [])]) {
+        if (line.payee && !payeeNames.has(line.payee)) payeeNames.set(line.payee, line.payee_name || line.payee);
+      }
+    }
+    if (payeeNames.size === 0) {
+      return '';
+    }
+
+    const lines = [...payeeNames].map(([id, name]) => {
+      const past = history[id] ?? [];
+      const summary = past.length
+        ? past.map((h) => `${h.category_name} (${h.count}, id ${h.category})`).join(', ')
+        : 'no past categories';
+      return `- ${name}: ${summary}`;
+    });
+    return `\n\n## Past Categories by Payee\n\n${lines.join('\n')}`;
+  }
+
   generate(
     mappedTransactions: MappedTransaction[],
     filterDescription: string,
