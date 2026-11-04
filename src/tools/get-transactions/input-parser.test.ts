@@ -16,6 +16,13 @@ describe('GetTransactionsInputParser', () => {
     expect(result.payeeName).toBe('Amazon');
   });
 
+  it('parses notes, ignoring an empty string', () => {
+    const parser = new GetTransactionsInputParser();
+
+    expect(parser.parse({ notes: 'tax deduction' }).notes).toBe('tax deduction');
+    expect(parser.parse({ notes: '' }).notes).toBeUndefined();
+  });
+
   it('parses categoryId and offset, ignoring non-positive paging values', () => {
     const result = new GetTransactionsInputParser().parse({ categoryId: 'groceries', offset: 40, limit: 0 });
 

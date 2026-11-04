@@ -14,7 +14,7 @@ export const schema = {
   name: 'get-transactions',
   description:
     'Get transactions with optional filtering, for one account or across all accounts if accountId is omitted. ' +
-    'Filters run in the database, so filtering by category, payee, amount, or date is efficient on large budgets. ' +
+    'Filters run in the database, so filtering by category, payee, notes, amount, or date is efficient on large budgets. ' +
     'Split transactions are returned whole when any of their lines match. Results are newest first; use limit ' +
     'and offset to page. To categorize, pass uncategorized: true with includePayeeHistory: true to get ' +
     'transactions that need a category plus the categories each payee has had before, then assign categories ' +
@@ -27,7 +27,7 @@ const DEFAULT_SEARCH_LIMIT = 100;
 export async function handler(args: GetTransactionsArgs): Promise<CallToolResult> {
   try {
     const input = new GetTransactionsInputParser().parse(args);
-    const { accountId, minAmount, maxAmount, payeeName, uncategorized, includePayeeHistory } = input;
+    const { accountId, minAmount, maxAmount, payeeName, notes, uncategorized, includePayeeHistory } = input;
     const offset = input.offset ?? 0;
 
     if (uncategorized && (input.categoryId || input.categoryName)) {
@@ -42,10 +42,10 @@ export async function handler(args: GetTransactionsArgs): Promise<CallToolResult
       categoryLabel = category.name;
     }
 
-    // Reason: looking up a category, payee, or what is uncategorized means "all transactions
-    // in X", so an omitted date stays open (and the page size defaults to keep the reply
-    // small). A plain listing keeps the 3-month default.
-    const isSearch = Boolean(categoryId || payeeName || uncategorized);
+    // Reason: looking up a category, payee, notes, or what is uncategorized means "all
+    // transactions in X", so an omitted date stays open (and the page size defaults to keep the
+    // reply small). A plain listing keeps the 3-month default.
+    const isSearch = Boolean(categoryId || payeeName || notes || uncategorized);
     const { startDate, endDate } = isSearch
       ? { startDate: input.startDate, endDate: input.endDate }
       : getDateRange(input.startDate, input.endDate);
@@ -60,6 +60,7 @@ export async function handler(args: GetTransactionsArgs): Promise<CallToolResult
       maxAmount,
       categoryId,
       payeeName,
+      notes,
       uncategorized,
       limit,
       offset,
@@ -73,6 +74,7 @@ export async function handler(args: GetTransactionsArgs): Promise<CallToolResult
       maxAmount !== undefined ? `Max amount: $${maxAmount.toFixed(2)}` : null,
       categoryLabel ? `Category: ${categoryLabel}` : null,
       payeeName ? `Payee: ${payeeName}` : null,
+      notes ? `Notes: ${notes}` : null,
       uncategorized ? 'Uncategorized only' : null,
       offset > 0 ? `Offset: ${offset}` : null,
     ]

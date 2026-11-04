@@ -17,6 +17,7 @@ export class GetTransactionsInputParser {
       categoryId,
       categoryName,
       payeeName,
+      notes,
       uncategorized,
       includePayeeHistory,
       limit,
@@ -31,6 +32,7 @@ export class GetTransactionsInputParser {
       categoryId: typeof categoryId === 'string' && categoryId ? categoryId : undefined,
       categoryName: typeof categoryName === 'string' && categoryName ? categoryName : undefined,
       payeeName: typeof payeeName === 'string' && payeeName ? payeeName : undefined,
+      notes: typeof notes === 'string' && notes ? notes : undefined,
       uncategorized: uncategorized === true ? true : undefined,
       includePayeeHistory: includePayeeHistory === true ? true : undefined,
       // Reason: check >= 1 before flooring, or a value like 0.5 would become LIMIT 0.

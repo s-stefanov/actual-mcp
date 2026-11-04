@@ -117,8 +117,9 @@ describe('escapeLike', () => {
     expect(escapeLike('a\\b_c')).toBe('a\\\\b_c');
   });
 
-  it('is applied to the payee filter', () => {
+  it('is applied to the payee and notes filters', () => {
     expect(buildTransactionFilter({ payeeName: '100%' })).toEqual({ 'payee.name': { $like: '%100\\%%' } });
+    expect(buildTransactionFilter({ notes: 'tax?' })).toEqual({ notes: { $like: '%tax\\?%' } });
   });
 });
 

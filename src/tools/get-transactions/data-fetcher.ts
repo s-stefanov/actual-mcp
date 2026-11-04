@@ -16,6 +16,7 @@ export interface TransactionQuery {
   maxAmount?: number;
   categoryId?: string;
   payeeName?: string;
+  notes?: string;
   uncategorized?: boolean;
   limit?: number;
   offset?: number;
@@ -92,6 +93,7 @@ export function buildTransactionFilter(query: TransactionQuery): Record<string, 
     ...(query.categoryId ? { category: query.categoryId } : {}),
     // Reason: $like is case- and accent-insensitive in Actual's query engine.
     ...(query.payeeName ? { 'payee.name': { $like: `%${escapeLike(query.payeeName)}%` } } : {}),
+    ...(query.notes ? { notes: { $like: `%${escapeLike(query.notes)}%` } } : {}),
     // Reason: matches Actual's own "Uncategorized" view. Split parents never carry a category,
     // and transfers between two on-budget accounts never take one, so both are excluded.
     ...(query.uncategorized

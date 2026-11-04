@@ -19,7 +19,7 @@ export const GetTransactionsArgsSchema = z.object({
     .optional()
     .describe(
       'Earliest date (YYYY-MM-DD, inclusive). If both dates are omitted, defaults to the last 3 months. When ' +
-        'filtering by category, payee, or uncategorized, an omitted date is left open instead.'
+        'filtering by category, payee, notes, or uncategorized, an omitted date is left open instead.'
     ),
   endDate: z.string().optional().describe('Latest date (YYYY-MM-DD, inclusive).'),
   minAmount: z.number().optional().describe('Minimum amount in currency units (e.g. -50 for $50 spent).'),
@@ -37,6 +37,13 @@ export const GetTransactionsArgsSchema = z.object({
         'categoryId can be passed instead.'
     ),
   payeeName: z.string().optional().describe('Only return transactions whose payee name contains this text.'),
+  notes: z
+    .string()
+    .optional()
+    .describe(
+      'Only return transactions whose notes contain this text (case-insensitive). A split is returned whole if ' +
+        'any of its lines matches.'
+    ),
   uncategorized: z
     .boolean()
     .optional()
@@ -57,7 +64,7 @@ export const GetTransactionsArgsSchema = z.object({
     .optional()
     .describe(
       'Maximum number of transactions to return, newest first. Defaults to 100 when filtering by category, ' +
-        'payee, or uncategorized; otherwise all matches are returned.'
+        'payee, notes, or uncategorized; otherwise all matches are returned.'
     ),
   offset: z.number().optional().describe('Number of transactions to skip, for paging through results with limit.'),
 });

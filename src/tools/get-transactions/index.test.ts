@@ -41,6 +41,9 @@ describe('get-transactions handler', () => {
     await handler({ payeeName: 'Whole', limit: 5 });
     expect(fetch).toHaveBeenLastCalledWith(expect.objectContaining({ limit: 5 }));
 
+    await handler({ notes: 'tax' });
+    expect(fetch).toHaveBeenLastCalledWith(expect.objectContaining({ notes: 'tax', limit: 100, startDate: undefined }));
+
     await handler({ startDate: '2026-01-01', endDate: '2026-01-31' });
     expect(fetch).toHaveBeenLastCalledWith(expect.objectContaining({ limit: undefined, startDate: '2026-01-01' }));
   });
