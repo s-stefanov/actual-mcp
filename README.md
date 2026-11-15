@@ -279,6 +279,29 @@ docker run -i --rm \
 > ⚠️ Important: When using --enable-bearer, the BEARER_TOKEN environment variable must be set.  
 > 🔒 This is highly recommended if you're exposing your server via a public URL.
 
+### Health check
+
+The HTTP server exposes a liveness endpoint at `GET /health` that returns `200` with
+`{"status":"ok"}` whenever the process is up. It is intentionally **not** protected by
+the bearer token.
+
+The Docker image is based on Alpine, which ships `wget` (but not `curl`). Add a healthcheck
+block to your container like this:
+
+**docker-compose.yml**
+
+```yaml
+services:
+  actual-mcp:
+    # ... elided ...
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+```
+
 ## Example Queries
 
 Once connected, you can ask Claude questions like:
