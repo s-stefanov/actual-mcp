@@ -292,6 +292,7 @@ block to your container like this:
 
 ```yaml
 services:
+  actual-mcp:
     # ... elided ...
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/health"]
