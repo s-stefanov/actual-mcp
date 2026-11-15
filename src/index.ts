@@ -220,10 +220,6 @@ async function main(): Promise<void> {
   if (useSse) {
     const app = express();
     app.use(express.json());
-
-    // Reason: Docker healthchecks (and other probes) cannot attach an
-    // Authorization header, so this route is registered before the bearer-auth
-    // protected ones and intentionally left unauthenticated.
     registerHealthCheck(app);
 
     // Log bearer auth status
