@@ -279,6 +279,55 @@ docker run -i --rm \
 > ⚠️ Important: When using --enable-bearer, the BEARER_TOKEN environment variable must be set.  
 > 🔒 This is highly recommended if you're exposing your server via a public URL.
 
+### Health check
+
+The HTTP server exposes a liveness endpoint at `GET /health` that returns `200` with
+`{"status":"ok"}` whenever the process is up. It is intentionally **not** protected by
+the bearer token: Docker healthchecks have no way to attach an `Authorization` header, and
+the fixed response exposes no data.
+
+The Docker image is based on Alpine, which ships `wget` (but not `curl`). Add a healthcheck
+block to your container like this:
+
+**docker-compose.yml**
+
+```yaml
+services:
+  actual-mcp:
+    image: sstefanov/actual-mcp:latest
+    command: ["--sse", "--enable-write", "--enable-bearer"]
+    ports:
+      - "3000:3000"
+    environment:
+      - ACTUAL_SERVER_URL=http://your-actual-server.com
+      - ACTUAL_PASSWORD=your-password
+      - ACTUAL_BUDGET_SYNC_ID=your-budget-id
+      - BEARER_TOKEN=your-bearer-token
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+```
+
+**docker run** (same as `--health-cmd`):
+
+```bash
+docker run -i --rm \
+  -p 3000:3000 \
+  -e ACTUAL_SERVER_URL="http://your-actual-server.com" \
+  --health-cmd "wget -qO- http://127.0.0.1:3000/health" \
+  --health-interval 30s \
+  --health-timeout 5s \
+  --health-retries 3 \
+  sstefanov/actual-mcp:latest \
+  --sse
+```
+
+> 💡 `wget` exists out of the box on `node:alpine` (as busybox wget). If you use a custom image
+> without it, the server's own runtime works too: `node -e "fetch('http://127.0.0.1:3000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"`.
+
 ## Example Queries
 
 Once connected, you can ask Claude questions like:

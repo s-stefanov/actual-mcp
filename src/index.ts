@@ -19,6 +19,7 @@ import express, { NextFunction, Request, Response } from 'express';
 import { randomUUID } from 'node:crypto';
 import { parseArgs } from 'node:util';
 import { isValidBearerToken } from './utils/bearer-auth.js';
+import { registerHealthCheck } from './utils/health-check.js';
 import { initActualApi, shutdownActualApi } from './actual-api.js';
 import { fetchAllAccounts } from './core/data/fetch-accounts.js';
 import { getActualConnection } from './integrations/actual/connection.js';
@@ -219,6 +220,11 @@ async function main(): Promise<void> {
   if (useSse) {
     const app = express();
     app.use(express.json());
+
+    // Reason: Docker healthchecks (and other probes) cannot attach an
+    // Authorization header, so this route is registered before the bearer-auth
+    // protected ones and intentionally left unauthenticated.
+    registerHealthCheck(app);
 
     // Log bearer auth status
     if (enableBearer) {
