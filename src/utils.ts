@@ -42,11 +42,13 @@ let amountFormat = new Intl.NumberFormat('en-US', { style: 'currency', currency:
  */
 export function setAmountFormat(prefs: { defaultCurrencyCode?: string; numberFormat?: string }): void {
   const locale = LOCALES[prefs.numberFormat ?? ''] ?? 'en-US';
+  // Reason: amounts are stored in hundredths for every currency, so always show two decimals.
+  // Intl's own default would round a zero-decimal currency (JPY, CLP) to whole units.
   const plain = { minimumFractionDigits: 2, maximumFractionDigits: 2 };
   try {
     amountFormat = new Intl.NumberFormat(
       locale,
-      prefs.defaultCurrencyCode ? { style: 'currency', currency: prefs.defaultCurrencyCode } : plain
+      prefs.defaultCurrencyCode ? { style: 'currency', currency: prefs.defaultCurrencyCode, ...plain } : plain
     );
   } catch {
     amountFormat = new Intl.NumberFormat(locale, plain); // a currency code Intl does not know

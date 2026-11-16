@@ -136,6 +136,14 @@ describe('setAmountFormat', () => {
     expect(formatAmount(123456)).toBe('$1,234.56');
   });
 
+  it('keeps two decimals for currencies Intl would round to whole units', () => {
+    setAmountFormat({ defaultCurrencyCode: 'CLP', numberFormat: 'comma-dot' });
+    expect(formatAmount(123456)).toContain('1,234.56');
+    setAmountFormat({ defaultCurrencyCode: 'JPY', numberFormat: 'comma-dot' });
+    expect(formatAmount(123456)).toBe('¥1,234.56');
+    setAmountFormat({ defaultCurrencyCode: 'USD', numberFormat: 'comma-dot' });
+  });
+
   it('falls back to plain numbers for a currency code Intl rejects, and to en-US for an unknown number format', () => {
     setAmountFormat({ defaultCurrencyCode: 'NOT-A-CODE', numberFormat: 'something-new' });
     expect(formatAmount(123456)).toBe('1,234.56');
