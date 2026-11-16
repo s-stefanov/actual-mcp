@@ -141,6 +141,8 @@ export ACTUAL_BUDGET_SYNC_ID="your-budget-id"
 export ACTUAL_SYNC_TTL_MS="60000"
 ```
 
+Amounts are formatted with the budget's own currency and number format (in Actual: Settings → Formatting and Currency). A budget with no currency set gets plain numbers, since Actual itself is currency agnostic.
+
 Optional: separate encryption budget password
 
 If your Actual setup requires a different password to unlock the local/encrypted budget data than the server authentication password, you can set `ACTUAL_BUDGET_ENCRYPTION_PASSWORD` in addition to `ACTUAL_PASSWORD`.

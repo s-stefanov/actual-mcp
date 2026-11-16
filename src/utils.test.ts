@@ -4,6 +4,7 @@ import {
   formatMonthLabel,
   endOfMonth,
   formatAmount,
+  setAmountFormat,
   formatDate,
   getDateRangeForMonths,
 } from './utils.js';
@@ -122,6 +123,23 @@ describe('formatDate', () => {
 
   it('still rejects invalid Date objects', () => {
     expect(() => formatDate(new Date(NaN))).toThrow(RangeError);
+  });
+});
+
+describe('setAmountFormat', () => {
+  it('follows the budget file, and can be set back', () => {
+    setAmountFormat({ defaultCurrencyCode: 'DKK', numberFormat: 'dot-comma' });
+    expect(formatAmount(900507).replace(/\s/g, ' ')).toBe('9.005,07 DKK');
+    setAmountFormat({ numberFormat: 'dot-comma' });
+    expect(formatAmount(-900507)).toBe('-9.005,07');
+    setAmountFormat({ defaultCurrencyCode: 'USD', numberFormat: 'comma-dot' });
+    expect(formatAmount(123456)).toBe('$1,234.56');
+  });
+
+  it('falls back to plain numbers for a currency code Intl rejects, and to en-US for an unknown number format', () => {
+    setAmountFormat({ defaultCurrencyCode: 'NOT-A-CODE', numberFormat: 'something-new' });
+    expect(formatAmount(123456)).toBe('1,234.56');
+    setAmountFormat({ defaultCurrencyCode: 'USD', numberFormat: 'comma-dot' });
   });
 });
 

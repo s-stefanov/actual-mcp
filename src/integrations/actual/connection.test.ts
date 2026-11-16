@@ -4,12 +4,14 @@ vi.mock('@actual-app/api', () => ({
   init: vi.fn(),
   getBudgets: vi.fn(),
   downloadBudget: vi.fn(),
+  getPreferences: vi.fn(),
   sync: vi.fn(),
   shutdown: vi.fn(),
 }));
 
 import * as api from '@actual-app/api';
 import { buildInitConfig, getActualConnection, resetActualConnectionForTests } from './connection.js';
+import { formatAmount, setAmountFormat } from '../../utils.js';
 
 /** A promise whose resolve/reject are exposed, for deterministic ordering control. */
 function deferred<T>(): { promise: Promise<T>; resolve: (v: T) => void; reject: (e: unknown) => void } {
@@ -76,6 +78,38 @@ describe('ActualConnection.ensureReady', () => {
     expect(vi.mocked(api.shutdown).mock.invocationCallOrder[0]).toBeLessThan(
       vi.mocked(api.init).mock.invocationCallOrder[1]
     );
+  });
+});
+
+describe('ActualConnection amount formatting', () => {
+  beforeEach(() => {
+    resetActualConnectionForTests();
+    vi.clearAllMocks();
+    vi.mocked(api.init).mockResolvedValue(undefined as never);
+    vi.mocked(api.getBudgets).mockResolvedValue([{ id: 'budget-1', cloudFileId: 'cloud-1' }] as never);
+    vi.mocked(api.downloadBudget).mockResolvedValue(undefined as never);
+    vi.mocked(api.shutdown).mockResolvedValue(undefined as never);
+    process.env.ACTUAL_SERVER_URL = 'https://example.invalid';
+    process.env.ACTUAL_PASSWORD = 'secret';
+  });
+
+  afterEach(() => {
+    resetActualConnectionForTests();
+    setAmountFormat({ defaultCurrencyCode: 'USD', numberFormat: 'comma-dot' });
+  });
+
+  it("formats amounts with the loaded budget's currency and number format", async () => {
+    vi.mocked(api.getPreferences).mockResolvedValue({ defaultCurrencyCode: 'EUR', numberFormat: 'comma-dot' } as never);
+    await getActualConnection().ensureReady();
+    expect(formatAmount(123456)).toBe('€1,234.56');
+  });
+
+  it('still connects, with the default format, when the preferences cannot be read', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.mocked(api.getPreferences).mockRejectedValue(new Error('prefs boom'));
+    await expect(getActualConnection().ensureReady()).resolves.toBeUndefined();
+    expect(formatAmount(123456)).toBe('$1,234.56');
+    errorSpy.mockRestore();
   });
 });
 
