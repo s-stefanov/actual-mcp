@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
 import { BudgetFile } from '../../types.js';
+import { setAmountFormat } from '../../utils.js';
 
 const DEFAULT_DATA_DIR: string = path.resolve(os.homedir() || '.', '.actual');
 const DEFAULT_SYNC_TTL_MS = 60_000;
@@ -203,6 +204,13 @@ export class ActualConnection {
           ? { password: process.env.ACTUAL_BUDGET_ENCRYPTION_PASSWORD }
           : undefined
       );
+
+      // Reason: formatting is cosmetic; failing to read the preferences must not block the connection.
+      try {
+        setAmountFormat((await api.getPreferences()) ?? {});
+      } catch (prefErr) {
+        console.error('Could not read the budget formatting preferences; amounts keep the default format:', prefErr);
+      }
 
       // Reason: seed lastSyncAt so the first call after init does not immediately sync.
       this.lastSyncAt = Date.now();

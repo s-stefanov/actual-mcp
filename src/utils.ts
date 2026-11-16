@@ -25,18 +25,44 @@ export function formatDate(date: Date | string | undefined | null): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
+// Actual's numberFormat preference -> a locale that groups and separates the same way
+const LOCALES: Record<string, string> = {
+  'comma-dot': 'en-US',
+  'dot-comma': 'de-DE',
+  'space-comma': 'fr-FR',
+  'apostrophe-dot': 'de-CH',
+  'comma-dot-in': 'en-IN',
+};
+let amountFormat = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+
+/**
+ * Format amounts the way the budget file is set up (Settings -> Formatting / Currency in Actual),
+ * instead of always as US dollars. Called once the budget is loaded. A file with no currency
+ * set gets plain numbers: Actual itself is currency agnostic.
+ */
+export function setAmountFormat(prefs: { defaultCurrencyCode?: string; numberFormat?: string }): void {
+  const locale = LOCALES[prefs.numberFormat ?? ''] ?? 'en-US';
+  // Reason: amounts are stored in hundredths for every currency, so always show two decimals.
+  // Intl's own default would round a zero-decimal currency (JPY, CLP) to whole units.
+  const plain = { minimumFractionDigits: 2, maximumFractionDigits: 2 };
+  try {
+    amountFormat = new Intl.NumberFormat(
+      locale,
+      prefs.defaultCurrencyCode ? { style: 'currency', currency: prefs.defaultCurrencyCode, ...plain } : plain
+    );
+  } catch {
+    amountFormat = new Intl.NumberFormat(locale, plain); // a currency code Intl does not know
+  }
+}
+
 /**
  * Format currency amounts for display
  */
 export function formatAmount(amount: number | undefined | null): string {
   if (amount === undefined || amount === null) return 'N/A';
 
-  // Convert from cents to dollars
-  const dollars = amount / 100;
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  }).format(dollars);
+  // Convert from minor units (cents) to units
+  return amountFormat.format(amount / 100);
 }
 
 // Helper to calculate start/end date strings for the N most recent months
