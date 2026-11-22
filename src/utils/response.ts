@@ -2,6 +2,7 @@
 // RESPONSE UTILITIES
 // ----------------------------
 
+import { inspect } from 'node:util';
 import { CallToolResult, TextContent } from '@modelcontextprotocol/sdk/types.js';
 
 /**
@@ -87,6 +88,15 @@ export function errorFromCatch(err: unknown): CallToolResult {
     // Reason: @actual-app/api throws structured objects like { type: 'APIError', message: '...' }
     // rather than Error instances. Extract the message field so errors are human-readable.
     message = (err as Record<string, unknown>).message as string;
+  } else if (typeof err === 'object' && err !== null) {
+    // Reason: plain objects like { error: 'out-of-sync-migrations' } stringify to
+    // "[object Object]", hiding the cause. Serialize them instead.
+    try {
+      message = JSON.stringify(err) ?? inspect(err);
+    } catch {
+      // Circular structures and BigInt values make JSON.stringify throw.
+      message = inspect(err);
+    }
   } else {
     message = String(err);
   }
