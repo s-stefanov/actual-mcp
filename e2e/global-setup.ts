@@ -1,4 +1,5 @@
 import type { TestProject } from 'vitest/node';
+import { restoreNodeFetchDispatcher } from './helpers/keep-node-fetch-dispatcher.js';
 import * as os from 'os';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -35,6 +36,7 @@ export default async function setup(ctx: TestProject): Promise<() => Promise<voi
 
   try {
     server = await startActualServer();
+    restoreNodeFetchDispatcher();
 
     const lib = await api.init({ dataDir, serverURL: server.url, password: server.password });
 
