@@ -55,6 +55,17 @@ import * as resetBudgetHold from './budgets/reset-budget-hold/index.js';
 import * as createTransaction from './create-transaction/index.js';
 import * as importTransactions from './import-transactions/index.js';
 import * as runBankSync from './run-bank-sync/index.js';
+import * as getSchedules from './schedules/get-schedules/index.js';
+import * as createSchedule from './schedules/create-schedule/index.js';
+import * as updateSchedule from './schedules/update-schedule/index.js';
+import * as deleteSchedule from './schedules/delete-schedule/index.js';
+import * as getNotes from './notes/get-notes/index.js';
+import * as updateNote from './notes/update-note/index.js';
+import * as checkBudgetTemplates from './budget-templates/check-budget-templates/index.js';
+import * as applyBudgetTemplates from './budget-templates/apply-budget-templates/index.js';
+import * as getPreferences from './preferences/get-preferences/index.js';
+import * as setPreference from './preferences/set-preference/index.js';
+import * as reconcileAccount from './reconcile-account/index.js';
 
 const readTools = [
   getTransactions,
@@ -74,6 +85,10 @@ const readTools = [
   getDashboards,
   getBudgetMonths,
   getBudgetMonth,
+  getSchedules,
+  getNotes,
+  checkBudgetTemplates,
+  getPreferences,
 ];
 
 const writeTools = [
@@ -109,6 +124,13 @@ const writeTools = [
   setBudgetCarryover,
   holdBudgetForNextMonth,
   resetBudgetHold,
+  createSchedule,
+  updateSchedule,
+  deleteSchedule,
+  updateNote,
+  applyBudgetTemplates,
+  setPreference,
+  reconcileAccount,
 ];
 
 export const setupTools = (server: Server, enableWrite: boolean): void => {
