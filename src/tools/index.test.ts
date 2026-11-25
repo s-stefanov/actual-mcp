@@ -17,7 +17,14 @@ function listTools(enableWrite: boolean): ReturnType<Handler> {
   return handlers.get(ListToolsRequestSchema)!();
 }
 
-const NEW_READ_TOOLS = ['get-custom-reports', 'get-dashboards'];
+const NEW_READ_TOOLS = [
+  'get-custom-reports',
+  'get-dashboards',
+  'get-schedules',
+  'get-notes',
+  'check-budget-templates',
+  'get-preferences',
+];
 
 const NEW_WRITE_TOOLS = [
   'create-custom-report',
@@ -30,6 +37,13 @@ const NEW_WRITE_TOOLS = [
   'create-dashboard-page',
   'rename-dashboard-page',
   'delete-dashboard-page',
+  'create-schedule',
+  'update-schedule',
+  'delete-schedule',
+  'update-note',
+  'apply-budget-templates',
+  'set-preference',
+  'reconcile-account',
 ];
 
 describe('setupTools', () => {

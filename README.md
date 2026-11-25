@@ -74,6 +74,25 @@ The Actual Budget MCP Server allows you to interact with your personal financial
 - **`update-rule`** - Update an existing transaction rule
 - **`delete-rule`** - Delete a transaction rule
 
+#### Schedules
+
+- **`get-schedules`** - List schedules (recurring and one-off bills) with payee and account names; completed ones on request
+- **`create-schedule`** - Create a schedule from a payee, account, amount (cents) and a one-off date or recurrence
+- **`update-schedule`** - Change a schedule's fields, recalculate its next date, or mark it completed / active again
+- **`delete-schedule`** - Delete a schedule and its rule (prefer completing a finished one)
+
+#### Notes & Budget Templates
+
+- **`get-notes`** - Read the note on an account, category, category group or budget month, or list every note
+- **`update-note`** - Write such a note, using the note ID the Actual UI reads (e.g. `account-<id>` for accounts)
+- **`check-budget-templates`** - Validate every `#template` line in category notes and list the invalid ones
+- **`apply-budget-templates`** - Fill a month's budget from the templates, for all categories or only some
+
+#### Preferences & Reconciliation
+
+- **`get-preferences`** / **`set-preference`** - Read or change the budget's synced preferences, e.g. set `learn-categories` to `"false"` so categorising transactions no longer rewrites rules
+- **`reconcile-account`** - Compare a statement's closing balance with the account's cleared balance on that date and, when they match, lock those transactions as reconciled
+
 ### Prompts
 
 - **`financial-insights`** - Generate insights and recommendations based on your financial data
